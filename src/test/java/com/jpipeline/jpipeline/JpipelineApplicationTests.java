@@ -24,6 +24,8 @@ class JpipelineApplicationTests {
     void executeWorkflow() {
 
         SimpleNode simpleNode = new SimpleNode(UUID.randomUUID());
+        simpleNode.setFirstMessage("My first message! Hello from SimpleNode!");
+
         SimpleNode2 simpleNode2 = new SimpleNode2(UUID.randomUUID());
 
         simpleNode.getWires().add(simpleNode2.getId());

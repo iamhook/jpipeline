@@ -3,6 +3,7 @@ package com.jpipeline.jpipeline.entity;
 
 
 import com.jpipeline.jpipeline.util.annotations.NodeProperty;
+import lombok.Setter;
 
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -11,6 +12,7 @@ import java.util.concurrent.Executors;
 public class SimpleNode extends Node {
 
     @NodeProperty
+    @Setter
     private String firstMessage;
 
     public SimpleNode(UUID id) {
@@ -22,7 +24,7 @@ public class SimpleNode extends Node {
     }
 
     @Override
-    public void init() {
+    public void onInit() {
         System.out.println("Hello, World! My name is " + getShortType());
     }
 

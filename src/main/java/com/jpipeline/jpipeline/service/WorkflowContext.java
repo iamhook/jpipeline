@@ -23,7 +23,7 @@ public class WorkflowContext {
 
         nodes.forEach(node -> node.getWires().forEach(wire -> {
             if (nodeMap.containsKey(wire)) {
-                node.addConsumer(nodeMap.get(wire));
+                node.subscribe(nodeMap.get(wire));
             }
         }));
 

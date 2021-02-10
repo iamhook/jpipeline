@@ -9,7 +9,7 @@ public class SimpleNode2 extends Node {
     }
 
     @Override
-    public void init() {
+    public void onInit() {
         System.out.println("Hello, World! My name is " + getShortType());
     }
 
