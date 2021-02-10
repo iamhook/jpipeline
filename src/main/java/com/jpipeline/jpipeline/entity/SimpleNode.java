@@ -1,29 +1,33 @@
 package com.jpipeline.jpipeline.entity;
 
+
+
+import com.jpipeline.jpipeline.util.annotations.NodeProperty;
+
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class SimpleNode extends Node {
 
+    @NodeProperty
+    private String firstMessage;
+
     public SimpleNode(UUID id) {
         super(id);
     }
 
     public void pressButton() {
-        send("Hello from " + getShortType());
+        send(firstMessage);
     }
 
     @Override
     public void init() {
         System.out.println("Hello, World! My name is " + getShortType());
-
-        //ExecutorService executorService = Executors.newSingleThreadExecutor();
-        //executorService.exe
     }
 
     @Override
-    void onMessage(Object message) {
+    void onInput(Object message) {
         System.out.println(getShortType() + " received a message: " + message.toString());
     }
 

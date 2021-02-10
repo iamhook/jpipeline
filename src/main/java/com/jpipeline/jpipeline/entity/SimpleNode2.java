@@ -14,7 +14,7 @@ public class SimpleNode2 extends Node {
     }
 
     @Override
-    void onMessage(Object message) {
+    void onInput(Object message) {
         System.out.println(getShortType() + " received a message: " + message.toString());
     }
 
