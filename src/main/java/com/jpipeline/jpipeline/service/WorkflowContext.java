@@ -2,18 +2,28 @@ package com.jpipeline.jpipeline.service;
 
 import com.jpipeline.jpipeline.entity.Node;
 import com.jpipeline.jpipeline.util.CJson;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class WorkflowContext {
 
-    public void build(CJson config) {
+    @Autowired
+    private NodeSupportService nodeSupportService;
 
+    public void build(CJson config) {
+        List<Map> nodes = config.getList("nodes");
+
+        List<Node> collect = nodes.stream()
+                .map(map -> nodeSupportService.fromJson(new CJson(map)))
+                .collect(Collectors.toList());
+        build(collect);
     }
 
     public void build(List<? extends Node> nodes) {

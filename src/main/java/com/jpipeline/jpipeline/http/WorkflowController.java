@@ -1,22 +1,23 @@
 package com.jpipeline.jpipeline.http;
 
-import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
-
-import java.util.Map;
+import com.jpipeline.jpipeline.service.WorkflowContext;
+import com.jpipeline.jpipeline.util.CJson;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/workflow")
 public class WorkflowController {
 
-    @GetMapping
-    public Mono<String> test() {
-        return Mono.just("Hello, World!");
-    }
+    @Autowired
+    private WorkflowContext workflowContext;
 
     @PostMapping
-    public Mono<String> deploy(@RequestBody Map<String, Object> object) {
-        return Mono.just("Deployed!");
+    public void deploy(@RequestBody CJson config) {
+        workflowContext.build(config);
     }
 
 }

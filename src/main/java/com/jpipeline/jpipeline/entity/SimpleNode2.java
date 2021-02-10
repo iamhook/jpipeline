@@ -10,20 +10,12 @@ public class SimpleNode2 extends Node {
 
     @Override
     public void onInit() {
-        System.out.println("Hello, World! My name is " + getShortType());
+        System.out.println("Hello, World! My name is " + this.getClass().getSimpleName());
     }
 
     @Override
     void onInput(Object message) {
-        System.out.println(getShortType() + " received a message: " + message.toString());
-    }
-
-    public static String getType() {
-        return SimpleNode2.class.getName();
-    }
-
-    public static String getShortType() {
-        return SimpleNode2.class.getSimpleName();
+        System.out.println(this.getClass().getSimpleName() + " received a message: " + message.toString());
     }
 
 }

@@ -1,25 +1,11 @@
 package com.jpipeline.jpipeline.entity;
 
-
-import com.jpipeline.jpipeline.util.annotations.NodeProperty;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.UUID;
 
-@Getter
-@Setter
-public class SimpleNode extends Node {
+public class SimpleNode3 extends Node {
 
-    @NodeProperty
-    private String firstMessage;
-
-    public SimpleNode(UUID id) {
+    public SimpleNode3(UUID id) {
         super(id);
-    }
-
-    public void pressButton() {
-        send(firstMessage);
     }
 
     @Override

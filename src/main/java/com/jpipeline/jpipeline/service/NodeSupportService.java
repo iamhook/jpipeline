@@ -1,6 +1,7 @@
 package com.jpipeline.jpipeline.service;
 
 import com.jpipeline.jpipeline.entity.Node;
+import com.jpipeline.jpipeline.util.CJson;
 import com.jpipeline.jpipeline.util.EntityMetadata;
 import com.jpipeline.jpipeline.util.annotations.NodeProperty;
 import lombok.SneakyThrows;
@@ -8,14 +9,15 @@ import org.reflections.Reflections;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class NodeSupportService {
-
 
     @Value("${jpipeline.nodes-package}")
     private String nodesPackage;
@@ -23,25 +25,56 @@ public class NodeSupportService {
     public List<String> getNodeTypes() {
         Reflections reflections = new Reflections(nodesPackage);
         ArrayList<Class<? extends Node>> nodeClasses = new ArrayList<>(reflections.getSubTypesOf(Node.class));
-        return nodeClasses.stream().map(this::getNodeType).collect(Collectors.toList());
+        return nodeClasses.stream().map(Class::getSimpleName).collect(Collectors.toList());
     }
 
-    @SneakyThrows
-    public List<String> getPropertiesByNodeType(String type) {
-        Class<?> nodeClass = Class.forName(nodesPackage+"."+type);
+    public List<Field> getPropertiesByNodeType(Class<? extends Node> nodeClass) {
         List<Field> fields = EntityMetadata.findFields(nodeClass);
         return fields.stream()
                 .filter(field -> field.getAnnotation(NodeProperty.class) != null)
-                .map(Field::getName).collect(Collectors.toList());
+                .collect(Collectors.toList());
     }
 
-    private String getNodeType(Class<? extends Node> clazz) {
-        try {
-            return (String)clazz.getMethod("getShortType").invoke(null);
-        } catch (Exception e) {
-            e.printStackTrace();
+    @SneakyThrows
+    public List<String> getPropertyNamesByNodeType(Class<? extends Node> nodeClass) {
+        return getPropertiesByNodeType(nodeClass).stream().map(Field::getName).collect(Collectors.toList());
+    }
+
+    @SneakyThrows
+    public List<String> getPropertyNamesByNodeType(String type) {
+        Class<Node> nodeClass = (Class<Node>) Class.forName(nodesPackage+"."+type);
+        return getPropertyNamesByNodeType(nodeClass);
+    }
+
+    @SneakyThrows
+    public Object createNew(String type) {
+        Class<?> nodeClass = Class.forName(nodesPackage+"."+type);
+        Constructor<?> constructor = nodeClass.getConstructor(UUID.class);
+        return constructor.newInstance(UUID.randomUUID());
+    }
+
+    @SneakyThrows
+    public Node fromJson(CJson json) {
+        UUID id = UUID.fromString(json.getString("id"));
+        String type = json.getString("type");
+        List<String> wires = json.getList("wires");
+
+        Class<Node> nodeClass = (Class<Node>) Class.forName(nodesPackage+"."+type);
+        Constructor<Node> constructor = nodeClass.getConstructor(UUID.class);
+        Node node = constructor.newInstance(id);
+
+        node.setWires(wires.stream().map(UUID::fromString).collect(Collectors.toSet()));
+
+        List<Field> fields = getPropertiesByNodeType(nodeClass);
+        for (Field field : fields) {
+            String fieldName = field.getName();
+            if (json.containsKey(fieldName)) {
+                field.setAccessible(true);
+                field.set(node, json.get(fieldName));
+            }
         }
-        return null;
+
+        return node;
     }
 
 }

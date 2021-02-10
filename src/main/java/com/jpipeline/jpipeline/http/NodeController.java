@@ -22,10 +22,14 @@ public class NodeController {
     }
 
     @GetMapping("/{type}/properties")
-    public List<String> getProperties(@PathVariable String type) throws ClassNotFoundException {
-        return nodeSupportService.getPropertiesByNodeType(type);
+    public List<String> getProperties(@PathVariable String type) {
+        return nodeSupportService.getPropertyNamesByNodeType(type);
     }
 
+    @GetMapping("/{type}/create")
+    public Object createNew(@PathVariable String type) {
+        return nodeSupportService.createNew(type);
+    }
 
 
 }

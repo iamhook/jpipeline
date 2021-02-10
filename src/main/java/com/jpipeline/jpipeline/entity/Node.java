@@ -5,11 +5,11 @@ import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.FluxProcessor;
-import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.Sinks;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 public abstract class Node {
 
@@ -19,22 +19,20 @@ public abstract class Node {
     protected final UUID id;
 
     @Getter
+    private final String type;
+
+    @Getter
     @Setter
     protected Set<UUID> wires = new HashSet<>();
 
-    private Flux<Object> input;
-
-    @Setter
-    //private FluxSink output;;
     final Sinks.Many sink = Sinks.many().multicast().onBackpressureBuffer();
 
     protected Node(UUID id) {
         this.id = id;
+        this.type = this.getClass().getSimpleName();
     }
 
     public final void init() {
-        if (input != null)
-            input.subscribe(this::onInput);
         onInit();
     }
 
@@ -49,19 +47,16 @@ public abstract class Node {
         } else {
             log.error("Message is null, node {}", this.id);
         }
-
-
     }
 
-    public void setInput(Flux<Object> input) {
-        this.input = input;
-        //input.subscribe(this::onInput);
+    public void onSubscribe(Flux<Object> input) {
+        if (input != null)
+            input.subscribe(this::onInput);
     }
 
     public final void subscribe(Node subscriber) {
-        subscriber.setInput(sink.asFlux());
+        subscriber.onSubscribe(sink.asFlux());
     }
 
     abstract void onInput(Object message);
-
 }
