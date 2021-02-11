@@ -1,6 +1,7 @@
 package com.jpipeline.jpipeline.service;
 
 import com.jpipeline.jpipeline.entity.Node;
+
 import com.jpipeline.jpipeline.util.CJson;
 import com.jpipeline.jpipeline.util.EntityMetadata;
 import com.jpipeline.jpipeline.util.annotations.NodeButton;

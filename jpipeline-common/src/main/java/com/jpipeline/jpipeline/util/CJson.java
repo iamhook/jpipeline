@@ -54,10 +54,6 @@ public class CJson extends LinkedHashMap<String, Object> {
         return MAPPER.convertValue(source, CJson.class);
     }
 
-    public static CJson fromJson(JsonNode source) {
-        return MAPPER.convertValue(source, CJson.class);
-    }
-
     public String getString(String key) {
         if(!containsKey(key)) return null;
         Object v = get(key);
