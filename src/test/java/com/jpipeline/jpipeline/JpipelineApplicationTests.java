@@ -33,7 +33,7 @@ class JpipelineApplicationTests {
         simpleNode1.getWires().add(simpleNode3.getId());
         simpleNode12.getWires().add(simpleNode3.getId());
 
-        workflowContext.build(Arrays.asList(simpleNode1, simpleNode2, simpleNode3, simpleNode12));
+        workflowContext.deploy(Arrays.asList(simpleNode1, simpleNode2, simpleNode3, simpleNode12));
 
         simpleNode1.pressButton();
         simpleNode12.pressButton();

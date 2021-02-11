@@ -8,28 +8,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/node")
 public class NodeController {
 
-    @Autowired
-    private NodeSupportService nodeSupportService;
 
-    @GetMapping("/types")
-    public List<String> getTypes() {
-        return nodeSupportService.getNodeTypes();
+    @GetMapping("/{id}/active={active}")
+    public void setActive(@PathVariable UUID id, @PathVariable Boolean active) {
+
     }
-
-    @GetMapping("/{type}/properties")
-    public List<String> getProperties(@PathVariable String type) {
-        return nodeSupportService.getPropertyNamesByNodeType(type);
-    }
-
-    @GetMapping("/{type}/create")
-    public Object createNew(@PathVariable String type) {
-        return nodeSupportService.createNew(type);
-    }
-
 
 }

@@ -23,6 +23,10 @@ public abstract class Node {
 
     @Getter
     @Setter
+    private Boolean active = true;
+
+    @Getter
+    @Setter
     protected Set<UUID> wires = new HashSet<>();
 
     final Sinks.Many sink = Sinks.many().multicast().onBackpressureBuffer();
