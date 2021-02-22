@@ -1,13 +1,13 @@
-package com.jpipeline.jpipeline;
+package com.jpipeline.manager;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class JpipelineApplication {
+public class JPipelineManagerApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(JpipelineApplication.class, args);
+        SpringApplication.run(JPipelineManagerApplication.class, args);
     }
 
 }

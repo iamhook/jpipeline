@@ -26,10 +26,10 @@ public class NodeSupportController {
         return nodeSupportService.getPropertyNamesByNodeType(type);
     }
 
-    @GetMapping("/{type}/buttons")
+    /*@GetMapping("/{type}/buttons")
     public List<String> getButtons(@PathVariable String type) {
         return nodeSupportService.getButtonNamesByNodeType(type);
-    }
+    }*/
 
     @GetMapping("/{type}/create")
     public Object createNew(@PathVariable String type) {

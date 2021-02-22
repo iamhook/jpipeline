@@ -1,17 +1,15 @@
 package com.jpipeline.jpipeline.service;
 
-import com.jpipeline.jpipeline.JpipelineApplication;
 import com.jpipeline.jpipeline.entity.Node;
 import com.jpipeline.jpipeline.util.CJson;
-import lombok.SneakyThrows;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.*;
@@ -20,10 +18,9 @@ import java.util.stream.Collectors;
 @Service
 public class WorkflowContext {
 
-    private Map<UUID, Node> nodeMap = new HashMap<>();
+    private static final Logger log = LoggerFactory.getLogger(WorkflowContext.class);
 
-    @Value("${jpipeline.workflow-config-path}")
-    private String configPath;
+    private Map<UUID, Node> nodeMap = new HashMap<>();
 
     @Autowired
     private NodeSupportService nodeSupportService;
@@ -32,14 +29,14 @@ public class WorkflowContext {
     private ApplicationArguments applicationArguments;
 
     @PostConstruct
-    private void postContruct() throws Exception {
-        List<String> args = Arrays.asList(applicationArguments.getSourceArgs());
-        if (args.contains("deploy")) {
-            deploy();
+    private void init() throws Exception {
+        Set<String> optionNames = applicationArguments.getOptionNames();
+        if (optionNames.contains("configPath")) {
+            deploy(applicationArguments.getOptionValues("configPath").get(0));
         }
     }
 
-    public void deploy() throws Exception {
+    public void deploy(String configPath) throws Exception {
         File configFile = new File(configPath);
         if (configFile.exists()) {
             String jsonString = Files.readString(configFile.toPath(), Charset.defaultCharset());
@@ -51,14 +48,17 @@ public class WorkflowContext {
     }
 
     public void deploy(CJson config) {
-        saveConfig(config);
         List<Map> nodes = config.getList("nodes");
 
-        List<Node> collect = nodes.stream()
-                .map(map -> nodeSupportService.fromJson(new CJson(map)))
-                .filter(node -> node.getActive())
-                .collect(Collectors.toList());
-        deploy(collect);
+        if (nodes != null) {
+            List<Node> collect = nodes.stream()
+                    .map(map -> nodeSupportService.fromJson(new CJson(map)))
+                    .filter(node -> node.getActive())
+                    .collect(Collectors.toList());
+            deploy(collect);
+        } else {
+            log.error("Nodes is null in config file");
+        }
     }
 
     public void deploy(List<? extends Node> nodes) {
@@ -72,10 +72,8 @@ public class WorkflowContext {
         nodes.forEach(Node::init);
     }
 
-    @SneakyThrows
-    private void saveConfig(CJson config) {
-        FileOutputStream fos = new FileOutputStream(configPath);
-        fos.write(config.toJson().getBytes(Charset.defaultCharset()));
+    public void pressButton(UUID uuid) {
+        nodeMap.get(uuid).pressButton();
     }
 
 }

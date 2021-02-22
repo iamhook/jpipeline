@@ -1,0 +1,8 @@
+dependencies {
+    implementation project(":jpipeline-common")
+
+}
+
+jar {
+    enabled = true
+}

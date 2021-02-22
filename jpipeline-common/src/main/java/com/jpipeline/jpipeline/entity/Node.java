@@ -13,7 +13,7 @@ import java.util.UUID;
 
 public abstract class Node {
 
-    private static final Logger log = LoggerFactory.getLogger(Node.class);
+    protected static final Logger log = LoggerFactory.getLogger(Node.class);
 
     @Getter
     protected final UUID id;
@@ -29,9 +29,9 @@ public abstract class Node {
     @Setter
     protected Set<UUID> wires = new HashSet<>();
 
-    final Sinks.Many sink = Sinks.many().multicast().onBackpressureBuffer();
+    protected final Sinks.Many sink = Sinks.many().multicast().onBackpressureBuffer();
 
-    protected Node(UUID id) {
+    public Node(UUID id) {
         this.id = id;
         this.type = this.getClass().getSimpleName();
     }
@@ -40,9 +40,9 @@ public abstract class Node {
         onInit();
     }
 
-    protected abstract void onInit();
+    public abstract void onInit();
 
-    protected void send(Object message) {
+    final void send(Object message) {
         if (message != null) {
             Sinks.EmitResult result = sink.tryEmitNext(message);
             if (result.isFailure()) {
@@ -58,9 +58,11 @@ public abstract class Node {
             input.subscribe(this::onInput);
     }
 
-    public final void subscribe(Node subscriber) {
+    public void subscribe(Node subscriber) {
         subscriber.onSubscribe(sink.asFlux());
     }
 
-    abstract void onInput(Object message);
+    public abstract void onInput(Object message);
+
+    public void pressButton() {};
 }

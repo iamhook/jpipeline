@@ -2,17 +2,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-    implementation 'net.oneandone.reflections8:reflections8:0.11.5'
-
     implementation project(":jpipeline-common")
-    implementation project(":jpipeline-standart-nodes")
 
-}
-
-bootJar {
-    manifest {
-        attributes 'Main-Class': 'org.springframework.boot.loader.PropertiesLauncher'
-    }
 }
 
 test {

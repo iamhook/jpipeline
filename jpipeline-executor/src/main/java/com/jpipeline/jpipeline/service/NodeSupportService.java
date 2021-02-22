@@ -1,19 +1,16 @@
 package com.jpipeline.jpipeline.service;
 
 import com.jpipeline.jpipeline.entity.Node;
-
 import com.jpipeline.jpipeline.util.CJson;
 import com.jpipeline.jpipeline.util.EntityMetadata;
-import com.jpipeline.jpipeline.util.annotations.NodeButton;
 import com.jpipeline.jpipeline.util.annotations.NodeProperty;
 import lombok.SneakyThrows;
-import org.reflections.Reflections;
+import org.reflections8.Reflections;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -22,7 +19,7 @@ import java.util.stream.Collectors;
 @Service
 public class NodeSupportService {
 
-    @Value("${jpipeline.nodes-package}")
+    @Value("${jpipeline.nodesPackage}")
     private String nodesPackage;
 
     public List<String> getNodeTypes() {
@@ -49,23 +46,23 @@ public class NodeSupportService {
         return getPropertyNamesByNodeType(nodeClass);
     }
 
-    public List<Method> getButtonsByNodeType(Class<? extends Node> nodeClass) {
+    /*public List<Method> getButtonsByNodeType(Class<? extends Node> nodeClass) {
         List<Method> methods = EntityMetadata.findMethods(nodeClass);
         return methods.stream()
                 .filter(field -> field.getAnnotation(NodeButton.class) != null)
                 .collect(Collectors.toList());
-    }
+    }*/
 
-    @SneakyThrows
+    /*@SneakyThrows
     public List<String> getButtonNamesByNodeType(Class<? extends Node> nodeClass) {
         return getButtonsByNodeType(nodeClass).stream().map(Method::getName).collect(Collectors.toList());
-    }
+    }*/
 
-    @SneakyThrows
+    /*@SneakyThrows
     public List<String> getButtonNamesByNodeType(String type) {
         Class<Node> nodeClass = (Class<Node>) Class.forName(nodesPackage+"."+type);
         return getButtonNamesByNodeType(nodeClass);
-    }
+    }*/
 
     @SneakyThrows
     public Object createNew(String type) {
