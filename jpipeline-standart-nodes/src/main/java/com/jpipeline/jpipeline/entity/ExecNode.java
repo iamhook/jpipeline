@@ -1,15 +1,14 @@
 package com.jpipeline.jpipeline.entity;
 
-import com.jpipeline.jpipeline.util.annotations.NodeProperty;
+import com.jpipeline.jpipeline.util.NodePropertyConfig;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 public class ExecNode extends Node {
-
-    @NodeProperty
-    private String command;
 
     public ExecNode(UUID id) {
         super(id);
@@ -24,7 +23,7 @@ public class ExecNode extends Node {
     public void onInput(Object message) {
         try {
             Runtime run = Runtime.getRuntime();
-            Process pr = run.exec(command);
+            Process pr = run.exec(command());
             pr.waitFor();
             BufferedReader buf = new BufferedReader(new InputStreamReader(pr.getInputStream()));
             StringBuilder output = new StringBuilder();
@@ -37,6 +36,15 @@ public class ExecNode extends Node {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
+    }
 
+    public static List<NodePropertyConfig> nodePropertyConfigs() {
+        return Arrays.asList(
+                new NodePropertyConfig("command", String.class, null, true)
+        );
+    }
+
+    private String command() {
+        return properties.getString("command");
     }
 }

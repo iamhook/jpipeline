@@ -2,16 +2,17 @@ package com.jpipeline.jpipeline.service;
 
 import com.jpipeline.jpipeline.entity.Node;
 import com.jpipeline.jpipeline.util.CJson;
-import com.jpipeline.jpipeline.util.EntityMetadata;
 import com.jpipeline.jpipeline.util.NodePropertyConfig;
-import com.jpipeline.jpipeline.util.annotations.NodeProperty;
 import lombok.SneakyThrows;
 import org.reflections8.Reflections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -19,6 +20,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class NodeSupportService {
+
+    protected static final Logger log = LoggerFactory.getLogger(NodeSupportService.class);
 
     @Value("${jpipeline.nodesPackage}")
     private String nodesPackage;
@@ -29,18 +32,21 @@ public class NodeSupportService {
         return nodeClasses.stream().map(Class::getSimpleName).collect(Collectors.toList());
     }
 
-    public List<Field> getPropertiesByNodeType(Class<? extends Node> nodeClass) {
+    /*public List<Field> getPropertiesByNodeType(Class<? extends Node> nodeClass) {
         List<Field> fields = EntityMetadata.findFields(nodeClass);
         return fields.stream()
                 .filter(field -> field.getAnnotation(NodeProperty.class) != null)
                 .collect(Collectors.toList());
-    }
+    }*/
 
-    @SneakyThrows
     public List<NodePropertyConfig> getPropertyNamesByNodeType(Class<? extends Node> nodeClass) {
-        Constructor<? extends Node> nodeConstructor = nodeClass.getConstructor(UUID.class);
-        Node node = nodeConstructor.newInstance(UUID.randomUUID());
-        return node.getNodePropertyConfigs();
+        try {
+            Method method = nodeClass.getMethod("nodePropertyConfigs");
+            return (List<NodePropertyConfig>) method.invoke(null);
+        } catch (Exception e) {
+            log.warn(e.toString());
+        }
+        return new ArrayList<>();
     }
 
     @SneakyThrows
@@ -88,12 +94,16 @@ public class NodeSupportService {
         if (active != null) node.setActive(active);
         node.setWires(wires.stream().map(UUID::fromString).collect(Collectors.toSet()));
 
-        List<Field> fields = getPropertiesByNodeType(nodeClass);
-        for (Field field : fields) {
-            String fieldName = field.getName();
-            if (json.containsKey(fieldName)) {
-                field.setAccessible(true);
-                field.set(node, json.get(fieldName));
+        CJson properties = node.getProperties();
+        CJson propertiesJson = json.getJson("properties");
+
+        List<NodePropertyConfig> propConfigs = getPropertyNamesByNodeType(nodeClass);
+        for (NodePropertyConfig config : propConfigs) {
+            String propertyName = config.getName();
+            if (propertiesJson.containsKey(propertyName)) {
+                properties.put(propertyName, propertiesJson.get(propertyName));
+            } else if (config.isRequired()) {
+                log.error("Property {} is required, but wasn't provided", propertyName);
             }
         }
 

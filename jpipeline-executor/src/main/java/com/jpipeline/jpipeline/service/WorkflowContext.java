@@ -2,6 +2,7 @@ package com.jpipeline.jpipeline.service;
 
 import com.jpipeline.jpipeline.entity.Node;
 import com.jpipeline.jpipeline.util.CJson;
+import com.jpipeline.jpipeline.util.exception.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,8 +73,11 @@ public class WorkflowContext {
         nodes.forEach(Node::init);
     }
 
-    public void pressButton(UUID uuid) {
-        nodeMap.get(uuid).pressButton();
+    public void pressButton(UUID uuid) throws NotFoundException {
+        if (nodeMap.containsKey(uuid))
+            nodeMap.get(uuid).pressButton();
+        else
+            throw new NotFoundException("Node " + uuid + " not found");
     }
 
 }

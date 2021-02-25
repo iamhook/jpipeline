@@ -1,6 +1,7 @@
 package com.jpipeline.jpipeline.http;
 
 import com.jpipeline.jpipeline.service.WorkflowContext;
+import com.jpipeline.jpipeline.util.exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,7 +18,7 @@ public class NodeController {
     private WorkflowContext workflowContext;
 
     @GetMapping("/{id}/pressButton")
-    public void pressButton(@PathVariable UUID id) {
+    public void pressButton(@PathVariable UUID id) throws NotFoundException {
         workflowContext.pressButton(id);
     }
 
