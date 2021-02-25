@@ -8,5 +8,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface NodeProperty {
+
+    String _default() default "";
+    boolean required() default true;
+
     // TODO add required
 }

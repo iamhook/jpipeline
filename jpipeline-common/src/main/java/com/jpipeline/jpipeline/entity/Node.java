@@ -1,5 +1,8 @@
 package com.jpipeline.jpipeline.entity;
 
+import com.jpipeline.jpipeline.util.EntityMetadata;
+import com.jpipeline.jpipeline.util.NodePropertyConfig;
+import com.jpipeline.jpipeline.util.annotations.NodeProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
@@ -7,9 +10,7 @@ import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public abstract class Node {
 
@@ -21,6 +22,9 @@ public abstract class Node {
     @Getter
     private final String type;
 
+    @NodeProperty
+    private String name;
+
     @Getter
     @Setter
     private Boolean active = true;
@@ -29,11 +33,15 @@ public abstract class Node {
     @Setter
     protected Set<UUID> wires = new HashSet<>();
 
+    @Getter
+    private final List<NodePropertyConfig> nodePropertyConfigs = new ArrayList<>();
+
     protected final Sinks.Many sink = Sinks.many().multicast().onBackpressureBuffer();
 
     public Node(UUID id) {
         this.id = id;
         this.type = this.getClass().getSimpleName();
+        this.nodePropertyConfigs.addAll(EntityMetadata.getPropertyConfigs(this.getClass()));
     }
 
     public final void init() {

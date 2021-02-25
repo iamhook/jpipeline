@@ -3,6 +3,7 @@ package com.jpipeline.jpipeline.service;
 import com.jpipeline.jpipeline.entity.Node;
 import com.jpipeline.jpipeline.util.CJson;
 import com.jpipeline.jpipeline.util.EntityMetadata;
+import com.jpipeline.jpipeline.util.NodePropertyConfig;
 import com.jpipeline.jpipeline.util.annotations.NodeProperty;
 import lombok.SneakyThrows;
 import org.reflections8.Reflections;
@@ -36,12 +37,14 @@ public class NodeSupportService {
     }
 
     @SneakyThrows
-    public List<String> getPropertyNamesByNodeType(Class<? extends Node> nodeClass) {
-        return getPropertiesByNodeType(nodeClass).stream().map(Field::getName).collect(Collectors.toList());
+    public List<NodePropertyConfig> getPropertyNamesByNodeType(Class<? extends Node> nodeClass) {
+        Constructor<? extends Node> nodeConstructor = nodeClass.getConstructor(UUID.class);
+        Node node = nodeConstructor.newInstance(UUID.randomUUID());
+        return node.getNodePropertyConfigs();
     }
 
     @SneakyThrows
-    public List<String> getPropertyNamesByNodeType(String type) {
+    public List<NodePropertyConfig> getPropertyNamesByNodeType(String type) {
         Class<Node> nodeClass = (Class<Node>) Class.forName(nodesPackage+"."+type);
         return getPropertyNamesByNodeType(nodeClass);
     }
