@@ -10,6 +10,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -23,13 +24,8 @@ public abstract class Node {
     @Getter
     private final String type;
 
-    @Getter
-    @Setter
+    @Getter @Setter
     private Boolean active = true;
-
-    @Getter
-    @Setter
-    protected Set<UUID> wires = new HashSet<>();
 
     @Getter
     protected final CJson properties = new CJson();

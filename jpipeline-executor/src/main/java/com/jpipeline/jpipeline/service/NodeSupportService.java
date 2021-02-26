@@ -37,14 +37,7 @@ public class NodeSupportService {
         return nodeClasses.stream().map(Class::getSimpleName).collect(Collectors.toList());
     }
 
-    /*public List<Field> getPropertiesByNodeType(Class<? extends Node> nodeClass) {
-        List<Field> fields = EntityMetadata.findFields(nodeClass);
-        return fields.stream()
-                .filter(field -> field.getAnnotation(NodeProperty.class) != null)
-                .collect(Collectors.toList());
-    }*/
-
-    public List<CJson> getPropertyNamesByNodeType(Class<? extends Node> nodeClass) {
+    public List<CJson> getPropertiesByNodeType(Class<? extends Node> nodeClass) {
         try {
             final Resource resource = resourceLoader.getResource("classpath:node-configs/" +
                     nodeClass.getSimpleName() + ".conf.json");
@@ -58,28 +51,10 @@ public class NodeSupportService {
     }
 
     @SneakyThrows
-    public List<CJson> getPropertyNamesByNodeType(String type) {
+    public List<CJson> getPropertiesByNodeType(String type) {
         Class<Node> nodeClass = (Class<Node>) Class.forName(nodesPackage+"."+type);
-        return getPropertyNamesByNodeType(nodeClass);
+        return getPropertiesByNodeType(nodeClass);
     }
-
-    /*public List<Method> getButtonsByNodeType(Class<? extends Node> nodeClass) {
-        List<Method> methods = EntityMetadata.findMethods(nodeClass);
-        return methods.stream()
-                .filter(field -> field.getAnnotation(NodeButton.class) != null)
-                .collect(Collectors.toList());
-    }*/
-
-    /*@SneakyThrows
-    public List<String> getButtonNamesByNodeType(Class<? extends Node> nodeClass) {
-        return getButtonsByNodeType(nodeClass).stream().map(Method::getName).collect(Collectors.toList());
-    }*/
-
-    /*@SneakyThrows
-    public List<String> getButtonNamesByNodeType(String type) {
-        Class<Node> nodeClass = (Class<Node>) Class.forName(nodesPackage+"."+type);
-        return getButtonNamesByNodeType(nodeClass);
-    }*/
 
     @SneakyThrows
     public Object createNew(String type) {
@@ -89,28 +64,26 @@ public class NodeSupportService {
     }
 
     @SneakyThrows
-    public Node fromJson(CJson json) {
-        UUID id = UUID.fromString(json.getString("id"));
-        String type = json.getString("type");
-        Boolean active = json.getBoolean("active");
-        List<String> wires = json.getList("wires");
+    public Node fromJson(CJson config) {
+        UUID id = UUID.fromString(config.getString("id"));
+        String type = config.getString("type");
+        Boolean active = config.getBoolean("active");
 
         Class<Node> nodeClass = (Class<Node>) Class.forName(nodesPackage+"."+type);
         Constructor<Node> constructor = nodeClass.getConstructor(UUID.class);
         Node node = constructor.newInstance(id);
 
         if (active != null) node.setActive(active);
-        node.setWires(wires.stream().map(UUID::fromString).collect(Collectors.toSet()));
 
         CJson properties = node.getProperties();
-        CJson propertiesJson = json.getJson("properties");
+        CJson propertiesJson = config.getJson("properties");
 
-        List<CJson> propConfigs = getPropertyNamesByNodeType(nodeClass);
-        for (CJson config : propConfigs) {
-            String propertyName = config.getString("name");
+        List<CJson> propConfigs = getPropertiesByNodeType(nodeClass);
+        for (CJson propertyConfig : propConfigs) {
+            String propertyName = propertyConfig.getString("name");
             if (propertiesJson.containsKey(propertyName)) {
                 properties.put(propertyName, propertiesJson.get(propertyName));
-            } else if (config.getBoolean("required")) {
+            } else if (propertyConfig.getBoolean("required")) {
                 log.error("Property {} is required, but wasn't provided", propertyName);
             }
         }

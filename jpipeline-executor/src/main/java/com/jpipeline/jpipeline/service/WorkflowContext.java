@@ -22,6 +22,7 @@ public class WorkflowContext {
     private static final Logger log = LoggerFactory.getLogger(WorkflowContext.class);
 
     private Map<UUID, Node> nodeMap = new HashMap<>();
+    private Map<UUID, CJson> nodeConfigMap = new HashMap<>();
 
     @Autowired
     private NodeSupportService nodeSupportService;
@@ -49,11 +50,15 @@ public class WorkflowContext {
     }
 
     public void deploy(CJson config) {
-        List<Map> nodes = config.getList("nodes");
+        List<CJson> nodes = config.getJsonList("nodes");
 
         if (nodes != null) {
             List<Node> collect = nodes.stream()
-                    .map(map -> nodeSupportService.fromJson(new CJson(map)))
+                    .map(nodeConfig -> {
+                        final Node node = nodeSupportService.fromJson(new CJson(nodeConfig));
+                        nodeConfigMap.put(node.getId(), nodeConfig);
+                        return node;
+                    })
                     .filter(node -> node.getActive())
                     .collect(Collectors.toList());
             deploy(collect);
@@ -64,7 +69,7 @@ public class WorkflowContext {
 
     public void deploy(List<? extends Node> nodes) {
         nodes.forEach(node -> nodeMap.put(node.getId(), node));
-        nodes.forEach(node -> node.getWires().forEach(wire -> {
+        nodes.forEach(node -> getWires(node.getId()).stream().map(UUID::fromString).forEach(wire -> {
             if (nodeMap.containsKey(wire)) {
                 node.subscribe(nodeMap.get(wire));
             }
@@ -78,6 +83,10 @@ public class WorkflowContext {
             nodeMap.get(uuid).pressButton();
         else
             throw new NotFoundException("Node " + uuid + " not found");
+    }
+
+    private List<String> getWires(UUID uuid) {
+        return nodeConfigMap.get(uuid).getList("wires");
     }
 
 }
