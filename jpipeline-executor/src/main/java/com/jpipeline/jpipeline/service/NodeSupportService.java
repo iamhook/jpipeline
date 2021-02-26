@@ -2,17 +2,19 @@ package com.jpipeline.jpipeline.service;
 
 import com.jpipeline.jpipeline.entity.Node;
 import com.jpipeline.jpipeline.util.CJson;
-import com.jpipeline.jpipeline.util.NodePropertyConfig;
 import lombok.SneakyThrows;
 import org.reflections8.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileCopyUtils;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -25,6 +27,9 @@ public class NodeSupportService {
 
     @Value("${jpipeline.nodesPackage}")
     private String nodesPackage;
+
+    @Autowired
+    private ResourceLoader resourceLoader;
 
     public List<String> getNodeTypes() {
         Reflections reflections = new Reflections(nodesPackage);
@@ -39,10 +44,13 @@ public class NodeSupportService {
                 .collect(Collectors.toList());
     }*/
 
-    public List<NodePropertyConfig> getPropertyNamesByNodeType(Class<? extends Node> nodeClass) {
+    public List<CJson> getPropertyNamesByNodeType(Class<? extends Node> nodeClass) {
         try {
-            Method method = nodeClass.getMethod("nodePropertyConfigs");
-            return (List<NodePropertyConfig>) method.invoke(null);
+            final Resource resource = resourceLoader.getResource("classpath:node-configs/" +
+                    nodeClass.getSimpleName() + ".conf.json");
+            byte[] configBinaryData = FileCopyUtils.copyToByteArray(resource.getInputStream());
+            CJson config = CJson.fromJson(new String(configBinaryData, Charset.defaultCharset()));
+            return config.getJsonList("properties");
         } catch (Exception e) {
             log.warn(e.toString());
         }
@@ -50,7 +58,7 @@ public class NodeSupportService {
     }
 
     @SneakyThrows
-    public List<NodePropertyConfig> getPropertyNamesByNodeType(String type) {
+    public List<CJson> getPropertyNamesByNodeType(String type) {
         Class<Node> nodeClass = (Class<Node>) Class.forName(nodesPackage+"."+type);
         return getPropertyNamesByNodeType(nodeClass);
     }
@@ -97,12 +105,12 @@ public class NodeSupportService {
         CJson properties = node.getProperties();
         CJson propertiesJson = json.getJson("properties");
 
-        List<NodePropertyConfig> propConfigs = getPropertyNamesByNodeType(nodeClass);
-        for (NodePropertyConfig config : propConfigs) {
-            String propertyName = config.getName();
+        List<CJson> propConfigs = getPropertyNamesByNodeType(nodeClass);
+        for (CJson config : propConfigs) {
+            String propertyName = config.getString("name");
             if (propertiesJson.containsKey(propertyName)) {
                 properties.put(propertyName, propertiesJson.get(propertyName));
-            } else if (config.isRequired()) {
+            } else if (config.getBoolean("required")) {
                 log.error("Property {} is required, but wasn't provided", propertyName);
             }
         }

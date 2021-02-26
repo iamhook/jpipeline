@@ -1,0 +1,10 @@
+{
+  "properties": [
+    {
+      "name": "delay",
+      "defaultValue": 5000,
+      "simpleType": "NUMBER",
+      "required": true
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "properties": [
+    {
+      "name": "firstMessage",
+      "defaultValue": null,
+      "simpleType": "STRING",
+      "required": true
+    }
+  ]
+}

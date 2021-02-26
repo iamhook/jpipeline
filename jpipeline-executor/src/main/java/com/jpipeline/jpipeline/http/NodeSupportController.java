@@ -1,7 +1,7 @@
 package com.jpipeline.jpipeline.http;
 
 import com.jpipeline.jpipeline.service.NodeSupportService;
-import com.jpipeline.jpipeline.util.NodePropertyConfig;
+import com.jpipeline.jpipeline.util.CJson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,7 +23,7 @@ public class NodeSupportController {
     }
 
     @GetMapping("/{type}/properties")
-    public List<NodePropertyConfig> getProperties(@PathVariable String type) {
+    public List<CJson> getProperties(@PathVariable String type) {
         return nodeSupportService.getPropertyNamesByNodeType(type);
     }
 

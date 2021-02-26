@@ -1,11 +1,7 @@
 package com.jpipeline.jpipeline.entity;
 
-import com.jpipeline.jpipeline.util.NodePropertyConfig;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 
 public class ExecNode extends Node {
@@ -36,12 +32,6 @@ public class ExecNode extends Node {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-    }
-
-    public static List<NodePropertyConfig> nodePropertyConfigs() {
-        return Arrays.asList(
-                new NodePropertyConfig("command", String.class, null, true)
-        );
     }
 
     private String command() {

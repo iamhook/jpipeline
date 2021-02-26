@@ -1,11 +1,7 @@
 package com.jpipeline.jpipeline.entity;
 
 
-import com.jpipeline.jpipeline.util.NodePropertyConfig;
-
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 
 public class DelayNode extends Node {
@@ -27,12 +23,6 @@ public class DelayNode extends Node {
     @Override
     public void subscribe(Node subscriber) {
         subscriber.onSubscribe(sink.asFlux().delayElements(Duration.ofMillis(delay())));
-    }
-
-    public static List<NodePropertyConfig> nodePropertyConfigs() {
-        return Arrays.asList(
-                new NodePropertyConfig("delay", Integer.class, 5000, true)
-        );
     }
 
     private Integer delay() {

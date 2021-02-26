@@ -1,0 +1,10 @@
+{
+  "properties": [
+    {
+      "name": "command",
+      "defaultValue": null,
+      "simpleType": "STRING",
+      "required": true
+    }
+  ]
+}

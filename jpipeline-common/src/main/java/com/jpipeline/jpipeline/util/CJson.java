@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class CJson extends LinkedHashMap<String, Object> {
 
@@ -100,6 +101,12 @@ public class CJson extends LinkedHashMap<String, Object> {
     public CJson getJson(String key) {
         if(!containsKey(key)) return new CJson();
         return new CJson((Map<String, Object>)get(key));
+    }
+
+    public List<CJson> getJsonList(String key) {
+        if(!containsKey(key)) return null;
+        Object v = get(key);
+        return (v == null ? null : (List<CJson>)((List) v).stream().map(o -> new CJson((Map) o)).collect(Collectors.toList()));
     }
 
     public <T> List<T> getList(String key) {
