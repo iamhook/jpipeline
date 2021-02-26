@@ -1,5 +1,6 @@
 package com.jpipeline.jpipeline.http;
 
+import com.jpipeline.jpipeline.dto.NodeDTO;
 import com.jpipeline.jpipeline.service.NodeSupportService;
 import com.jpipeline.jpipeline.util.CJson;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,7 @@ public class NodeSupportController {
     }
 
     @GetMapping("/{type}/create")
-    public Object createNew(@PathVariable String type) {
+    public NodeDTO createNew(@PathVariable String type) {
         return nodeSupportService.createNew(type);
     }
 

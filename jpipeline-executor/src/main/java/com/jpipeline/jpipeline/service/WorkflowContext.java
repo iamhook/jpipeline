@@ -1,5 +1,7 @@
 package com.jpipeline.jpipeline.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jpipeline.jpipeline.dto.NodeDTO;
 import com.jpipeline.jpipeline.entity.Node;
 import com.jpipeline.jpipeline.util.CJson;
 import com.jpipeline.jpipeline.util.exception.NotFoundException;
@@ -21,8 +23,10 @@ public class WorkflowContext {
 
     private static final Logger log = LoggerFactory.getLogger(WorkflowContext.class);
 
+    private static final ObjectMapper OM = new ObjectMapper();
+
     private Map<UUID, Node> nodeMap = new HashMap<>();
-    private Map<UUID, CJson> nodeConfigMap = new HashMap<>();
+    private Map<UUID, NodeDTO> nodeDTOMap = new HashMap<>();
 
     @Autowired
     private NodeSupportService nodeSupportService;
@@ -55,8 +59,9 @@ public class WorkflowContext {
         if (nodes != null) {
             List<Node> collect = nodes.stream()
                     .map(nodeConfig -> {
-                        final Node node = nodeSupportService.fromJson(new CJson(nodeConfig));
-                        nodeConfigMap.put(node.getId(), nodeConfig);
+                        NodeDTO nodeDTO = OM.convertValue(nodeConfig, NodeDTO.class);
+                        Node node = nodeSupportService.fromDTO(nodeDTO);
+                        nodeDTOMap.put(node.getId(), nodeDTO);
                         return node;
                     })
                     .filter(node -> node.getActive())
@@ -86,7 +91,7 @@ public class WorkflowContext {
     }
 
     private List<String> getWires(UUID uuid) {
-        return nodeConfigMap.get(uuid).getList("wires");
+        return nodeDTOMap.get(uuid).getWires();
     }
 
 }

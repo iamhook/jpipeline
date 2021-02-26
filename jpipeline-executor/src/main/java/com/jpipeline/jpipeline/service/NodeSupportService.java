@@ -1,5 +1,6 @@
 package com.jpipeline.jpipeline.service;
 
+import com.jpipeline.jpipeline.dto.NodeDTO;
 import com.jpipeline.jpipeline.entity.Node;
 import com.jpipeline.jpipeline.util.CJson;
 import lombok.SneakyThrows;
@@ -57,17 +58,31 @@ public class NodeSupportService {
     }
 
     @SneakyThrows
-    public Object createNew(String type) {
-        Class<?> nodeClass = Class.forName(nodesPackage+"."+type);
-        Constructor<?> constructor = nodeClass.getConstructor(UUID.class);
-        return constructor.newInstance(UUID.randomUUID());
+    public NodeDTO createNew(String type) {
+        Class<? extends Node> nodeClass = (Class<? extends Node>) Class.forName(nodesPackage+"."+type);
+        Constructor<? extends Node> constructor = nodeClass.getConstructor(UUID.class);
+        Node node = constructor.newInstance(UUID.randomUUID());
+        CJson properties = new CJson();
+        List<CJson> propertyConfigs = getPropertiesByNodeType(nodeClass);
+        propertyConfigs.forEach(config -> {
+            String name = config.getString("name");
+            Object defaultValue = config.get("defaultValue");
+            properties.put(name, defaultValue);
+        });
+        return NodeDTO.builder()
+                .id(node.getId().toString())
+                .type(node.getType())
+                .active(true)
+                .properties(properties)
+                .wires(new ArrayList<>())
+                .build();
     }
 
     @SneakyThrows
-    public Node fromJson(CJson config) {
-        UUID id = UUID.fromString(config.getString("id"));
-        String type = config.getString("type");
-        Boolean active = config.getBoolean("active");
+    public Node fromDTO(NodeDTO nodeDTO) {
+        UUID id = UUID.fromString(nodeDTO.getId());
+        String type = nodeDTO.getType();
+        Boolean active = nodeDTO.getActive();
 
         Class<Node> nodeClass = (Class<Node>) Class.forName(nodesPackage+"."+type);
         Constructor<Node> constructor = nodeClass.getConstructor(UUID.class);
@@ -76,7 +91,7 @@ public class NodeSupportService {
         if (active != null) node.setActive(active);
 
         CJson properties = node.getProperties();
-        CJson propertiesJson = config.getJson("properties");
+        CJson propertiesJson = nodeDTO.getProperties();
 
         List<CJson> propConfigs = getPropertiesByNodeType(nodeClass);
         for (CJson propertyConfig : propConfigs) {
