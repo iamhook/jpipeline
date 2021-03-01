@@ -1,6 +1,8 @@
 package com.jpipeline.jpipeline.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jpipeline.jpipeline.PropertyConfig;
 import com.jpipeline.jpipeline.dto.NodeDTO;
 import com.jpipeline.jpipeline.entity.Node;
 import com.jpipeline.jpipeline.util.CJson;
@@ -20,10 +22,7 @@ import org.springframework.util.FileCopyUtils;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -51,13 +50,22 @@ public class NodeSupportService {
                 .collect(Collectors.toMap(Field::getName, f -> f));
     }
 
-    public List<CJson> getPropertyConfigs(Class<? extends Node> nodeClass) {
+    public List<PropertyConfig> getPropertyConfigs(Class<? extends Node> nodeClass) {
         try {
             final Resource resource = resourceLoader.getResource("classpath:node-configs/" +
                     nodeClass.getSimpleName() + ".conf.json");
             byte[] configBinaryData = FileCopyUtils.copyToByteArray(resource.getInputStream());
             CJson config = CJson.fromJson(new String(configBinaryData, Charset.defaultCharset()));
-            return config.getJsonList("properties");
+            return config.getJsonList("properties").stream()
+                    .map(json -> {
+                        try {
+                            return OM.readValue(json.toJson(), PropertyConfig.class);
+                        } catch (JsonProcessingException e) {
+                            log.error(e.getMessage(), e);
+                            return null;
+                        }
+                    }).filter(Objects::nonNull)
+                    .collect(Collectors.toList());
         } catch (Exception e) {
             log.warn(e.toString());
         }
@@ -65,7 +73,7 @@ public class NodeSupportService {
     }
 
     @SneakyThrows
-    public List<CJson> getPropertyConfigs(String type) {
+    public List<PropertyConfig> getPropertyConfigs(String type) {
         Class<Node> nodeClass = (Class<Node>) Class.forName(nodesPackage+"."+type);
         return getPropertyConfigs(nodeClass);
     }
@@ -76,10 +84,10 @@ public class NodeSupportService {
         Constructor<? extends Node> constructor = nodeClass.getConstructor(UUID.class);
         Node node = constructor.newInstance(UUID.randomUUID());
         CJson properties = new CJson();
-        List<CJson> propertyConfigs = getPropertyConfigs(nodeClass);
+        List<PropertyConfig> propertyConfigs = getPropertyConfigs(nodeClass);
         propertyConfigs.forEach(config -> {
-            String name = config.getString("name");
-            Object defaultValue = config.get("defaultValue");
+            String name = config.getName();
+            Object defaultValue = config.getDefaultValue();
             properties.put(name, defaultValue);
         });
         return NodeDTO.builder()
@@ -108,26 +116,37 @@ public class NodeSupportService {
 
         Map<String, Field> fields = getNodePropertyFields(nodeClass);
 
-        List<CJson> propConfigs = getPropertyConfigs(nodeClass);
-        for (CJson propertyConfig : propConfigs) {
-            String propertyName = propertyConfig.getString("name");
+        List<PropertyConfig> propConfigs = getPropertyConfigs(nodeClass);
+        for (PropertyConfig propertyConfig : propConfigs) {
+            String propertyName = propertyConfig.getName();
             if (propertiesJson.containsKey(propertyName)) {
                 properties.put(propertyName, propertiesJson.get(propertyName));
-            } else if (propertyConfig.getBoolean("required")) {
+            } else if (propertyConfig.isRequired()) {
                 log.error("Property {} is required, but wasn't provided", propertyName);
             }
             if (fields.containsKey(propertyName)) {
                 Field field = fields.get(propertyName);
-                try {
-                    field.setAccessible(true);
-                    field.set(node, OM.readValue(propertiesJson.getBytes(propertyName), field.getType()));
-                } catch (Exception e) {
-                    log.error(e.toString());
-                }
+                setPropertyValue(node, propertyName, field, propertiesJson, propertyConfig);
             }
         }
 
         return node;
+    }
+
+    private void setPropertyValue(Node node, String propertyName, Field field, CJson propertiesJson, PropertyConfig propertyConfig) {
+        try {
+            field.setAccessible(true);
+            if (propertyConfig.isComplex()) {
+                field.set(node, OM.readValue(propertiesJson.getJson(propertyName).toJson(), field.getType()));
+            } else if (propertyConfig.isString()) {
+                field.set(node, propertiesJson.getString(propertyName));
+            } else {
+                field.set(node, OM.readValue(propertiesJson.getBytes(propertyName), field.getType()));
+            }
+
+        } catch (Exception e) {
+            log.error(e.toString());
+        }
     }
 
 }

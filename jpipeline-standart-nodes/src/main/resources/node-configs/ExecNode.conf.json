@@ -3,7 +3,7 @@
     {
       "name": "command",
       "defaultValue": null,
-      "simpleType": "STRING",
+      "type": "STRING",
       "required": true
     }
   ]

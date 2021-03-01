@@ -2,6 +2,8 @@ package com.jpipeline.jpipeline.entity;
 
 
 import com.jpipeline.jpipeline.util.annotations.NodeProperty;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.Duration;
 import java.util.UUID;
@@ -9,7 +11,7 @@ import java.util.UUID;
 public class DelayNode extends Node {
 
     @NodeProperty
-    private int delay;
+    private DelayProperty delay;
 
     public DelayNode(UUID id) {
         super(id);
@@ -27,7 +29,21 @@ public class DelayNode extends Node {
 
     @Override
     public void subscribe(Node subscriber) {
-        subscriber.onSubscribe(sink.asFlux().delayElements(Duration.ofMillis(delay)));
+        int d = delay.getDelay();
+        if ("s".equals(delay.getUnit())) {
+            d *= 1000;
+        } else if ("m".equals(delay.getUnit())) {
+            d *= 60000;
+        } else if ("h".equals(delay.getUnit())) {
+            d *= 3600000;
+        }
+        subscriber.onSubscribe(sink.asFlux().delayElements(Duration.ofMillis(d)));
+    }
+
+    @Getter @Setter
+    private static class DelayProperty {
+        private int delay;
+        private String unit;
     }
 
 }

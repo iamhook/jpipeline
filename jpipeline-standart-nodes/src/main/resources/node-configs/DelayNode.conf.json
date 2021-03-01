@@ -2,8 +2,22 @@
   "properties": [
     {
       "name": "delay",
-      "defaultValue": 5000,
-      "simpleType": "NUMBER",
+      "nested": [
+        {
+          "name": "delay",
+          "type": "NUMBER",
+          "defaultValue": 5000,
+          "required": true
+        },
+        {
+          "name": "unit",
+          "type": "ENUM",
+          "variants": ["ms", "s", "m", "h"],
+          "defaultValue": "ms",
+          "required": true
+        }
+      ],
+      "type": "COMPLEX",
       "required": true
     }
   ]

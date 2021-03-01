@@ -3,7 +3,7 @@
     {
       "name": "firstMessage",
       "defaultValue": null,
-      "simpleType": "STRING",
+      "type": "STRING",
       "required": true
     }
   ]
