@@ -1,8 +1,11 @@
 package com.jpipeline.jpipeline.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpipeline.jpipeline.dto.NodeDTO;
 import com.jpipeline.jpipeline.entity.Node;
 import com.jpipeline.jpipeline.util.CJson;
+import com.jpipeline.jpipeline.util.EntityMetadata;
+import com.jpipeline.jpipeline.util.annotations.NodeProperty;
 import lombok.SneakyThrows;
 import org.reflections8.Reflections;
 import org.slf4j.Logger;
@@ -15,9 +18,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -25,6 +30,8 @@ import java.util.stream.Collectors;
 public class NodeSupportService {
 
     protected static final Logger log = LoggerFactory.getLogger(NodeSupportService.class);
+
+    private static final ObjectMapper OM = new ObjectMapper();
 
     @Value("${jpipeline.nodesPackage}")
     private String nodesPackage;
@@ -38,7 +45,13 @@ public class NodeSupportService {
         return nodeClasses.stream().map(Class::getSimpleName).collect(Collectors.toList());
     }
 
-    public List<CJson> getPropertiesByNodeType(Class<? extends Node> nodeClass) {
+    public Map<String, Field> getNodePropertyFields(Class<? extends Node> nodeClass) {
+        return EntityMetadata.findFields(nodeClass).stream()
+                .filter(f -> f.getAnnotation(NodeProperty.class) != null)
+                .collect(Collectors.toMap(Field::getName, f -> f));
+    }
+
+    public List<CJson> getPropertyConfigs(Class<? extends Node> nodeClass) {
         try {
             final Resource resource = resourceLoader.getResource("classpath:node-configs/" +
                     nodeClass.getSimpleName() + ".conf.json");
@@ -52,9 +65,9 @@ public class NodeSupportService {
     }
 
     @SneakyThrows
-    public List<CJson> getPropertiesByNodeType(String type) {
+    public List<CJson> getPropertyConfigs(String type) {
         Class<Node> nodeClass = (Class<Node>) Class.forName(nodesPackage+"."+type);
-        return getPropertiesByNodeType(nodeClass);
+        return getPropertyConfigs(nodeClass);
     }
 
     @SneakyThrows
@@ -63,7 +76,7 @@ public class NodeSupportService {
         Constructor<? extends Node> constructor = nodeClass.getConstructor(UUID.class);
         Node node = constructor.newInstance(UUID.randomUUID());
         CJson properties = new CJson();
-        List<CJson> propertyConfigs = getPropertiesByNodeType(nodeClass);
+        List<CJson> propertyConfigs = getPropertyConfigs(nodeClass);
         propertyConfigs.forEach(config -> {
             String name = config.getString("name");
             Object defaultValue = config.get("defaultValue");
@@ -93,13 +106,24 @@ public class NodeSupportService {
         CJson properties = node.getProperties();
         CJson propertiesJson = nodeDTO.getProperties();
 
-        List<CJson> propConfigs = getPropertiesByNodeType(nodeClass);
+        Map<String, Field> fields = getNodePropertyFields(nodeClass);
+
+        List<CJson> propConfigs = getPropertyConfigs(nodeClass);
         for (CJson propertyConfig : propConfigs) {
             String propertyName = propertyConfig.getString("name");
             if (propertiesJson.containsKey(propertyName)) {
                 properties.put(propertyName, propertiesJson.get(propertyName));
             } else if (propertyConfig.getBoolean("required")) {
                 log.error("Property {} is required, but wasn't provided", propertyName);
+            }
+            if (fields.containsKey(propertyName)) {
+                Field field = fields.get(propertyName);
+                try {
+                    field.setAccessible(true);
+                    field.set(node, OM.readValue(propertiesJson.getBytes(propertyName), field.getType()));
+                } catch (Exception e) {
+                    log.error(e.toString());
+                }
             }
         }
 

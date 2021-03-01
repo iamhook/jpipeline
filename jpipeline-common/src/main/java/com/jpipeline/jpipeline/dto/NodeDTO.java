@@ -18,8 +18,7 @@ public class NodeDTO {
     private CJson properties;
     private List<String> wires;
 
-    public NodeDTO() {
-    }
+    public NodeDTO() {}
 
     public NodeDTO(String id, String type, Boolean active, CJson properties, List<String> wires) {
         this.id = id;

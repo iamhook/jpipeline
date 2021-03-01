@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public class DebugNode extends Node {
 
-    private static final Logger log = LoggerFactory.getLogger(Node.class);
+    private static final Logger debugLog = LoggerFactory.getLogger(Node.class);
 
     public DebugNode(UUID id) {
         super(id);
@@ -20,6 +20,6 @@ public class DebugNode extends Node {
 
     @Override
     public void onInput(Object message) {
-        log.info(message.toString());
+        debugLog.info(message.toString());
     }
 }

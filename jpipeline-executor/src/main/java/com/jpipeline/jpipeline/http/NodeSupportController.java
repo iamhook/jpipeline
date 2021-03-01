@@ -25,7 +25,7 @@ public class NodeSupportController {
 
     @GetMapping("/{type}/properties")
     public List<CJson> getProperties(@PathVariable String type) {
-        return nodeSupportService.getPropertiesByNodeType(type);
+        return nodeSupportService.getPropertyConfigs(type);
     }
 
     @GetMapping("/{type}/create")

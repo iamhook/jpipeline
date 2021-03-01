@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.StringWriter;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -101,6 +103,11 @@ public class CJson extends LinkedHashMap<String, Object> {
     public CJson getJson(String key) {
         if(!containsKey(key)) return new CJson();
         return new CJson((Map<String, Object>)get(key));
+    }
+
+    public byte[] getBytes(String key) {
+        Object v = get(key);
+        return (v == null ? null : v.toString().getBytes(Charset.defaultCharset()));
     }
 
     public List<CJson> getJsonList(String key) {
