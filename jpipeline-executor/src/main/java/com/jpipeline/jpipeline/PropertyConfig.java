@@ -21,18 +21,12 @@ public class PropertyConfig {
     public boolean isComplex() {
         return Type.COMPLEX.equals(type);
     }
-    public boolean isNumber() {
-        return Type.NUMBER.equals(type);
-    }
     public boolean isString() {
         return Type.STRING.equals(type);
     }
-    public boolean isEnum() {
-        return Type.ENUM.equals(type);
-    }
 
     private enum Type {
-        NUMBER, STRING, COMPLEX, ENUM
+        NUMBER, STRING, COMPLEX
     }
 
 }

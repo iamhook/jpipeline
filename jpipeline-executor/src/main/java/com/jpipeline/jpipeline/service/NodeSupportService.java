@@ -110,29 +110,91 @@ public class NodeSupportService {
 
         if (active != null) node.setActive(active);
 
-        CJson properties = node.getProperties();
+        //CJson properties = node.getProperties();
         CJson propertiesJson = nodeDTO.getProperties();
 
         Map<String, Field> fields = getNodePropertyFields(nodeClass);
 
         List<PropertyConfig> propConfigs = getPropertyConfigs(nodeClass);
-        for (PropertyConfig propertyConfig : propConfigs) {
-            String propertyName = propertyConfig.getName();
-            if (propertiesJson.containsKey(propertyName)) {
-                properties.put(propertyName, propertiesJson.get(propertyName));
-            } else if (propertyConfig.isRequired()) {
-                log.error("Property {} is required, but wasn't provided", propertyName);
-            }
-            if (fields.containsKey(propertyName)) {
-                Field field = fields.get(propertyName);
-                setPropertyValue(node, propertyName, field, propertiesJson, propertyConfig);
-            }
-        }
+
+        setPropertyValues(propConfigs, fields, propertiesJson, node);
 
         return node;
     }
 
+    private void setPropertyValues(List<PropertyConfig> propConfigs, Map<String, Field> objectFields, CJson propertiesJson, Object object) {
+        for (PropertyConfig propertyConfig : propConfigs) {
+            String propertyName = propertyConfig.getName();
+            // TODO check if required
+            if (objectFields.containsKey(propertyName)) {
+                Field field = objectFields.get(propertyName);
+                setPropertyValue(object, propertyName, field, propertiesJson, propertyConfig);
+            }
+        }
+    }
+
     private void setPropertyValue(Object object, String propertyName, Field field, CJson propertiesJson, PropertyConfig propertyConfig) {
+        try {
+            field.setAccessible(true);
+
+            if (propertyConfig.isMultiple()) {
+                List<Object> values = propertiesJson.getList(propertyName);
+                Class fieldGenericType = (Class) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+                if (propertyConfig.isComplex()) {
+                    field.set(object, values.stream()
+                            .map(o -> createComplexFieldValue(fieldGenericType, new CJson((Map)o), propertyConfig))
+                            .filter(Objects::nonNull).collect(Collectors.toList()));
+                } else if (propertyConfig.isString()){
+                    field.set(object, propertiesJson.getList(propertyName));
+                } else {
+                    field.set(object, values.stream().map(o -> {
+                        try {
+                            return OM.readValue(o.toString(), fieldGenericType);
+                        } catch (JsonProcessingException e) {
+                            log.error(e.toString());
+                        }
+                        return null;
+                    }).filter(Objects::nonNull).collect(Collectors.toList()));
+                }
+            } else {
+                if (propertyConfig.isComplex()) {
+                    CJson propertyJson = propertiesJson.getJson(propertyName);
+                    Object complexFieldValue = createComplexFieldValue(field.getType(), propertyJson, propertyConfig);
+                    field.set(object, complexFieldValue);
+                } else if (propertyConfig.isString()) {
+                    field.set(object, propertiesJson.getString(propertyName));
+                } else {
+                    field.set(object, OM.readValue(propertiesJson.getBytes(propertyName), field.getType()));
+                }
+            }
+
+        } catch (Exception e) {
+            log.error(e.toString());
+        }
+    }
+
+    private Object createComplexFieldValue(Class fieldType, CJson propertyJson, PropertyConfig propertyConfig) {
+        try {
+            Map<String, Field> nestedFields = EntityMetadata.findFields(fieldType).stream()
+                    .collect(Collectors.toMap(Field::getName, f -> f));
+            Constructor<?> fieldConstructor = fieldType.getConstructor();
+            fieldConstructor.setAccessible(true);
+            Object fieldValue = fieldConstructor.newInstance();
+
+            List<PropertyConfig> nestedPropertyConfigs = propertyConfig.getNested();
+
+            setPropertyValues(nestedPropertyConfigs, nestedFields, propertyJson, fieldValue);
+
+            return fieldValue;
+        } catch (NoSuchMethodException e) {
+            log.error("Complex field should have explicit no-args constructor: {}", e.toString());
+        } catch (Exception e) {
+            log.error(e.toString());
+        }
+        return null;
+    }
+
+    /*private void setPropertyValue(Object object, String propertyName, Field field, CJson propertiesJson, PropertyConfig propertyConfig) {
         try {
             field.setAccessible(true);
             if (propertyConfig.isMultiple()) {
@@ -172,6 +234,6 @@ public class NodeSupportService {
         } catch (Exception e) {
             log.error(e.toString());
         }
-    }
+    }*/
 
 }
