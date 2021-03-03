@@ -19,8 +19,7 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
+import java.lang.reflect.*;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -133,15 +132,41 @@ public class NodeSupportService {
         return node;
     }
 
-    private void setPropertyValue(Node node, String propertyName, Field field, CJson propertiesJson, PropertyConfig propertyConfig) {
+    private void setPropertyValue(Object object, String propertyName, Field field, CJson propertiesJson, PropertyConfig propertyConfig) {
         try {
             field.setAccessible(true);
-            if (propertyConfig.isComplex()) {
-                field.set(node, OM.readValue(propertiesJson.getJson(propertyName).toJson(), field.getType()));
-            } else if (propertyConfig.isString()) {
-                field.set(node, propertiesJson.getString(propertyName));
-            } else {
-                field.set(node, OM.readValue(propertiesJson.getBytes(propertyName), field.getType()));
+            if (propertyConfig.isMultiple()) {
+                List<Object> values = propertiesJson.getList(propertyName);
+                Class fieldGenericType = (Class) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+                if (propertyConfig.isComplex()) {
+                    field.set(object, values.stream().map(o -> {
+                        try {
+                            return OM.readValue(new CJson((Map)o).toJson(), fieldGenericType);
+                        } catch (JsonProcessingException e) {
+                            log.error(e.toString());
+                        }
+                        return null;
+                    }).filter(Objects::nonNull).collect(Collectors.toList()));
+                } else if (propertyConfig.isString()){
+                    field.set(object, propertiesJson.getList(propertyName));
+                } else {
+                    field.set(object, values.stream().map(o -> {
+                        try {
+                            return OM.readValue(o.toString(), fieldGenericType);
+                        } catch (JsonProcessingException e) {
+                            log.error(e.toString());
+                        }
+                        return null;
+                    }).filter(Objects::nonNull).collect(Collectors.toList()));
+                }
+            } else  {
+                if (propertyConfig.isComplex()) {
+                    field.set(object, OM.readValue(propertiesJson.getJson(propertyName).toJson(), field.getType()));
+                } else if (propertyConfig.isString()) {
+                    field.set(object, propertiesJson.getString(propertyName));
+                } else {
+                    field.set(object, OM.readValue(propertiesJson.getBytes(propertyName), field.getType()));
+                }
             }
 
         } catch (Exception e) {

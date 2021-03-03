@@ -14,6 +14,7 @@ public class PropertyConfig {
     private Type type;
     private Object defaultValue;
     private boolean required;
+    private boolean multiple;
     private List<PropertyConfig> nested;
     private List<Object> variants;
 
