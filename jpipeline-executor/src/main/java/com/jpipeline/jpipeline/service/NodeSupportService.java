@@ -147,14 +147,11 @@ public class NodeSupportService {
                 } else if (propertyConfig.isString()){
                     field.set(object, propertiesJson.getList(propertyName));
                 } else {
-                    field.set(object, values.stream().map(o -> {
-                        try {
-                            return OM.readValue(o.toString(), fieldGenericType);
-                        } catch (JsonProcessingException e) {
-                            log.error(e.toString());
-                        }
-                        return null;
-                    }).filter(Objects::nonNull).collect(Collectors.toList()));
+                    List<Object> list = new ArrayList<>();
+                    for (Object value : values) {
+                        list.add(OM.readValue(value.toString(), fieldGenericType));
+                    }
+                    field.set(object, list);
                 }
             } else {
                 if (propertyConfig.isComplex()) {
@@ -164,7 +161,7 @@ public class NodeSupportService {
                 } else if (propertyConfig.isString()) {
                     field.set(object, propertiesJson.getString(propertyName));
                 } else {
-                    field.set(object, OM.readValue(propertiesJson.getBytes(propertyName), field.getType()));
+                    field.set(object, OM.readValue(propertiesJson.getString(propertyName), field.getType()));
                 }
             }
 
@@ -173,6 +170,10 @@ public class NodeSupportService {
         }
     }
 
+    /*
+    * sdfsdf
+    *
+    * */
     private Object createComplexFieldValue(Class fieldType, CJson propertyJson, PropertyConfig propertyConfig) {
         try {
             Map<String, Field> nestedFields = EntityMetadata.findFields(fieldType).stream()
@@ -193,47 +194,5 @@ public class NodeSupportService {
         }
         return null;
     }
-
-    /*private void setPropertyValue(Object object, String propertyName, Field field, CJson propertiesJson, PropertyConfig propertyConfig) {
-        try {
-            field.setAccessible(true);
-            if (propertyConfig.isMultiple()) {
-                List<Object> values = propertiesJson.getList(propertyName);
-                Class fieldGenericType = (Class) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-                if (propertyConfig.isComplex()) {
-                    field.set(object, values.stream().map(o -> {
-                        try {
-                            return OM.readValue(new CJson((Map)o).toJson(), fieldGenericType);
-                        } catch (JsonProcessingException e) {
-                            log.error(e.toString());
-                        }
-                        return null;
-                    }).filter(Objects::nonNull).collect(Collectors.toList()));
-                } else if (propertyConfig.isString()){
-                    field.set(object, propertiesJson.getList(propertyName));
-                } else {
-                    field.set(object, values.stream().map(o -> {
-                        try {
-                            return OM.readValue(o.toString(), fieldGenericType);
-                        } catch (JsonProcessingException e) {
-                            log.error(e.toString());
-                        }
-                        return null;
-                    }).filter(Objects::nonNull).collect(Collectors.toList()));
-                }
-            } else  {
-                if (propertyConfig.isComplex()) {
-                    field.set(object, OM.readValue(propertiesJson.getJson(propertyName).toJson(), field.getType()));
-                } else if (propertyConfig.isString()) {
-                    field.set(object, propertiesJson.getString(propertyName));
-                } else {
-                    field.set(object, OM.readValue(propertiesJson.getBytes(propertyName), field.getType()));
-                }
-            }
-
-        } catch (Exception e) {
-            log.error(e.toString());
-        }
-    }*/
 
 }

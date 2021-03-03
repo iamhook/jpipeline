@@ -5,6 +5,12 @@
       "defaultValue": null,
       "type": "STRING",
       "required": true
+    },
+    {
+      "name": "args",
+      "defaultValue": null,
+      "type": "STRING",
+      "multiple": true
     }
   ]
 }

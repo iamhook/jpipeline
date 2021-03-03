@@ -44,6 +44,7 @@ public class DelayNode extends Node {
     private static class DelayProperty {
         private int delay;
         private String unit;
+        public DelayProperty() {}
     }
 
 }

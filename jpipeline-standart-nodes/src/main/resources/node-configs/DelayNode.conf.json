@@ -11,7 +11,7 @@
         },
         {
           "name": "unit",
-          "type": "ENUM",
+          "type": "STRING",
           "variants": ["ms", "s", "m", "h"],
           "defaultValue": "ms",
           "required": true

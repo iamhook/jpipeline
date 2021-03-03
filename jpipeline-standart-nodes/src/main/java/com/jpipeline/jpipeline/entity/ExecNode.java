@@ -4,6 +4,7 @@ import com.jpipeline.jpipeline.util.annotations.NodeProperty;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Collection;
 import java.util.UUID;
 
 public class ExecNode extends Node {
@@ -11,13 +12,16 @@ public class ExecNode extends Node {
     @NodeProperty
     private String command;
 
+    @NodeProperty
+    private Collection<String> args;
+
     public ExecNode(UUID id) {
         super(id);
     }
 
     @Override
     public void onInit() {
-
+        return;
     }
 
     @Override
