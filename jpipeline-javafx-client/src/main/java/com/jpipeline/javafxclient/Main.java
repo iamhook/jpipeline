@@ -7,7 +7,6 @@ import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import org.sql2o.Sql2o;
 
 import java.io.IOException;
 
@@ -19,8 +18,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
-            CJson json = new CJson();
-            Sql2o sql2o = new Sql2o("", "", "");
+            CJson cJson = new CJson();
             this.primaryStage = primaryStage;
             this.primaryStage.setTitle("Search in files");
             /*final CJson cJson = new CJson();

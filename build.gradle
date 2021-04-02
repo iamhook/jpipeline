@@ -14,9 +14,6 @@ subprojects {
 
     repositories {
         mavenCentral()
-        flatDir {
-            dirs '/Users/mac/projects/jpipeline/libs'
-        }
     }
 
     dependencies {
