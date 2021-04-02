@@ -39,7 +39,7 @@ public abstract class Node {
 
     public abstract void onInit();
 
-    final void send(Object message) {
+    public final void send(Object message) {
         if (message != null) {
             Sinks.EmitResult result = sink.tryEmitNext(message);
             if (result.isFailure()) {

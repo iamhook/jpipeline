@@ -1,10 +1,47 @@
+
+
 plugins {
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.9'
+}
+
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+dependencies {
+    implementation group: 'org.sql2o', name: 'sql2o', version: '1.6.0'
+    implementation name: "jpipeline-common"
+    //implementation project(":jpipeline-common")
+}
+
+
+mainClassName = 'com.jpipeline.javafxclient.Main'
+
+repositories {
+    mavenCentral()
+}
+
+javafx {
+    version = "11.0.2"
+    modules = [ 'javafx.controls', 'javafx.fxml' ]
+}
+
+test {
+    useJUnitPlatform()
+}
+
+
+/*plugins {
     id 'application'
 }
 group 'com.example'
 version '1.0-SNAPSHOT'
 repositories {
     mavenCentral()
+    flatDir {
+        dirs '/Users/mac/projects/jpipeline/libs'
+    }
 }
 def javaFXPlatform = getJavaFXPlatform()
 def javaFXVersion = "15.0.1"
@@ -14,7 +51,9 @@ dependencies {
     implementation "org.openjfx:javafx-controls:${javaFXVersion}:${javaFXPlatform}"
     implementation "org.openjfx:javafx-graphics:${javaFXVersion}:${javaFXPlatform}"
     implementation "org.openjfx:javafx-fxml:${javaFXVersion}:${javaFXPlatform}"
-    implementation project(":jpipeline-common")
+    implementation group: 'org.sql2o', name: 'sql2o', version: '1.6.0'
+    implementation name: "jpipeline-common"
+    //implementation project(":jpipeline-common")
 }
 application {
     //Java Module System module name
@@ -22,10 +61,7 @@ application {
     //Your JavaFX application class
     mainClass.set('com.jpipeline.javafxclient.Main')
 }
-java {
-    // this enables Java Modularity in Gradle (version 6.7 and above)
-    modularity.inferModulePath.set(true)
-}
+
 // Based on this StackOverflow answer: https://stackoverflow.com/a/65209664/653519
 private static String getJavaFXPlatform() {
     def currentOS = org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.currentOperatingSystem;
@@ -45,4 +81,4 @@ bootJar {
 
 jar {
     enabled = true
-}
+}*/
