@@ -1,5 +1,6 @@
 package com.jpipeline.javafxclient;
 
+import com.jpipeline.common.util.CJson;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -17,6 +18,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
+            CJson json = new CJson();
             this.primaryStage = primaryStage;
             this.primaryStage.setTitle("Search in files");
             /*final CJson cJson = new CJson();

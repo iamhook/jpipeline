@@ -5,3 +5,5 @@ bootJar {
 jar {
     enabled = true
 }
+
+

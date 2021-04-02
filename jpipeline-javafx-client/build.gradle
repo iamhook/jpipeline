@@ -14,6 +14,7 @@ dependencies {
     implementation "org.openjfx:javafx-controls:${javaFXVersion}:${javaFXPlatform}"
     implementation "org.openjfx:javafx-graphics:${javaFXVersion}:${javaFXPlatform}"
     implementation "org.openjfx:javafx-fxml:${javaFXVersion}:${javaFXPlatform}"
+    implementation project(":jpipeline-common")
 }
 application {
     //Java Module System module name
@@ -38,23 +39,10 @@ private static String getJavaFXPlatform() {
     return null
 }
 
-/*plugins {
-    id 'application'
-    id 'org.openjfx.javafxplugin' version '0.0.9'
-}
-
-mainClassName = 'com.jpipeline.Main'
-
-javafx {
-    version = "11.0.2"
-    modules = [ 'javafx.controls', 'javafx.fxml' ]
-}
-
-dependencies {
-    //implementation project(":jpipeline-common")
-
+bootJar {
+    enabled = true
 }
 
 jar {
     enabled = true
-}*/
+}
