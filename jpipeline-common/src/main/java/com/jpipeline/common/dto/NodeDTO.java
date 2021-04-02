@@ -1,6 +1,6 @@
-package com.jpipeline.jpipeline.dto;
+package com.jpipeline.common.dto;
 
-import com.jpipeline.jpipeline.util.CJson;
+import com.jpipeline.common.util.CJson;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

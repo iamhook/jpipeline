@@ -1,4 +1,4 @@
-package com.jpipeline.jpipeline.util.annotations;
+package com.jpipeline.common.util.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

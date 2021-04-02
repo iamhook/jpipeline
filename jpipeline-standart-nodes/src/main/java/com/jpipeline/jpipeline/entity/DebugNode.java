@@ -1,5 +1,6 @@
 package com.jpipeline.jpipeline.entity;
 
+import com.jpipeline.common.entity.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

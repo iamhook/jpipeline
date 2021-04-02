@@ -1,6 +1,7 @@
 package com.jpipeline.jpipeline.entity;
 
-import com.jpipeline.jpipeline.util.annotations.NodeProperty;
+import com.jpipeline.common.entity.Node;
+import com.jpipeline.common.util.annotations.NodeProperty;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

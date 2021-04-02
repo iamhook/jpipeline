@@ -1,7 +1,6 @@
-package com.jpipeline.jpipeline.entity;
+package com.jpipeline.common.entity;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.jpipeline.jpipeline.util.CJson;
+import com.jpipeline.common.util.CJson;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
@@ -9,9 +8,6 @@ import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 public abstract class Node {

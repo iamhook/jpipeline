@@ -1,7 +1,7 @@
 package com.jpipeline.jpipeline.http;
 
 import com.jpipeline.jpipeline.service.WorkflowContext;
-import com.jpipeline.jpipeline.util.exception.NotFoundException;
+import com.jpipeline.common.util.exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

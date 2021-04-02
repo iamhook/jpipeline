@@ -1,7 +1,7 @@
 package com.jpipeline.jpipeline.http;
 
 import com.jpipeline.jpipeline.PropertyConfig;
-import com.jpipeline.jpipeline.dto.NodeDTO;
+import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.jpipeline.service.NodeSupportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;

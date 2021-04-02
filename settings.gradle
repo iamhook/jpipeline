@@ -3,4 +3,5 @@ include 'jpipeline-common'
 include 'jpipeline-executor'
 include 'jpipeline-manager'
 include 'jpipeline-standart-nodes'
+include 'jpipeline-javafx-client'
 

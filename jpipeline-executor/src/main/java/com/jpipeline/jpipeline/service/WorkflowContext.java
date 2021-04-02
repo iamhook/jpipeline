@@ -1,10 +1,10 @@
 package com.jpipeline.jpipeline.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jpipeline.jpipeline.dto.NodeDTO;
-import com.jpipeline.jpipeline.entity.Node;
-import com.jpipeline.jpipeline.util.CJson;
-import com.jpipeline.jpipeline.util.exception.NotFoundException;
+import com.jpipeline.common.dto.NodeDTO;
+import com.jpipeline.common.entity.Node;
+import com.jpipeline.common.util.CJson;
+import com.jpipeline.common.util.exception.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,4 +1,4 @@
-package com.jpipeline.jpipeline.util;
+package com.jpipeline.common.util;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

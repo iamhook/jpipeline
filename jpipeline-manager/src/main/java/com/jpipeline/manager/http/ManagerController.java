@@ -1,6 +1,6 @@
 package com.jpipeline.manager.http;
 
-import com.jpipeline.jpipeline.util.CJson;
+import com.jpipeline.common.util.CJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

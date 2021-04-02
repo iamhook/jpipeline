@@ -1,7 +1,8 @@
 package com.jpipeline.jpipeline.entity;
 
 
-import com.jpipeline.jpipeline.util.annotations.NodeProperty;
+import com.jpipeline.common.entity.Node;
+import com.jpipeline.common.util.annotations.NodeProperty;
 import lombok.Getter;
 import lombok.Setter;
 
