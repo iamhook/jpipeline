@@ -3,9 +3,14 @@ package com.jpipeline.javafxclient.ui.util;
 import com.jpipeline.common.dto.NodeDTO;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
+
+import java.util.Arrays;
 
 public class ShapeHelper {
 
@@ -26,22 +31,26 @@ public class ShapeHelper {
 
         rect.setFill(Paint.valueOf(node.getColor()));
 
-        // move handle:
-        //Circle moveHandle = new Circle(handleRadius, Color.GOLD);
-        // bind to bottom center of Rectangle:
-        /*moveHandle.centerXProperty().bind(rect.xProperty().add(rect.widthProperty().divide(2)));
-        moveHandle.centerYProperty().bind(rect.yProperty().add(rect.heightProperty()));
+        double handleRadius = 5.0f;
+        Circle moveHandle = new Circle(handleRadius, Color.GOLD);
+        moveHandle.centerXProperty().bind(rect.xProperty().add(rect.widthProperty()));
+        moveHandle.centerYProperty().bind(rect.yProperty().add(rect.heightProperty().divide(2)));
 
-        // force circles to live in same parent as rectangle:
         rect.parentProperty().addListener((obs, oldParent, newParent) -> {
             for (Circle c : Arrays.asList(moveHandle)) {
+                c.setOnMouseEntered(event -> {
+                    c.setFill(Color.BLACK);
+                });
+                c.setOnMouseExited(event -> {
+                    c.setFill(Color.RED);
+                });
                 Pane currentParent = (Pane)c.getParent();
                 if (currentParent != null) {
                     currentParent.getChildren().remove(c);
                 }
                 ((Pane)newParent).getChildren().add(c);
             }
-        });*/
+        });
 
         Wrapper<Point2D> mouseLocation = new Wrapper<>();
 

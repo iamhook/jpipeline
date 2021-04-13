@@ -86,7 +86,7 @@ public class NodeSupportService {
                 .active(true)
                 .color(nodeConfig.getColor())
                 .properties(properties)
-                .wires(new ArrayList<>())
+                .wires(new HashSet<>())
                 .build();
     }
 

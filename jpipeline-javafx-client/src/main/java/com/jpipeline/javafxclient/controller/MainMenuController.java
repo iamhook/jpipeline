@@ -12,6 +12,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.shape.LineTo;
+import javafx.scene.shape.MoveTo;
+import javafx.scene.shape.Path;
 
 import java.util.List;
 
@@ -44,6 +47,9 @@ public class MainMenuController {
             nodeButton.setOnAction(event -> workflowContextHolder.createNode(nodeType));
             nodesMenu.getItems().add(nodeButton);
         }
+
+
+
     }
 
     @FXML

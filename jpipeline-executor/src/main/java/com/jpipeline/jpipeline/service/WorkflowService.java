@@ -89,7 +89,7 @@ public class WorkflowService {
             throw new NotFoundException("Node " + uuid + " not found");
     }
 
-    private List<String> getWires(UUID uuid) {
+    private Set<String> getWires(UUID uuid) {
         return nodeDTOMap.get(uuid).getWires();
     }
 

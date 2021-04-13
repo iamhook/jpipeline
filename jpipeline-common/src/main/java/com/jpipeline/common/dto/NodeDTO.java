@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Set;
 
 @Builder
 @Getter
@@ -18,10 +19,14 @@ public class NodeDTO {
     private String type;
     private Boolean active;
     private CJson properties;
-    private List<String> wires;
+    private Set<String> wires;
     private String color;
     private Double x;
     private Double y;
 
     public NodeDTO() {}
+
+    public void addWire(String wire) {
+        wires.add(wire);
+    }
 }

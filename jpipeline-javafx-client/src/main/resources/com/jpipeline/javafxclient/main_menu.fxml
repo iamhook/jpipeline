@@ -6,9 +6,9 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.shape.Line?>
 
-<AnchorPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="744.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jpipeline.javafxclient.controller.MainMenuController">
+<AnchorPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="900.0" prefWidth="1440" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jpipeline.javafxclient.controller.MainMenuController">
    <children>
-      <AnchorPane prefHeight="500.0" prefWidth="195.0">
+      <AnchorPane prefHeight="900" prefWidth="195.0">
          <children>
             <Line endX="196.0" endY="500.0" startX="194.99998474121094" />
             <ScrollPane hbarPolicy="NEVER" layoutX="-1.0" prefHeight="501.0" prefWidth="200.0">
@@ -22,7 +22,7 @@
             </ScrollPane>
          </children>
       </AnchorPane>
-      <AnchorPane fx:id="canvasPane" layoutX="196.0" layoutY="44.0" prefHeight="457.0" prefWidth="548.0" />
-      <Button layoutX="675.0" layoutY="14.0" mnemonicParsing="false" onAction="#deploy" text="Deploy" />
+      <AnchorPane fx:id="canvasPane" layoutX="246.0" layoutY="78.0" prefHeight="801.0" prefWidth="1173.0" />
+      <Button layoutX="285.0" layoutY="34.0" mnemonicParsing="false" onAction="#deploy" prefHeight="40.0" prefWidth="91.0" text="Deploy" />
    </children>
 </AnchorPane>

@@ -24,8 +24,7 @@ public class ManagerService {
 
     public static void deploy(WorkflowConfig config) {
         try {
-            String post = httpService.post("/api/manager/deploy", OM.writeValueAsString(config));
-            return;
+            httpService.post("/api/manager/deploy", OM.writeValueAsString(config));
         } catch (Exception e) {
             log.error(e.toString());
             throw new RuntimeException(e);

@@ -18,6 +18,13 @@ public class WorkflowContextHolder {
         for (NodeDTO node : workflowConfig.getNodes()) {
             this.canvasContext.createNodeRectangle(node);
         }
+        for (NodeDTO node : workflowConfig.getNodes()) {
+            for (String wire : node.getWires()) {
+                NodeDTO toNode = workflowConfig.getNodes().stream()
+                        .filter(n -> n.getId().equals(wire)).findFirst().orElse(null);
+                this.canvasContext.connectNodes(node, toNode);
+            }
+        }
     }
 
     public void createNode(String nodeType) {
