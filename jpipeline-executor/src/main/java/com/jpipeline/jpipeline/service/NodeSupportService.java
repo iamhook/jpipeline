@@ -2,6 +2,7 @@ package com.jpipeline.jpipeline.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jpipeline.jpipeline.NodeConfig;
 import com.jpipeline.jpipeline.PropertyConfig;
 import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.common.entity.Node;
@@ -20,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
 
 import java.lang.reflect.*;
-import java.nio.charset.Charset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -49,42 +49,33 @@ public class NodeSupportService {
                 .collect(Collectors.toMap(Field::getName, f -> f));
     }
 
-    public List<PropertyConfig> getPropertyConfigs(Class<? extends Node> nodeClass) {
+    private NodeConfig getNodeConfig(Class<? extends Node> nodeClass) {
         try {
             final Resource resource = resourceLoader.getResource("classpath:node-configs/" +
                     nodeClass.getSimpleName() + ".conf.json");
             byte[] configBinaryData = FileCopyUtils.copyToByteArray(resource.getInputStream());
-            CJson config = CJson.fromJson(new String(configBinaryData, Charset.defaultCharset()));
-            return config.getJsonList("properties").stream()
-                    .map(json -> {
-                        try {
-                            return OM.readValue(json.toJson(), PropertyConfig.class);
-                        } catch (JsonProcessingException e) {
-                            log.error(e.getMessage(), e);
-                            return null;
-                        }
-                    }).filter(Objects::nonNull)
-                    .collect(Collectors.toList());
+            return OM.readValue(configBinaryData, NodeConfig.class);
         } catch (Exception e) {
-            log.warn(e.toString());
+            log.error(e.toString(), e);
+            return null;
         }
-        return new ArrayList<>();
+
     }
 
     @SneakyThrows
-    public List<PropertyConfig> getPropertyConfigs(String type) {
+    public NodeConfig getNodeConfig(String type) {
         Class<Node> nodeClass = (Class<Node>) Class.forName(nodesPackage+"."+type);
-        return getPropertyConfigs(nodeClass);
+        return getNodeConfig(nodeClass);
     }
 
     @SneakyThrows
     public NodeDTO createNew(String type) {
         Class<? extends Node> nodeClass = (Class<? extends Node>) Class.forName(nodesPackage+"."+type);
+        NodeConfig nodeConfig = getNodeConfig(nodeClass);
         Constructor<? extends Node> constructor = nodeClass.getConstructor(UUID.class);
         Node node = constructor.newInstance(UUID.randomUUID());
         CJson properties = new CJson();
-        List<PropertyConfig> propertyConfigs = getPropertyConfigs(nodeClass);
-        propertyConfigs.forEach(config -> {
+        nodeConfig.getProperties().forEach(config -> {
             String name = config.getName();
             Object defaultValue = config.getDefaultValue();
             properties.put(name, defaultValue);
@@ -93,6 +84,7 @@ public class NodeSupportService {
                 .id(node.getId().toString())
                 .type(node.getType())
                 .active(true)
+                .color(nodeConfig.getColor())
                 .properties(properties)
                 .wires(new ArrayList<>())
                 .build();
@@ -110,14 +102,13 @@ public class NodeSupportService {
 
         if (active != null) node.setActive(active);
 
-        //CJson properties = node.getProperties();
         CJson propertiesJson = nodeDTO.getProperties();
 
         Map<String, Field> fields = getNodePropertyFields(nodeClass);
 
-        List<PropertyConfig> propConfigs = getPropertyConfigs(nodeClass);
+        NodeConfig nodeConfig = getNodeConfig(nodeClass);
 
-        setPropertyValues(propConfigs, fields, propertiesJson, node);
+        setPropertyValues(nodeConfig.getProperties(), fields, propertiesJson, node);
 
         return node;
     }

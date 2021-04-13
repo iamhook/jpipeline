@@ -25,7 +25,7 @@ public class NodeSupportController {
 
     @GetMapping("/{type}/properties")
     public List<PropertyConfig> getProperties(@PathVariable String type) {
-        return nodeSupportService.getPropertyConfigs(type);
+        return nodeSupportService.getNodeConfig(type).getProperties();
     }
 
     @GetMapping("/{type}/create")

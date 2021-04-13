@@ -1,6 +1,7 @@
 package com.jpipeline.javafxclient;
 
 import com.jpipeline.common.util.CJson;
+import com.jpipeline.javafxclient.controller.MainMenuController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;

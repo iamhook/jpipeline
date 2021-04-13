@@ -1,42 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.String?>
-<?import javafx.collections.FXCollections?>
-<?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.text.Text?>
+<?import javafx.scene.shape.Line?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="744.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jpipeline.javafxclient.MainMenuController">
+<AnchorPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="744.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jpipeline.javafxclient.controller.MainMenuController">
    <children>
-      <Canvas fx:id="mainCanvas" height="384.0" layoutX="25.0" layoutY="85.0" width="688.0" />
-      <Button fx:id="startButton" layoutX="25.0" layoutY="39.0" mnemonicParsing="false" onAction="#startSearch" text="Start" />
-      <Slider fx:id="delaySlider" layoutX="94.0" layoutY="45.0" min="10.0" value="55.0" />
-      <Slider fx:id="resolutionSlider" layoutX="240.0" layoutY="46.0" max="50.0" min="20.0" value="30.0" />
-      <Text layoutX="94.0" layoutY="35.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Animation delay" />
-      <Text layoutX="240.0" layoutY="35.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Resolution" wrappingWidth="124.22900390625" />
-      <ComboBox fx:id="algoCombo" layoutX="393.0" layoutY="41.0" prefHeight="17.0" prefWidth="150.0">
-         <items>
-            <FXCollections fx:factory="observableArrayList">
-               <String fx:value="Breadth first search" />
-               <String fx:value="A*" />
-               <String fx:value="Dijkstra" />
-               <String fx:value="Bellman-Ford" />
-            </FXCollections>
-         </items>
-      </ComboBox>
-      <Text layoutX="393.0" layoutY="35.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Algorythm" wrappingWidth="67.22900390625" />
-      <Text layoutX="563.0" layoutY="35.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Heuristic" wrappingWidth="80.22900390625" />
-      <ComboBox fx:id="heuristicCombo" layoutX="563.0" layoutY="41.0" prefWidth="150.0" disable="true">
-         <items>
-            <FXCollections fx:factory="observableArrayList">
-               <String fx:value="Manhattan" />
-               <String fx:value="Euclidian" />
-               <String fx:value="Chebyshev" />
-            </FXCollections>
-         </items>
-      </ComboBox>
+      <AnchorPane prefHeight="500.0" prefWidth="195.0">
+         <children>
+            <Line endX="196.0" endY="500.0" startX="194.99998474121094" />
+            <ScrollPane hbarPolicy="NEVER" layoutX="-1.0" prefHeight="501.0" prefWidth="200.0">
+               <content>
+                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <ListView fx:id="nodesMenu" prefHeight="200.0" prefWidth="200.0" />
+                     </children>
+                  </AnchorPane>
+               </content>
+            </ScrollPane>
+         </children>
+      </AnchorPane>
+      <AnchorPane fx:id="canvasPane" layoutX="196.0" layoutY="44.0" prefHeight="457.0" prefWidth="548.0" />
+      <Button layoutX="675.0" layoutY="14.0" mnemonicParsing="false" onAction="#deploy" text="Deploy" />
    </children>
 </AnchorPane>

@@ -1,6 +1,7 @@
 package com.jpipeline.jpipeline.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jpipeline.common.WorkflowConfig;
 import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.common.entity.Node;
 import com.jpipeline.common.util.CJson;
@@ -19,9 +20,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class WorkflowContext {
+public class WorkflowService {
 
-    private static final Logger log = LoggerFactory.getLogger(WorkflowContext.class);
+    private static final Logger log = LoggerFactory.getLogger(WorkflowService.class);
 
     private static final ObjectMapper OM = new ObjectMapper();
 
@@ -46,20 +47,18 @@ public class WorkflowContext {
         File configFile = new File(configPath);
         if (configFile.exists()) {
             String jsonString = Files.readString(configFile.toPath(), Charset.defaultCharset());
-            CJson config = CJson.fromJson(jsonString);
-            deploy(config);
+            deploy(OM.readValue(jsonString, WorkflowConfig.class));
         } else {
             throw new Exception("Config does not exist!");
         }
     }
 
-    public void deploy(CJson config) {
-        List<CJson> nodes = config.getJsonList("nodes");
+    public void deploy(WorkflowConfig config) {
+        List<NodeDTO> nodes = config.getNodes();
 
         if (nodes != null) {
             List<Node> collect = nodes.stream()
-                    .map(nodeConfig -> {
-                        NodeDTO nodeDTO = OM.convertValue(nodeConfig, NodeDTO.class);
+                    .map(nodeDTO -> {
                         Node node = nodeSupportService.fromDTO(nodeDTO);
                         nodeDTOMap.put(node.getId(), nodeDTO);
                         return node;
