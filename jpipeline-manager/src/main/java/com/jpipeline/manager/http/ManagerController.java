@@ -13,6 +13,10 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,12 +28,16 @@ public class ManagerController {
 
     private static final ObjectMapper OM = new ObjectMapper();
     private static final Logger log = LoggerFactory.getLogger(ManagerController.class);
+    HttpClient httpClient = HttpClient.newHttpClient();
 
     @Value("${jpipeline.workflowConfigPath}")
     private String configPath;
 
     @Value("${jpipeline.executor.runCommand}")
     private String runCommand;
+
+    @Value("${jpipeline.executor.port}")
+    private Integer executorPort;
 
     private Process executor;
 
@@ -58,27 +66,36 @@ public class ManagerController {
 
     public void restartExecutor() throws Exception {
         stopExecutor();
+        Thread.sleep(500);
         startExecutor();
     }
 
+    @PostMapping("/start")
     public void startExecutor() throws Exception {
-        if (executor != null && executor.isAlive()) {
-            throw new Exception("Process is running already");
-        }
         log.info("Run '{}'", runCommand);
         executor = Runtime.getRuntime().exec(runCommand);
         log.info("JPipelineExecutor started");
     }
 
-    public void stopExecutor() {
-        if (executor != null && executor.isAlive()) {
-            executor.destroy();
-            log.info("JPipelineExecutor stopped");
+    @PostMapping("/stop")
+    public boolean stopExecutor() throws IOException, InterruptedException {
+        try {
+            HttpResponse<String> send = httpClient.send(HttpRequest.newBuilder()
+                    .GET()
+                    .uri(URI.create("http://localhost:" + executorPort + "/api/service/shutdown"))
+                    .build(), HttpResponse.BodyHandlers.ofString());
+
+            if (send.statusCode() == 200) {
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            return false;
         }
     }
 
     @PreDestroy
-    public void onExit() {
+    public void onExit() throws IOException, InterruptedException {
         stopExecutor();
     }
 }
