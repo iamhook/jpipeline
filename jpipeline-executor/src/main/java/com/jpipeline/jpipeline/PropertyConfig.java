@@ -1,5 +1,6 @@
 package com.jpipeline.jpipeline;
 
+import com.jpipeline.common.util.CJson;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,6 +24,18 @@ public class PropertyConfig {
     }
     public boolean isString() {
         return Type.STRING.equals(type);
+    }
+
+    public Object getDefaultValue() {
+        if (isComplex()) {
+            CJson defaultValue = new CJson();
+            for (PropertyConfig config : nested) {
+                defaultValue.put(config.getName(), config.getDefaultValue());
+            }
+            return defaultValue;
+        } else {
+            return defaultValue;
+        }
     }
 
     private enum Type {
