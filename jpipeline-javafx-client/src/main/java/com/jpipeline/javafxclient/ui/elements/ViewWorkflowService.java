@@ -11,7 +11,6 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.*;
@@ -21,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CanvasContext {
+public class ViewWorkflowService implements IWorkflowService {
 
     private static final int NODE_HEIGHT = 50;
     private static final int NODE_WIDTH = 100;
@@ -39,11 +38,11 @@ public class CanvasContext {
     private NodeDTO connectingNode;
     private ConnectionType currentConnectionType;
 
-    private WorkflowContextHolder workflowContextHolder;
+    private WorkflowService workflowService;
 
-    public CanvasContext(Pane rootPane, WorkflowContextHolder workflowContextHolder) {
+    public ViewWorkflowService(Pane rootPane, WorkflowService workflowService) {
         this.rootPane = rootPane;
-        this.workflowContextHolder = workflowContextHolder;
+        this.workflowService = workflowService;
 
         canvasHeight = rootPane.getPrefHeight();
         canvasWidth = rootPane.getPrefWidth();
@@ -90,15 +89,28 @@ public class CanvasContext {
         }
     }
 
-    public void removeLink(NodeDTO fromNode, NodeDTO toNode, Path path) {
+    @Override
+    public void disconnectNodes(NodeDTO fromNode, NodeDTO toNode) {
         NodeWrapper fromNodeWrapper = nodeWrappers.get(fromNode);
         NodeWrapper toNodeWrapper = nodeWrappers.get(toNode);
+
+        Path path = fromNodeWrapper.getOutputs().stream()
+                .filter(p -> toNodeWrapper.getInputs().contains(p))
+                .findFirst().orElse(null);
+
         fromNodeWrapper.getOutputs().remove(path);
         toNodeWrapper.getInputs().remove(path);
-        workflowContextHolder.removeLink(fromNode, toNode);
         rootPane.getChildren().remove(path);
     }
 
+    @Override
+    public void deleteNode(NodeDTO node) {
+        NodeWrapper nodeWrapper = nodeWrappers.get(node);
+        nodeWrapper.destroy();
+        nodeWrappers.remove(node);
+    }
+
+    @Override
     public void connectNodes(NodeDTO fromNode, NodeDTO toNode) {
         NodeWrapper fromNodeWrapper = nodeWrappers.get(fromNode);
         NodeWrapper toNodeWrapper = nodeWrappers.get(toNode);
@@ -113,14 +125,12 @@ public class CanvasContext {
 
         path.setOnMouseClicked(event -> {
             if (event.getButton().equals(MouseButton.SECONDARY)) {
-                removeLink(fromNode, toNode, path);
+                workflowService.disconnectNodes(fromNode, toNode);
             }
         });
 
         fromNodeWrapper.addOutput(path);
         toNodeWrapper.addInput(path);
-
-        fromNode.addWire(toNode.getId());
 
         rootPane.getChildren().add(path);
 
@@ -130,7 +140,8 @@ public class CanvasContext {
         currentConnectionType = null;
     }
 
-    public Rectangle createNodeRectangle(NodeDTO node) {
+    @Override
+    public void createNode(NodeDTO node) {
         if (node.getX() == null)
             node.setX(DEFAULT_X);
         if (node.getY() == null)
@@ -140,7 +151,7 @@ public class CanvasContext {
 
         rootPane.getChildren().add(rectangle);
 
-        NodeWrapper nodeWrapper = new NodeWrapper();
+        NodeWrapper nodeWrapper = new NodeWrapper(node);
         nodeWrapper.setParent(rootPane);
         nodeWrapper.setRectangle(rectangle);
 
@@ -163,7 +174,7 @@ public class CanvasContext {
                 currentConnectionType = ConnectionType.INPUT_TO_OUTPUT;
                 connectingNode = node;
             } else if (currentConnectionType.equals(ConnectionType.OUTPUT_TO_INPUT)) {
-                connectNodes(connectingNode, node);
+                workflowService.connectNodes(connectingNode, node);
             }
         });
         outputHandle.setOnMouseClicked(event -> {
@@ -171,13 +182,11 @@ public class CanvasContext {
                 currentConnectionType = ConnectionType.OUTPUT_TO_INPUT;
                 connectingNode = node;
             } else if (currentConnectionType.equals(ConnectionType.INPUT_TO_OUTPUT)) {
-                connectNodes(node, connectingNode);
+                workflowService.connectNodes(node, connectingNode);
             }
         });
         closeHandle.setOnMouseClicked(event -> {
-            workflowContextHolder.removeNode(node);
-            nodeWrapper.destroy();
-            nodeWrappers.remove(node);
+            workflowService.deleteNode(node);
         });
 
         Wrapper<Point2D> mouseLocation = new Wrapper<>();
@@ -211,7 +220,6 @@ public class CanvasContext {
 
 
         nodeWrappers.put(node, nodeWrapper);
-        return rectangle ;
     }
 
     private static void setUpDragging(Shape shape, Wrapper<Point2D> mouseLocation) {
