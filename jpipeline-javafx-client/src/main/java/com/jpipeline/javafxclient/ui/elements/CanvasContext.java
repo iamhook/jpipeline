@@ -1,16 +1,24 @@
 package com.jpipeline.javafxclient.ui.elements;
 
 import com.jpipeline.common.dto.NodeDTO;
+import com.jpipeline.javafxclient.ui.util.ShapeHelper;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.*;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class CanvasContext {
@@ -31,8 +39,11 @@ public class CanvasContext {
     private NodeDTO connectingNode;
     private ConnectionType currentConnectionType;
 
-    public CanvasContext(Pane rootPane) {
+    private WorkflowContextHolder workflowContextHolder;
+
+    public CanvasContext(Pane rootPane, WorkflowContextHolder workflowContextHolder) {
         this.rootPane = rootPane;
+        this.workflowContextHolder = workflowContextHolder;
 
         canvasHeight = rootPane.getPrefHeight();
         canvasWidth = rootPane.getPrefWidth();
@@ -79,6 +90,15 @@ public class CanvasContext {
         }
     }
 
+    public void removeLink(NodeDTO fromNode, NodeDTO toNode, Path path) {
+        NodeWrapper fromNodeWrapper = nodeWrappers.get(fromNode);
+        NodeWrapper toNodeWrapper = nodeWrappers.get(toNode);
+        fromNodeWrapper.getOutputs().remove(path);
+        toNodeWrapper.getInputs().remove(path);
+        workflowContextHolder.removeLink(fromNode, toNode);
+        rootPane.getChildren().remove(path);
+    }
+
     public void connectNodes(NodeDTO fromNode, NodeDTO toNode) {
         NodeWrapper fromNodeWrapper = nodeWrappers.get(fromNode);
         NodeWrapper toNodeWrapper = nodeWrappers.get(toNode);
@@ -91,6 +111,12 @@ public class CanvasContext {
         Path path = new Path(from, to);
         path.setStrokeWidth(3);
 
+        path.setOnMouseClicked(event -> {
+            if (event.getButton().equals(MouseButton.SECONDARY)) {
+                removeLink(fromNode, toNode, path);
+            }
+        });
+
         fromNodeWrapper.addOutput(path);
         toNodeWrapper.addInput(path);
 
@@ -98,10 +124,11 @@ public class CanvasContext {
 
         rootPane.getChildren().add(path);
 
+        sortChildren();
+
         connectingNode = null;
         currentConnectionType = null;
     }
-
 
     public Rectangle createNodeRectangle(NodeDTO node) {
         if (node.getX() == null)
@@ -109,72 +136,60 @@ public class CanvasContext {
         if (node.getY() == null)
             node.setY(DEFAULT_Y);
 
-        Rectangle rect = new Rectangle(node.getX(), node.getY(), NODE_WIDTH, NODE_HEIGHT);
+        Rectangle rectangle = new Rectangle(node.getX(), node.getY(), NODE_WIDTH, NODE_HEIGHT);
+
+        rootPane.getChildren().add(rectangle);
 
         NodeWrapper nodeWrapper = new NodeWrapper();
-        nodeWrapper.setRectangle(rect);
+        nodeWrapper.setParent(rootPane);
+        nodeWrapper.setRectangle(rectangle);
 
-        rect.setFill(Paint.valueOf(node.getColor()));
+        rectangle.setFill(Paint.valueOf(node.getColor()));
 
-        double radius = 10.0f;
+        Circle outputHandle = ShapeHelper.createOutputHandle(rectangle);
+        Circle inputHandle = ShapeHelper.createInputHandle(rectangle);
+        Circle closeHandle = ShapeHelper.createCloseHandle(rectangle);
 
-
-        Circle outputHandle = new Circle(radius, Color.RED);
-        outputHandle.centerXProperty().bind(rect.xProperty().add(rect.widthProperty()));
-        outputHandle.centerYProperty().bind(rect.yProperty().add(rect.heightProperty().divide(2)));
-
-        Circle inputHandle = new Circle(radius, Color.RED);
-        inputHandle.centerXProperty().bind(rect.xProperty().add(rect.getTranslateX()));
-        inputHandle.centerYProperty().bind(rect.yProperty().add(rect.heightProperty().divide(2)));
+        rootPane.getChildren().add(outputHandle);
+        rootPane.getChildren().add(inputHandle);
+        rootPane.getChildren().add(closeHandle);
 
         nodeWrapper.setInputHandle(inputHandle);
         nodeWrapper.setOutputHandle(outputHandle);
+        nodeWrapper.setCloseHandle(closeHandle);
 
-        rect.parentProperty().addListener((obs, oldParent, newParent) -> {
-            inputHandle.setOnMouseClicked(event -> {
-                if (connectingNode == null) {
-                    currentConnectionType = ConnectionType.INPUT_TO_OUTPUT;
-                    connectingNode = node;
-                } else if (currentConnectionType.equals(ConnectionType.OUTPUT_TO_INPUT)) {
-                    connectNodes(connectingNode, node);
-                }
-            });
-            outputHandle.setOnMouseClicked(event -> {
-                if (connectingNode == null) {
-                    currentConnectionType = ConnectionType.OUTPUT_TO_INPUT;
-                    connectingNode = node;
-                } else if (currentConnectionType.equals(ConnectionType.INPUT_TO_OUTPUT)) {
-                    connectNodes(node, connectingNode);
-                }
-            });
-            outputHandle.setOnMouseEntered(event -> {
-                outputHandle.setFill(Color.BLACK);
-            });
-            outputHandle.setOnMouseExited(event -> {
-                outputHandle.setFill(Color.RED);
-            });
-            Pane currentParent = (Pane)outputHandle.getParent();
-            if (currentParent != null) {
-                currentParent.getChildren().remove(outputHandle);
+        inputHandle.setOnMouseClicked(event -> {
+            if (connectingNode == null) {
+                currentConnectionType = ConnectionType.INPUT_TO_OUTPUT;
+                connectingNode = node;
+            } else if (currentConnectionType.equals(ConnectionType.OUTPUT_TO_INPUT)) {
+                connectNodes(connectingNode, node);
             }
-            ((Pane)newParent).getChildren().add(outputHandle);
-            ((Pane)newParent).getChildren().add(inputHandle);
-
+        });
+        outputHandle.setOnMouseClicked(event -> {
+            if (connectingNode == null) {
+                currentConnectionType = ConnectionType.OUTPUT_TO_INPUT;
+                connectingNode = node;
+            } else if (currentConnectionType.equals(ConnectionType.INPUT_TO_OUTPUT)) {
+                connectNodes(node, connectingNode);
+            }
+        });
+        closeHandle.setOnMouseClicked(event -> {
+            workflowContextHolder.removeNode(node);
+            nodeWrapper.destroy();
+            nodeWrappers.remove(node);
         });
 
         Wrapper<Point2D> mouseLocation = new Wrapper<>();
-
-        //setUpDragging(moveHandle, mouseLocation);
-        setUpDragging(rect, mouseLocation);
-
-        rect.setOnMouseDragged(event -> {
+        setUpDragging(rectangle, mouseLocation);
+        rectangle.setOnMouseDragged(event -> {
             if (mouseLocation.value != null) {
                 double deltaX = event.getSceneX() - mouseLocation.value.getX();
                 double deltaY = event.getSceneY() - mouseLocation.value.getY();
-                double newX = rect.getX() + deltaX ;
-                double newY = rect.getY() + deltaY ;
-                rect.setX(newX);
-                rect.setY(newY);
+                double newX = rectangle.getX() + deltaX ;
+                double newY = rectangle.getY() + deltaY ;
+                rectangle.setX(newX);
+                rectangle.setY(newY);
                 node.setX(newX);
                 node.setY(newY);
                 mouseLocation.value = new Point2D(event.getSceneX(), event.getSceneY());
@@ -185,7 +200,6 @@ public class CanvasContext {
                     lineTo.setX(input.getCenterX());
                     lineTo.setY(input.getCenterY());
                 }
-
                 for (Path path : nodeWrapper.getOutputs()) {
                     Circle input = nodeWrapper.getOutputHandle();
                     MoveTo moveTo = (MoveTo) path.getElements().get(0);
@@ -195,14 +209,12 @@ public class CanvasContext {
             }
         });
 
-        rootPane.getChildren().add(rect);
 
         nodeWrappers.put(node, nodeWrapper);
-        return rect ;
+        return rectangle ;
     }
 
     private static void setUpDragging(Shape shape, Wrapper<Point2D> mouseLocation) {
-
         shape.setOnDragDetected(event -> {
             shape.getParent().setCursor(Cursor.CLOSED_HAND);
             mouseLocation.value = new Point2D(event.getSceneX(), event.getSceneY());
@@ -214,10 +226,27 @@ public class CanvasContext {
         });
     }
 
+    private void sortChildren() {
+        ObservableList<Node> workingCollection = FXCollections.observableArrayList(rootPane.getChildren());
+        workingCollection.sort((o1, o2) -> {
+            int i1 = elementsOrder.indexOf(o1.getClass());
+            int i2 = elementsOrder.indexOf(o2.getClass());
+            return Integer.compare(i1, i2);
+        });
+        rootPane.getChildren().setAll(workingCollection);
+    }
+
     static class Wrapper<T> { T value ; }
 
     private enum ConnectionType {
         OUTPUT_TO_INPUT,
         INPUT_TO_OUTPUT
     }
+
+    private static final List<Class<? extends Node>> elementsOrder = Arrays.asList(
+            Canvas.class,
+            Rectangle.class,
+            Path.class,
+            Circle.class
+    );
 }

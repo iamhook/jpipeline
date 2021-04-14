@@ -1,93 +1,41 @@
 package com.jpipeline.javafxclient.ui.util;
 
-import com.jpipeline.common.dto.NodeDTO;
-import javafx.geometry.Point2D;
-import javafx.scene.Cursor;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.Shape;
-
-import java.util.Arrays;
 
 public class ShapeHelper {
 
-    private static final int NODE_HEIGHT = 50;
-    private static final int NODE_WIDTH = 100;
-    private static final double DEFAULT_X = 200;
-    private static final double DEFAULT_Y = 200;
+    private static final double HANDLE_RADIUS = 5.0f;
 
-    public static Rectangle createNodeRectangle(NodeDTO node) {
-        //final double handleRadius = 10 ;
 
-        if (node.getX() == null)
-            node.setX(DEFAULT_X);
-        if (node.getY() == null)
-            node.setY(DEFAULT_Y);
-
-        Rectangle rect = new Rectangle(node.getX(), node.getY(), NODE_WIDTH, NODE_HEIGHT);
-
-        rect.setFill(Paint.valueOf(node.getColor()));
-
-        double handleRadius = 5.0f;
-        Circle moveHandle = new Circle(handleRadius, Color.GOLD);
-        moveHandle.centerXProperty().bind(rect.xProperty().add(rect.widthProperty()));
-        moveHandle.centerYProperty().bind(rect.yProperty().add(rect.heightProperty().divide(2)));
-
-        rect.parentProperty().addListener((obs, oldParent, newParent) -> {
-            for (Circle c : Arrays.asList(moveHandle)) {
-                c.setOnMouseEntered(event -> {
-                    c.setFill(Color.BLACK);
-                });
-                c.setOnMouseExited(event -> {
-                    c.setFill(Color.RED);
-                });
-                Pane currentParent = (Pane)c.getParent();
-                if (currentParent != null) {
-                    currentParent.getChildren().remove(c);
-                }
-                ((Pane)newParent).getChildren().add(c);
-            }
-        });
-
-        Wrapper<Point2D> mouseLocation = new Wrapper<>();
-
-        //setUpDragging(moveHandle, mouseLocation);
-        setUpDragging(rect, mouseLocation);
-
-        rect.setOnMouseDragged(event -> {
-            if (mouseLocation.value != null) {
-                double deltaX = event.getSceneX() - mouseLocation.value.getX();
-                double deltaY = event.getSceneY() - mouseLocation.value.getY();
-                double newX = rect.getX() + deltaX ;
-                double newY = rect.getY() + deltaY ;
-                rect.setX(newX);
-                rect.setY(newY);
-                node.setX(newX);
-                node.setY(newY);
-                mouseLocation.value = new Point2D(event.getSceneX(), event.getSceneY());
-            }
-        });
-
-        return rect ;
+    public static Circle createCloseHandle(Rectangle Rectangle) {
+        return createHandle(Rectangle.getWidth(), Rectangle.getTranslateY(), Rectangle);
     }
 
-    private static void setUpDragging(Shape shape, Wrapper<Point2D> mouseLocation) {
-
-        shape.setOnDragDetected(event -> {
-            shape.getParent().setCursor(Cursor.CLOSED_HAND);
-            mouseLocation.value = new Point2D(event.getSceneX(), event.getSceneY());
-        });
-
-        shape.setOnMouseReleased(event -> {
-            shape.getParent().setCursor(Cursor.DEFAULT);
-            mouseLocation.value = null ;
-        });
+    public static Circle createInputHandle(Rectangle Rectangle) {
+        return createHandle(Rectangle.getTranslateX(), Rectangle.getHeight()/2, Rectangle);
     }
 
-    static class Wrapper<T> { T value ; }
+    public static Circle createOutputHandle(Rectangle Rectangle) {
+        return createHandle(Rectangle.getWidth(), Rectangle.getHeight()/2, Rectangle);
+    }
+
+    private static Circle createHandle(Double x, Double y, Rectangle Rectangle) {
+        Circle handle = new Circle(HANDLE_RADIUS, Color.WHITE);
+        handle.setStroke(Color.GRAY);
+        handle.centerXProperty().bind(Rectangle.xProperty().add(x));
+        handle.centerYProperty().bind(Rectangle.yProperty().add(y));
+
+        handle.setOnMouseEntered(event -> {
+            handle.setFill(Color.ORANGERED);
+        });
+        handle.setOnMouseExited(event -> {
+            handle.setFill(Color.WHITE);
+        });
+
+        return handle;
+    }
 
 
 }

@@ -29,4 +29,7 @@ public class NodeDTO {
     public void addWire(String wire) {
         wires.add(wire);
     }
+    public void deleteWire(String wire) {
+        wires.remove(wire);
+    }
 }

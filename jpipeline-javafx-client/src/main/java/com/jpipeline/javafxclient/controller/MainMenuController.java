@@ -34,11 +34,9 @@ public class MainMenuController {
     private Main main;
 
     public void init() {
-        CanvasContext canvasContext = new CanvasContext(canvasPane);
-
         WorkflowConfig config = ManagerService.getConfig();
 
-        workflowContextHolder = new WorkflowContextHolder(config, canvasContext);
+        workflowContextHolder = new WorkflowContextHolder(config, canvasPane);
 
         List<String> nodeTypes = NodeService.getNodeTypes();
 

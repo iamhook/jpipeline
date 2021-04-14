@@ -4,6 +4,7 @@ import com.jpipeline.common.WorkflowConfig;
 import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.javafxclient.service.ManagerService;
 import com.jpipeline.javafxclient.service.NodeService;
+import javafx.scene.layout.Pane;
 
 public class WorkflowContextHolder {
 
@@ -11,9 +12,9 @@ public class WorkflowContextHolder {
 
     private CanvasContext canvasContext;
 
-    public WorkflowContextHolder(WorkflowConfig workflowConfig, CanvasContext canvasContext) {
+    public WorkflowContextHolder(WorkflowConfig workflowConfig, Pane canvasPane) {
         this.workflowConfig = workflowConfig;
-        this.canvasContext = canvasContext;
+        this.canvasContext = new CanvasContext(canvasPane, this);
 
         for (NodeDTO node : workflowConfig.getNodes()) {
             this.canvasContext.createNodeRectangle(node);
@@ -25,6 +26,15 @@ public class WorkflowContextHolder {
                 this.canvasContext.connectNodes(node, toNode);
             }
         }
+    }
+
+    public void removeLink(NodeDTO fromNode, NodeDTO toNode) {
+        fromNode.deleteWire(toNode.getId());
+    }
+
+    public void removeNode(NodeDTO node) {
+        workflowConfig.getNodes().remove(node);
+        workflowConfig.getNodes().forEach(nodeDTO -> nodeDTO.deleteWire(node.getId()));
     }
 
     public void createNode(String nodeType) {
