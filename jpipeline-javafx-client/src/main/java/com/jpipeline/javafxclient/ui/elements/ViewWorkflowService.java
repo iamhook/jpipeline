@@ -14,6 +14,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.*;
+import javafx.scene.text.Text;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -161,13 +162,17 @@ public class ViewWorkflowService implements IWorkflowService {
         Circle inputHandle = ShapeHelper.createInputHandle(rectangle);
         Circle closeHandle = ShapeHelper.createCloseHandle(rectangle);
 
+
+        Text nameLabel = ShapeHelper.createNameLabel(node.getType(), rectangle);
         rootPane.getChildren().add(outputHandle);
         rootPane.getChildren().add(inputHandle);
         rootPane.getChildren().add(closeHandle);
+        rootPane.getChildren().add(nameLabel);
 
         nodeWrapper.setInputHandle(inputHandle);
         nodeWrapper.setOutputHandle(outputHandle);
         nodeWrapper.setCloseHandle(closeHandle);
+        nodeWrapper.setNameLabel(nameLabel);
 
         inputHandle.setOnMouseClicked(event -> {
             if (connectingNode == null) {
@@ -255,6 +260,7 @@ public class ViewWorkflowService implements IWorkflowService {
             Canvas.class,
             Rectangle.class,
             Path.class,
-            Circle.class
+            Circle.class,
+            Text.class
     );
 }

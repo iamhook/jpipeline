@@ -2,8 +2,10 @@ package com.jpipeline.javafxclient.ui.elements;
 
 import com.jpipeline.common.dto.NodeDTO;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
-import javafx.scene.shape.*;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Path;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,6 +20,8 @@ public class NodeWrapper {
 
     private Pane parent;
     private Rectangle rectangle;
+
+    private Text nameLabel;
 
     private Circle outputHandle;
     private Circle inputHandle;
