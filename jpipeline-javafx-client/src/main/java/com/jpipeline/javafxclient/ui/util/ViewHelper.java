@@ -5,7 +5,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 
-public class ShapeHelper {
+public class ViewHelper {
 
     private static final double HANDLE_RADIUS = 5.0f;
 

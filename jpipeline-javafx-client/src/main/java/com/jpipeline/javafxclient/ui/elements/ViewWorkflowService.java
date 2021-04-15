@@ -1,12 +1,17 @@
 package com.jpipeline.javafxclient.ui.elements;
 
 import com.jpipeline.common.dto.NodeDTO;
-import com.jpipeline.javafxclient.ui.util.ShapeHelper;
+import com.jpipeline.javafxclient.Main;
+import com.jpipeline.javafxclient.ui.util.InterfaceHelper;
+import com.jpipeline.javafxclient.ui.util.ViewHelper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseButton;
@@ -15,6 +20,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.*;
 import javafx.scene.text.Text;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -149,7 +156,6 @@ public class ViewWorkflowService implements IWorkflowService {
             node.setY(DEFAULT_Y);
 
         Rectangle rectangle = new Rectangle(node.getX(), node.getY(), NODE_WIDTH, NODE_HEIGHT);
-
         rootPane.getChildren().add(rectangle);
 
         NodeWrapper nodeWrapper = new NodeWrapper(node);
@@ -158,12 +164,11 @@ public class ViewWorkflowService implements IWorkflowService {
 
         rectangle.setFill(Paint.valueOf(node.getColor()));
 
-        Circle outputHandle = ShapeHelper.createOutputHandle(rectangle);
-        Circle inputHandle = ShapeHelper.createInputHandle(rectangle);
-        Circle closeHandle = ShapeHelper.createCloseHandle(rectangle);
+        Circle outputHandle = ViewHelper.createOutputHandle(rectangle);
+        Circle inputHandle = ViewHelper.createInputHandle(rectangle);
+        Circle closeHandle = ViewHelper.createCloseHandle(rectangle);
 
-
-        Text nameLabel = ShapeHelper.createNameLabel(node.getType(), rectangle);
+        Text nameLabel = ViewHelper.createNameLabel(node.getType(), rectangle);
         rootPane.getChildren().add(outputHandle);
         rootPane.getChildren().add(inputHandle);
         rootPane.getChildren().add(closeHandle);
@@ -220,6 +225,12 @@ public class ViewWorkflowService implements IWorkflowService {
                     moveTo.setX(input.getCenterX());
                     moveTo.setY(input.getCenterY());
                 }
+            }
+        });
+
+        rectangle.setOnMouseClicked(event -> {
+            if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
+                InterfaceHelper.showNodeEditMenu(nodeWrapper, ((Node)event.getSource()).getScene().getWindow());
             }
         });
 
