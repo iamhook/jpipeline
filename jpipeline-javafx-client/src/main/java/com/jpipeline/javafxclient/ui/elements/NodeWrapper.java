@@ -1,6 +1,7 @@
 package com.jpipeline.javafxclient.ui.elements;
 
 import com.jpipeline.common.dto.NodeDTO;
+import com.jpipeline.javafxclient.service.NodeService;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Path;
@@ -8,6 +9,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import lombok.Getter;
 import lombok.Setter;
+import reactor.core.Disposable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,8 +33,19 @@ public class NodeWrapper {
     private List<Path> outputs = new ArrayList<>();
     private List<Path> inputs = new ArrayList<>();
 
+    Disposable statusSubscription;
+
     public NodeWrapper(NodeDTO node) {
         this.node = node;
+    }
+
+    public void init() {
+        try {
+            statusSubscription = NodeService.getStatusStream(node.getId())
+                    .subscribe(nodeStatus -> statusLabel.setText(nodeStatus.getStatus()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void addOutput(Path path) {
@@ -43,6 +56,9 @@ public class NodeWrapper {
     }
 
     public void destroy() {
+        if (!statusSubscription.isDisposed())
+            statusSubscription.dispose();
+
         getOutputs().forEach(path -> parent.getChildren().remove(path));
         getInputs().forEach(path -> parent.getChildren().remove(path));
         parent.getChildren().remove(outputHandle);

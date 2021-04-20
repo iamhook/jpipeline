@@ -54,9 +54,13 @@ public abstract class Node {
 
     private void sendSignal(NodeSignal signal) {
         if (signal != null) {
-            Sinks.EmitResult result = sink.tryEmitNext(signal);
-            if (result.isFailure()) {
-                log.error("Emission failed! signal {}, node {}", signal, this.id);
+            if (signalSink.currentSubscriberCount() > 0) {
+                Sinks.EmitResult result = signalSink.tryEmitNext(signal);
+                if (result.isFailure()) {
+                    log.error("Emission failed! signal {}, node {}", signal, this.id);
+                }
+            } else {
+                log.debug("Ignore signal because of no subscribers");
             }
         } else {
             log.error("Signal is null, node {}", this.id);
@@ -65,9 +69,13 @@ public abstract class Node {
 
     public final void send(Object message) {
         if (message != null) {
-            Sinks.EmitResult result = sink.tryEmitNext(message);
-            if (result.isFailure()) {
-                log.error("Emission failed! message {}, node {}", message, this.id);
+            if (sink.currentSubscriberCount() > 0) {
+                Sinks.EmitResult result = sink.tryEmitNext(message);
+                if (result.isFailure()) {
+                    log.error("Emission failed! message {}, node {}", message, this.id);
+                }
+            } else {
+                log.debug("Ignore signal because of no subscribers. message {}, node {}", message, this.id);
             }
         } else {
             log.error("Message is null, node {}", this.id);

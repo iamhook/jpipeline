@@ -7,6 +7,8 @@ import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.messaging.rsocket.RSocketStrategies;
 import reactor.core.publisher.Flux;
 
+import java.net.URI;
+
 public class RSocketService {
 
     RSocketStrategies strategies = RSocketStrategies.builder()
@@ -16,7 +18,7 @@ public class RSocketService {
 
     RSocketRequester requester = RSocketRequester.builder()
             .rsocketStrategies(strategies)
-            .tcp("localhost", 7000);
+            .websocket(URI.create("ws://localhost:7000"));
 
 
     public <T> Flux<T> requestStream(Object object, String route, Class<T> clazz) throws JsonProcessingException {

@@ -1,7 +1,6 @@
 package com.jpipeline.javafxclient.ui.elements;
 
 import com.jpipeline.common.dto.NodeDTO;
-import com.jpipeline.javafxclient.service.NodeService;
 import com.jpipeline.javafxclient.ui.util.InterfaceHelper;
 import com.jpipeline.javafxclient.ui.util.ViewHelper;
 import javafx.collections.FXCollections;
@@ -235,12 +234,7 @@ public class ViewWorkflowService implements IWorkflowService {
 
         nodeWrappers.put(node, nodeWrapper);
 
-        try {
-            NodeService.getStatusStream(node.getId())
-                    .subscribe(nodeStatus -> statusLabel.setText(nodeStatus.getStatus()));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        nodeWrapper.init();
     }
 
     private static void setUpDragging(Shape shape, Wrapper<Point2D> mouseLocation) {
