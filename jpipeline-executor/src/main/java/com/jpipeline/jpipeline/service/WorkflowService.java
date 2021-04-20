@@ -93,4 +93,8 @@ public class WorkflowService {
         return nodeDTOMap.get(uuid).getWires();
     }
 
+    public Node getNode(UUID id) {
+        return nodeMap.get(id);
+    }
+
 }

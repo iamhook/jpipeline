@@ -13,8 +13,14 @@ public class ViewHelper {
         Text nameLabel = new Text(name);
         nameLabel.xProperty().bind(rectangle.xProperty());
         nameLabel.yProperty().bind(rectangle.yProperty());
-
         return nameLabel;
+    }
+
+    public static Text createStatusLabel(Rectangle rectangle) {
+        Text statusLabel = new Text();
+        statusLabel.xProperty().bind(rectangle.xProperty());
+        statusLabel.yProperty().bind(rectangle.yProperty().add(rectangle.heightProperty().add(statusLabel.prefHeight(1))));
+        return statusLabel;
     }
 
     public static Circle createCloseHandle(Rectangle rectangle) {

@@ -1,7 +1,9 @@
 package com.jpipeline.common.entity;
 
 import com.jpipeline.common.util.CJson;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +28,13 @@ public abstract class Node {
     @Getter
     protected final CJson properties = new CJson();
 
+    @Getter
+    private NodeStatus status = null;
+
     protected final Sinks.Many sink = Sinks.many().multicast().onBackpressureBuffer();
+
+    @Getter
+    private final Sinks.Many<NodeSignal> signalSink = Sinks.many().multicast().onBackpressureBuffer();
 
     public Node(UUID id) {
         this.id = id;
@@ -38,6 +46,22 @@ public abstract class Node {
     }
 
     public abstract void onInit();
+
+    protected final void setStatus(NodeStatus status) {
+        this.status = status;
+        sendSignal(new NodeSignal(SignalType.STATUS, status));
+    }
+
+    private void sendSignal(NodeSignal signal) {
+        if (signal != null) {
+            Sinks.EmitResult result = sink.tryEmitNext(signal);
+            if (result.isFailure()) {
+                log.error("Emission failed! signal {}, node {}", signal, this.id);
+            }
+        } else {
+            log.error("Signal is null, node {}", this.id);
+        }
+    }
 
     public final void send(Object message) {
         if (message != null) {
@@ -62,4 +86,19 @@ public abstract class Node {
     public abstract void onInput(Object message);
 
     public void pressButton() {};
+
+    @Getter @Setter @AllArgsConstructor @NoArgsConstructor
+    public static class NodeStatus {
+        String status;
+    }
+
+    @Getter @Setter @AllArgsConstructor @NoArgsConstructor
+    public static class NodeSignal {
+        private SignalType type;
+        private Object body;
+    }
+
+    public enum SignalType {
+        STATUS
+    }
 }

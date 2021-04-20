@@ -1,17 +1,14 @@
 package com.jpipeline.javafxclient.ui.elements;
 
 import com.jpipeline.common.dto.NodeDTO;
-import com.jpipeline.javafxclient.Main;
+import com.jpipeline.javafxclient.service.NodeService;
 import com.jpipeline.javafxclient.ui.util.InterfaceHelper;
 import com.jpipeline.javafxclient.ui.util.ViewHelper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseButton;
@@ -20,8 +17,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.*;
 import javafx.scene.text.Text;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -169,15 +164,18 @@ public class ViewWorkflowService implements IWorkflowService {
         Circle closeHandle = ViewHelper.createCloseHandle(rectangle);
 
         Text nameLabel = ViewHelper.createNameLabel(node.getType(), rectangle);
+        Text statusLabel = ViewHelper.createStatusLabel(rectangle);
         rootPane.getChildren().add(outputHandle);
         rootPane.getChildren().add(inputHandle);
         rootPane.getChildren().add(closeHandle);
         rootPane.getChildren().add(nameLabel);
+        rootPane.getChildren().add(statusLabel);
 
         nodeWrapper.setInputHandle(inputHandle);
         nodeWrapper.setOutputHandle(outputHandle);
         nodeWrapper.setCloseHandle(closeHandle);
         nodeWrapper.setNameLabel(nameLabel);
+        nodeWrapper.setStatusLabel(statusLabel);
 
         inputHandle.setOnMouseClicked(event -> {
             if (connectingNode == null) {
@@ -236,6 +234,13 @@ public class ViewWorkflowService implements IWorkflowService {
 
 
         nodeWrappers.put(node, nodeWrapper);
+
+        try {
+            NodeService.getStatusStream(node.getId())
+                    .subscribe(nodeStatus -> statusLabel.setText(nodeStatus.getStatus()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private static void setUpDragging(Shape shape, Wrapper<Point2D> mouseLocation) {

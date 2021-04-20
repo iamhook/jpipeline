@@ -1,1 +1,17 @@
-{"nodes":[{"id":"0c5db861-9d8b-48d2-992f-8a95429d2ce4","type":"DelayNode","active":true,"properties":{"delay":{"delay":5000,"unit":"ms"}},"wires":[],"color":"#ff430a","x":330.0,"y":355.0},{"id":"e4752543-77af-468f-aae8-709254c909e3","type":"ExecNode","active":true,"properties":{"command":null,"args":null},"wires":[],"color":"#ffbe0a","x":200.0,"y":200.0}]}
+{
+  "nodes": [
+    {
+      "id": "b2ee80df-2c2a-4bb1-ac70-218720f65c70",
+      "type": "ExecNode",
+      "active": true,
+      "properties": {
+        "command": "ls",
+        "args": null
+      },
+      "wires": [],
+      "color": "#ffbe0a",
+      "x": 325.0,
+      "y": 108.0
+    }
+  ]
+}

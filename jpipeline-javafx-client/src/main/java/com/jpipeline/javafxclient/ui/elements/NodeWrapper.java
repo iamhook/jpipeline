@@ -22,6 +22,7 @@ public class NodeWrapper {
     private Rectangle rectangle;
 
     private Text nameLabel;
+    private Text statusLabel;
 
     private Circle outputHandle;
     private Circle inputHandle;
@@ -48,6 +49,8 @@ public class NodeWrapper {
         parent.getChildren().remove(inputHandle);
         parent.getChildren().remove(closeHandle);
         parent.getChildren().remove(rectangle);
+        parent.getChildren().remove(nameLabel);
+        parent.getChildren().remove(statusLabel);
     }
 
 }

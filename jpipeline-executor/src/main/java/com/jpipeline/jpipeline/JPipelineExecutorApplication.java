@@ -34,13 +34,10 @@ public class JPipelineExecutorApplication {
     }
 
     private static void checkManagerIsAlive() {
-        log.info("Check jpipeline-manager is alive");
+        //log.info("Check jpipeline-manager is alive");
         boolean success = true;
         try {
             (new Socket(managerHost, managerPort)).close();
-        } catch (UnknownHostException e) {
-            log.error(e.toString());
-            success = false;
         } catch (IOException e) {
             log.error(e.toString());
             success = false;

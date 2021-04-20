@@ -22,7 +22,7 @@ public class ExecNode extends Node {
 
     @Override
     public void onInit() {
-        return;
+        setStatus(new NodeStatus("test status!"));
     }
 
     @Override
