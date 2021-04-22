@@ -12,6 +12,9 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/api/service")
 public class ServiceController {
 
+    @GetMapping("/checkIsAlive")
+    public void checkIsAlive() {}
+
     @GetMapping("/shutdown")
     public void shutdown() {
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();

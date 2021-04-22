@@ -37,8 +37,8 @@ public class Main extends Application {
         rootLayout = FXMLLoader.load(getClass().getResource("root.fxml"));
         Scene scene = new Scene(rootLayout);
         primaryStage.setScene(scene);
-        primaryStage.setHeight(900);
-        primaryStage.setWidth(1440);
+        primaryStage.setHeight(768);
+        primaryStage.setWidth(1366);
         primaryStage.show();
     }
     private void showMainMenu() throws IOException {

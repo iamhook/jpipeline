@@ -22,7 +22,7 @@ public class NodeService {
 
     public static List<String> getNodeTypes() {
         try {
-            String response = httpService.get("/api/nodesupport/types");
+            String response = httpService.get("/api/nodesupport/types").body();
             return OM.readValue(response, new TypeReference<List<String>>() {});
         } catch (Exception e) {
             log.error(e.toString(), e);
@@ -32,7 +32,7 @@ public class NodeService {
 
     public static NodeDTO createNewNode(String nodeType) {
         try {
-            String response = httpService.get("/api/nodesupport/" + nodeType + "/create");
+            String response = httpService.get("/api/nodesupport/" + nodeType + "/create").body();
             return OM.readValue(response, new TypeReference<NodeDTO>() {});
         } catch (Exception e) {
             log.error(e.toString(), e);
@@ -45,6 +45,15 @@ public class NodeService {
         return rSocketService.requestStream("", "/node/"+nodeId, Node.NodeSignal.class)
                 .map(nodeSignal -> OM.convertValue(nodeSignal.getBody(), Node.NodeStatus.class))
                 .onErrorContinue((throwable, o) -> {});
+    }
+
+    public static boolean checkIsAlive() {
+        try {
+            httpService.get("/api/service/checkIsAlive");
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
 }

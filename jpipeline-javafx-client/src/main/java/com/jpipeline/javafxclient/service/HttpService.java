@@ -23,24 +23,22 @@ public class HttpService {
         this.port = port;
     }
 
-    public String get(String url) throws IOException, InterruptedException {
+    public HttpResponse<String> get(String url) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create("http://" + host + ":" + port + url))
                 .build();
 
-        HttpResponse<String> send = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        return send.body();
+        return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
-    public String post(String url, String body) throws IOException, InterruptedException {
+    public HttpResponse<String>  post(String url, String body) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(body))
                 .uri(URI.create("http://" + host + ":" + port + url))
                 .header("Content-Type", "application/json")
                 .build();
-        HttpResponse<String> send = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        return send.body();
+        return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
 }

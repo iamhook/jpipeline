@@ -46,6 +46,9 @@ public class ManagerController {
         startExecutor();
     }
 
+    @GetMapping("/checkIsAlive")
+    public void checkIsAlive() {}
+
     @PostMapping("/deploy")
     public void deploy(@RequestBody WorkflowConfig config) throws Exception {
         saveConfig(config);

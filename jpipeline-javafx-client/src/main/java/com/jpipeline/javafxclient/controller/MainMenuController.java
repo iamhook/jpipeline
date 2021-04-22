@@ -10,8 +10,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class MainMenuController {
 
@@ -23,6 +28,12 @@ public class MainMenuController {
 
     @FXML
     public Pane canvasPane;
+
+    @FXML
+    public Rectangle managerStatusIndicator;
+
+    @FXML
+    public Rectangle executorStatusIndicator;
 
     private WorkflowService workflowContextHolder;
 
@@ -41,8 +52,23 @@ public class MainMenuController {
             nodesMenu.getItems().add(nodeButton);
         }
 
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
+        executor.scheduleAtFixedRate(this::updateServiceStatuses, 1, 5, TimeUnit.SECONDS);
 
+    }
+
+    private void updateServiceStatuses() {
+        if (NodeService.checkIsAlive()) {
+            executorStatusIndicator.setFill(Color.GREEN);
+        } else {
+            executorStatusIndicator.setFill(Color.RED);
+        }
+        if (ManagerService.checkIsAlive()) {
+            managerStatusIndicator.setFill(Color.GREEN);
+        } else {
+            managerStatusIndicator.setFill(Color.RED);
+        }
     }
 
     @FXML

@@ -14,7 +14,7 @@ public class ManagerService {
 
     public static WorkflowConfig getConfig() {
         try {
-            String response = httpService.get("/api/manager/config");
+            String response = httpService.get("/api/manager/config").body();
             return OM.readValue(response, new TypeReference<WorkflowConfig>() {});
         } catch (Exception e) {
             log.error(e.toString());
@@ -28,6 +28,15 @@ public class ManagerService {
         } catch (Exception e) {
             log.error(e.toString());
             throw new RuntimeException(e);
+        }
+    }
+
+    public static boolean checkIsAlive() {
+        try {
+            httpService.get("/checkIsAlive");
+            return true;
+        } catch (Exception e) {
+            return false;
         }
     }
 
