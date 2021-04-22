@@ -16,6 +16,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.*;
 import javafx.scene.text.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -23,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 
 public class ViewWorkflowService implements IWorkflowService {
+
+    private static final Logger log = LoggerFactory.getLogger(ViewWorkflowService.class);
 
     private static final int NODE_HEIGHT = 50;
     private static final int NODE_WIDTH = 100;
@@ -144,6 +148,9 @@ public class ViewWorkflowService implements IWorkflowService {
 
     @Override
     public void createNode(NodeDTO node) {
+
+        log.debug("Create node {}", node);
+
         if (node.getX() == null)
             node.setX(DEFAULT_X);
         if (node.getY() == null)

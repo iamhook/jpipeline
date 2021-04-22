@@ -9,9 +9,13 @@ version '1.0-SNAPSHOT'
 
 dependencies {
     implementation project(":jpipeline-common")
-    /*implementation 'io.rsocket:rsocket-core:1.1.0'
-    implementation 'io.rsocket:rsocket-transport-netty:1.1.0'*/
     implementation 'org.springframework.boot:spring-boot-starter-rsocket:2.4.5'
+
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.14.1'
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.14.1'
+    testImplementation group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.14.1'
+    testImplementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+
 
 }
 

@@ -7,6 +7,9 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ExecNode extends Node {
 
@@ -22,7 +25,10 @@ public class ExecNode extends Node {
 
     @Override
     public void onInit() {
-        setStatus(new NodeStatus("test status!"));
+        AtomicInteger i = new AtomicInteger();
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+            setStatus(new NodeStatus("Status: " + i.getAndIncrement()));
+        }, 1000, 100, TimeUnit.MILLISECONDS);
     }
 
     @Override
