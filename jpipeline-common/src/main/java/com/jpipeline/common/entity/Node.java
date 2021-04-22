@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
+import reactor.util.concurrent.Queues;
 
 import java.util.UUID;
 
@@ -34,7 +35,7 @@ public abstract class Node {
     protected final Sinks.Many sink = Sinks.many().multicast().onBackpressureBuffer();
 
     @Getter
-    private final Sinks.Many<NodeSignal> signalSink = Sinks.many().multicast().onBackpressureBuffer();
+    private final Sinks.Many<NodeSignal> signalSink = Sinks.many().multicast().onBackpressureBuffer(Queues.SMALL_BUFFER_SIZE, false);
 
     public Node(UUID id) {
         this.id = id;

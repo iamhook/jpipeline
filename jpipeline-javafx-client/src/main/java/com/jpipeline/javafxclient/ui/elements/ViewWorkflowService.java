@@ -149,8 +149,6 @@ public class ViewWorkflowService implements IWorkflowService {
     @Override
     public void createNode(NodeDTO node) {
 
-        log.debug("Create node {}", node);
-
         if (node.getX() == null)
             node.setX(DEFAULT_X);
         if (node.getY() == null)
