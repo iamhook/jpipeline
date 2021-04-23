@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 import reactor.core.Disposable;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,6 +43,9 @@ public class NodeWrapper {
     public void init() {
         try {
             statusSubscription = NodeService.getStatusStream(node.getId())
+                    .onBackpressureDrop()
+                    .limitRate(1)
+                    .delayElements(Duration.ofMillis(100))
                     .subscribe(nodeStatus -> statusLabel.setText(nodeStatus.getStatus()));
         } catch (Exception e) {
             e.printStackTrace();
