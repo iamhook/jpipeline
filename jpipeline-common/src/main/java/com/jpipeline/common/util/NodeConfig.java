@@ -1,4 +1,4 @@
-package com.jpipeline.jpipeline;
+package com.jpipeline.common.util;
 
 import lombok.Getter;
 import lombok.Setter;

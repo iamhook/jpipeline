@@ -161,6 +161,7 @@ public class ViewWorkflowService implements IWorkflowService {
         nodeWrapper.setParent(rootPane);
         nodeWrapper.setRectangle(rectangle);
 
+        rectangle.setStroke(Color.BLACK);
         rectangle.setFill(Paint.valueOf(node.getColor()));
 
         Circle outputHandle = ViewHelper.createOutputHandle(rectangle);

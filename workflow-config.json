@@ -5,8 +5,13 @@
       "type": "ExecNode",
       "active": true,
       "properties": {
-        "command": "ls",
-        "args": null
+        "command": "du -h",
+        "args": [
+          "789",
+          "123jkl",
+          "bnKal",
+          "893435"
+        ]
       },
       "wires": [],
       "color": "#ffbe0a",

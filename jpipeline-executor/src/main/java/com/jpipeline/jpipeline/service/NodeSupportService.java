@@ -1,9 +1,8 @@
 package com.jpipeline.jpipeline.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jpipeline.jpipeline.NodeConfig;
-import com.jpipeline.jpipeline.PropertyConfig;
+import com.jpipeline.common.util.NodeConfig;
+import com.jpipeline.common.util.PropertyConfig;
 import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.common.entity.Node;
 import com.jpipeline.common.util.CJson;

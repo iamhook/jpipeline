@@ -1,6 +1,6 @@
 package com.jpipeline.jpipeline.http;
 
-import com.jpipeline.jpipeline.PropertyConfig;
+import com.jpipeline.common.util.NodeConfig;
 import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.jpipeline.service.NodeSupportService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +23,9 @@ public class NodeSupportController {
         return nodeSupportService.getNodeTypes();
     }
 
-    @GetMapping("/{type}/properties")
-    public List<PropertyConfig> getProperties(@PathVariable String type) {
-        return nodeSupportService.getNodeConfig(type).getProperties();
+    @GetMapping("/{type}/config")
+    public NodeConfig getProperties(@PathVariable String type) {
+        return nodeSupportService.getNodeConfig(type);
     }
 
     @GetMapping("/{type}/create")

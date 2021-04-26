@@ -1,8 +1,14 @@
 package com.jpipeline.javafxclient.controller;
 
 import com.jpipeline.common.dto.NodeDTO;
+import com.jpipeline.common.util.CJson;
+import com.jpipeline.common.util.NodeConfig;
+import com.jpipeline.common.util.PropertyConfig;
+import com.jpipeline.javafxclient.service.NodeService;
 import com.jpipeline.javafxclient.ui.elements.NodeWrapper;
+import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
@@ -10,7 +16,10 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import lombok.Setter;
 
-import java.util.Map;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 public class NodeEditMenuController {
 
@@ -28,26 +37,108 @@ public class NodeEditMenuController {
     private NodeDTO node;
 
 
-    public void init() {
 
+    public void init() {
+        NodeConfig nodeConfig = NodeService.getNodeConfig(node.getType());
+
+        showProperties(gridPane, nodeConfig.getProperties(), node.getProperties());
+    }
+
+    // TODO rename
+    private void showProperties(GridPane gridPane, List<PropertyConfig> propertyConfigs, CJson nodeProperties) {
         int i = 0;
         TextField nameField = new TextField(node.getType());
         gridPane.addRow(i++, new Text("Name"), nameField);
 
-        for (Map.Entry<String, Object> entry : node.getProperties().entrySet()) {
-            Text propertyName = new Text(entry.getKey());
 
-            gridPane.add(propertyName, 0, i);
 
-            String value = "";
+        for (PropertyConfig property : propertyConfigs) {
+            String propertyName = property.getName();
 
-            if (entry.getValue() != null) {
-                value = entry.getValue().toString();
+
+            Text propertyNameField = new Text(propertyName);
+            gridPane.add(propertyNameField, 0, i);
+            if (property.isMultiple()) {
+                Collection valueCollection = (Collection) nodeProperties.get(propertyName);
+                AtomicInteger j = new AtomicInteger();
+                GridPane propertyGridPane = new GridPane();
+                this.gridPane.add(propertyGridPane, 1, i++);
+
+                Runnable reloadValue = () -> {
+                    valueCollection.clear();
+                    propertyGridPane.getChildren().stream()
+                            .filter(n -> n instanceof TextField)
+                            .forEach(n -> {
+                                String text = ((TextField) n).getText();
+                                if (text != null && !text.isEmpty()) {
+                                    valueCollection.add(text);
+                                }
+                            });
+                };
+
+                ChangeListener<String> propertyListener = (observable, oldValue, newValue) -> {
+                    if (property.isNumber()) {
+                        if (!newValue.matches("\\d*")) {
+                            newValue = newValue.replaceAll("[^\\d]", "");
+                        }
+                    }
+                    //propertyValueField.setText(newValue);
+                    reloadValue.run();
+                };
+
+                Consumer<Object> createField = (val) -> {
+                    TextField propertyValueField = new TextField(val.toString());
+
+                    Button deleteRowButton = new Button("-");
+                    int j1 = j.get();
+                    deleteRowButton.setOnAction(event -> {
+                        propertyGridPane.getChildren().removeIf(n -> GridPane.getRowIndex(n) == j1);
+                        reloadValue.run();
+                    });
+                    propertyGridPane.add(deleteRowButton, 0, j.get());
+                    propertyGridPane.add(propertyValueField, 1, j.getAndIncrement());
+                    propertyValueField.textProperty().addListener(propertyListener);
+                };
+
+                Button addRowButton = new Button("+");
+                addRowButton.setOnAction(event -> createField.accept(""));
+                this.gridPane.add(addRowButton, 1, i);
+
+                for (Object value : valueCollection) {
+                    String propertyValue = "";
+                    if (value != null) {
+                        propertyValue = value.toString();
+                    }
+
+                    createField.accept(propertyValue);
+                }
+            } else {
+                Object value = nodeProperties.get(propertyName);
+
+                String propertyValue = "";
+                if (value != null) {
+                    propertyValue = value.toString();
+                }
+
+                TextField propertyValueField = new TextField(propertyValue);
+
+                gridPane.add(propertyValueField, 1, i);
+
+                propertyValueField.textProperty().addListener((observable, oldValue, newValue) -> {
+                    if (property.isNumber()) {
+                        if (!newValue.matches("\\d*")) {
+                            newValue = newValue.replaceAll("[^\\d]", "");
+                        }
+                    }
+
+                    propertyValueField.setText(newValue);
+                    nodeProperties.put(propertyName, newValue);
+                });
             }
-            TextField propertyValue = new TextField(value);
-            gridPane.add(propertyValue, 1, i);
 
             i++;
+
+
         }
     }
 

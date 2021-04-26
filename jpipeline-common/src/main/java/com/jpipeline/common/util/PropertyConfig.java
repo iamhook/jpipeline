@@ -1,6 +1,6 @@
-package com.jpipeline.jpipeline;
+package com.jpipeline.common.util;
 
-import com.jpipeline.common.util.CJson;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,11 +19,19 @@ public class PropertyConfig {
     private List<PropertyConfig> nested;
     private List<Object> variants;
 
+    @JsonIgnore
     public boolean isComplex() {
         return Type.COMPLEX.equals(type);
     }
+
+    @JsonIgnore
     public boolean isString() {
         return Type.STRING.equals(type);
+    }
+
+    @JsonIgnore
+    public boolean isNumber() {
+        return Type.NUMBER.equals(type);
     }
 
     public Object getDefaultValue() {

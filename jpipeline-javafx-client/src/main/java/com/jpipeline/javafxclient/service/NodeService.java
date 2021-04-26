@@ -5,12 +5,15 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.common.entity.Node;
+import com.jpipeline.common.util.NodeConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class NodeService {
 
@@ -19,6 +22,7 @@ public class NodeService {
 
     private static RSocketService rSocketService = new RSocketService();
     private static HttpService httpService = new HttpService("localhost", 9544);
+    private static Map<String, NodeConfig> configsCache = new ConcurrentHashMap<>();
 
     public static List<String> getNodeTypes() {
         try {
@@ -33,12 +37,26 @@ public class NodeService {
     public static NodeDTO createNewNode(String nodeType) {
         try {
             String response = httpService.get("/api/nodesupport/" + nodeType + "/create").body();
-            return OM.readValue(response, new TypeReference<NodeDTO>() {});
+            return OM.readValue(response, new TypeReference<>() {
+            });
         } catch (Exception e) {
             log.error(e.toString(), e);
         }
 
         return null;
+    }
+
+    public static NodeConfig getNodeConfig(String nodeType) {
+        return configsCache.computeIfAbsent(nodeType, s -> {
+            try {
+                String response = httpService.get("/api/nodesupport/" + nodeType + "/config").body();
+                return OM.readValue(response, new TypeReference<>() {
+                });
+            } catch (Exception e) {
+                log.error(e.toString(), e);
+            }
+            return null;
+        });
     }
 
     public static Flux<Node.NodeStatus> getStatusStream(String nodeId) throws JsonProcessingException {
