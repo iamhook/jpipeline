@@ -123,18 +123,6 @@ public class ViewWorkflowService implements IWorkflowService {
         Circle fromHandle = fromNodeWrapper.getOutputHandle();
         Circle toHandle = toNodeWrapper.getInputHandle();
 
-        MoveTo from = new MoveTo(fromHandle.getCenterX(), fromHandle.getCenterY());
-        LineTo to = new LineTo(toHandle.getCenterX(), toHandle.getCenterY());
-
-        /*Path path = new Path(from, to);
-        path.setStrokeWidth(3);
-
-        path.setOnMouseClicked(event -> {
-            if (event.getButton().equals(MouseButton.SECONDARY)) {
-                workflowService.disconnectNodes(fromNode, toNode);
-            }
-        });*/
-
         double fromX = fromHandle.getCenterX();
         double fromY = fromHandle.getCenterY();
         double toX = toHandle.getCenterX();
@@ -145,11 +133,16 @@ public class ViewWorkflowService implements IWorkflowService {
                 toX - 200, (fromY + toY) / 2,
                 toX, toY);
 
-
         curve.setStroke(Color.FORESTGREEN);
-        curve.setStrokeWidth(4);
+        curve.setStrokeWidth(3);
         curve.setStrokeLineCap(StrokeLineCap.ROUND);
         curve.setFill(Color.TRANSPARENT);
+
+        curve.setOnMouseClicked(event -> {
+            if (event.getButton().equals(MouseButton.SECONDARY)) {
+                workflowService.disconnectNodes(fromNode, toNode);
+            }
+        });
 
         fromNodeWrapper.addOutput(curve);
         toNodeWrapper.addInput(curve);
