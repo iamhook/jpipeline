@@ -25,10 +25,7 @@ public class ExecNode extends Node {
 
     @Override
     public void onInit() {
-        AtomicInteger i = new AtomicInteger();
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-            setStatus(new NodeStatus("Status: " + i.getAndIncrement()));
-        }, 1000, 100, TimeUnit.MILLISECONDS);
+
     }
 
     @Override
