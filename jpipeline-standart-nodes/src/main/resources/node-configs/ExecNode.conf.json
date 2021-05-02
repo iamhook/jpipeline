@@ -2,16 +2,16 @@
   "color": "#ffbe0a",
   "properties": [
     {
-      "name": "command",
-      "defaultValue": null,
-      "type": "STRING",
-      "required": true
-    },
-    {
       "name": "args",
       "defaultValue": null,
       "type": "STRING",
       "multiple": true
+    },
+    {
+      "name": "command",
+      "defaultValue": null,
+      "type": "STRING",
+      "required": true
     }
   ]
 }

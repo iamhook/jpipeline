@@ -17,7 +17,9 @@ import javafx.stage.Stage;
 import lombok.Setter;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -50,33 +52,40 @@ public class NodeEditMenuController {
         TextField nameField = new TextField(node.getType());
         gridPane.addRow(i++, new Text("Name"), nameField);
 
-
-
         for (PropertyConfig property : propertyConfigs) {
             String propertyName = property.getName();
 
 
             Text propertyNameField = new Text(propertyName);
             gridPane.add(propertyNameField, 0, i);
+
+            Collection valueCollection;
             if (property.isMultiple()) {
-                Collection valueCollection = (Collection) nodeProperties.get(propertyName);
-                AtomicInteger j = new AtomicInteger();
-                GridPane propertyGridPane = new GridPane();
-                this.gridPane.add(propertyGridPane, 1, i++);
+                valueCollection = (Collection) nodeProperties.get(propertyName);
+            }
+            else {
+                valueCollection = Collections.singletonList(nodeProperties.get(propertyName));
+            }
 
-                Runnable reloadValue = () -> {
-                    valueCollection.clear();
-                    propertyGridPane.getChildren().stream()
-                            .filter(n -> n instanceof TextField)
-                            .forEach(n -> {
-                                String text = ((TextField) n).getText();
-                                if (text != null && !text.isEmpty()) {
-                                    valueCollection.add(text);
-                                }
-                            });
-                };
+            AtomicInteger j = new AtomicInteger();
+            GridPane propertyGridPane = new GridPane();
+            gridPane.add(propertyGridPane, 1, i++);
 
-                ChangeListener<String> propertyListener = (observable, oldValue, newValue) -> {
+            Runnable reloadValue = () -> {
+                valueCollection.clear();
+                propertyGridPane.getChildren().stream()
+                        .filter(n -> n instanceof TextField)
+                        .forEach(n -> {
+                            String text = ((TextField) n).getText();
+                            if (text != null && !text.isEmpty()) {
+                                valueCollection.add(text);
+                            }
+                        });
+            };
+
+            ChangeListener<String> propertyListener;
+            if (property.isMultiple()) {
+                propertyListener = (observable, oldValue, newValue) -> {
                     if (property.isNumber()) {
                         if (!newValue.matches("\\d*")) {
                             newValue = newValue.replaceAll("[^\\d]", "");
@@ -85,10 +94,22 @@ public class NodeEditMenuController {
                     //propertyValueField.setText(newValue);
                     reloadValue.run();
                 };
+            } else {
+                propertyListener = (observable, oldValue, newValue) -> {
+                    if (property.isNumber()) {
+                        if (!newValue.matches("\\d*")) {
+                            newValue = newValue.replaceAll("[^\\d]", "");
+                        }
+                    }
+                    //propertyValueField.setText(newValue);
+                    nodeProperties.put(propertyName, newValue);
+                };
+            }
 
-                Consumer<Object> createField = (val) -> {
-                    TextField propertyValueField = new TextField(val.toString());
+            Consumer<Object> createField = (val) -> {
+                TextField propertyValueField = new TextField(val.toString());
 
+                if (property.isMultiple()) {
                     Button deleteRowButton = new Button("-");
                     int j1 = j.get();
                     deleteRowButton.setOnAction(event -> {
@@ -96,22 +117,43 @@ public class NodeEditMenuController {
                         reloadValue.run();
                     });
                     propertyGridPane.add(deleteRowButton, 0, j.get());
-                    propertyGridPane.add(propertyValueField, 1, j.getAndIncrement());
-                    propertyValueField.textProperty().addListener(propertyListener);
-                };
+                }
 
+                propertyGridPane.add(propertyValueField, 1, j.getAndIncrement());
+                propertyValueField.textProperty().addListener(propertyListener);
+            };
+
+            if (property.isMultiple()) {
                 Button addRowButton = new Button("+");
                 addRowButton.setOnAction(event -> createField.accept(""));
-                this.gridPane.add(addRowButton, 1, i);
+                gridPane.add(addRowButton, 1, i);
+            }
 
-                for (Object value : valueCollection) {
+
+            for (Object value : valueCollection) {
+                if (property.isComplex()) {
+                    GridPane subGridPane = new GridPane();
+                    propertyGridPane.add(subGridPane, 1, j.getAndIncrement());
+                    Button deleteRowButton = new Button("-");
+                    int j1 = j.get();
+                    deleteRowButton.setOnAction(event -> {
+                        propertyGridPane.getChildren().removeIf(n -> GridPane.getRowIndex(n) == j1);
+                        reloadValue.run();
+                    });
+                    propertyGridPane.add(deleteRowButton, 0, j.get());
+                    showProperties(subGridPane, property.getNested(), new CJson((Map)value));
+
+                } else {
                     String propertyValue = "";
                     if (value != null) {
                         propertyValue = value.toString();
                     }
-
                     createField.accept(propertyValue);
                 }
+            }
+
+            /*if (property.isMultiple()) {
+
             } else {
                 Object value = nodeProperties.get(propertyName);
 
@@ -134,7 +176,7 @@ public class NodeEditMenuController {
                     propertyValueField.setText(newValue);
                     nodeProperties.put(propertyName, newValue);
                 });
-            }
+            }*/
 
             i++;
 
