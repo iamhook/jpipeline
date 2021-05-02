@@ -3,22 +3,15 @@
   "properties": [
     {
       "name": "delay",
-      "nested": [
-        {
-          "name": "delay",
-          "type": "NUMBER",
-          "defaultValue": 5000,
-          "required": true
-        },
-        {
-          "name": "unit",
-          "type": "STRING",
-          "variants": ["ms", "s", "m", "h"],
-          "defaultValue": "ms",
-          "required": true
-        }
-      ],
-      "type": "COMPLEX",
+      "type": "NUMBER",
+      "defaultValue": 5000,
+      "required": true
+    },
+    {
+      "name": "unit",
+      "type": "STRING",
+      "variants": ["ms", "s", "m", "h"],
+      "defaultValue": "ms",
       "required": true
     }
   ]
