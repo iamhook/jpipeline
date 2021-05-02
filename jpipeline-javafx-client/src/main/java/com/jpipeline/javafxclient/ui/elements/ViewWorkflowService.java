@@ -100,13 +100,13 @@ public class ViewWorkflowService implements IWorkflowService {
         NodeWrapper fromNodeWrapper = nodeWrappers.get(fromNode);
         NodeWrapper toNodeWrapper = nodeWrappers.get(toNode);
 
-        Path path = fromNodeWrapper.getOutputs().stream()
+        CubicCurve curve = fromNodeWrapper.getOutputs().stream()
                 .filter(p -> toNodeWrapper.getInputs().contains(p))
                 .findFirst().orElse(null);
 
-        fromNodeWrapper.getOutputs().remove(path);
-        toNodeWrapper.getInputs().remove(path);
-        rootPane.getChildren().remove(path);
+        fromNodeWrapper.getOutputs().remove(curve);
+        toNodeWrapper.getInputs().remove(curve);
+        rootPane.getChildren().remove(curve);
     }
 
     @Override
@@ -126,19 +126,35 @@ public class ViewWorkflowService implements IWorkflowService {
         MoveTo from = new MoveTo(fromHandle.getCenterX(), fromHandle.getCenterY());
         LineTo to = new LineTo(toHandle.getCenterX(), toHandle.getCenterY());
 
-        Path path = new Path(from, to);
+        /*Path path = new Path(from, to);
         path.setStrokeWidth(3);
 
         path.setOnMouseClicked(event -> {
             if (event.getButton().equals(MouseButton.SECONDARY)) {
                 workflowService.disconnectNodes(fromNode, toNode);
             }
-        });
+        });*/
 
-        fromNodeWrapper.addOutput(path);
-        toNodeWrapper.addInput(path);
+        double fromX = fromHandle.getCenterX();
+        double fromY = fromHandle.getCenterY();
+        double toX = toHandle.getCenterX();
+        double toY = toHandle.getCenterY();
 
-        rootPane.getChildren().add(path);
+        CubicCurve curve = new CubicCurve(fromX, fromY,
+                fromX + 200, (fromY + toY) / 2,
+                toX - 200, (fromY + toY) / 2,
+                toX, toY);
+
+
+        curve.setStroke(Color.FORESTGREEN);
+        curve.setStrokeWidth(4);
+        curve.setStrokeLineCap(StrokeLineCap.ROUND);
+        curve.setFill(Color.TRANSPARENT);
+
+        fromNodeWrapper.addOutput(curve);
+        toNodeWrapper.addInput(curve);
+
+        rootPane.getChildren().add(curve);
 
         sortChildren();
 
@@ -216,17 +232,35 @@ public class ViewWorkflowService implements IWorkflowService {
                 node.setY(newY);
                 mouseLocation.value = new Point2D(event.getSceneX(), event.getSceneY());
 
-                for (Path path : nodeWrapper.getInputs()) {
-                    Circle input = nodeWrapper.getInputHandle();
-                    LineTo lineTo = (LineTo) path.getElements().get(1);
-                    lineTo.setX(input.getCenterX());
-                    lineTo.setY(input.getCenterY());
+                for (CubicCurve curve : nodeWrapper.getInputs()) {
+                    Circle to = nodeWrapper.getInputHandle();
+                    double fromX = curve.getStartX();
+                    double fromY = curve.getStartY();
+                    double toX = to.getCenterX();
+                    double toY = to.getCenterY();
+
+                    curve.setEndX(toX);
+                    curve.setEndY(toY);
+
+                    curve.setControlX1(fromX + 200);
+                    curve.setControlY1((fromY + toY) / 2);
+                    curve.setControlX2(toX - 200);
+                    curve.setControlY2((fromY + toY) / 2);
                 }
-                for (Path path : nodeWrapper.getOutputs()) {
-                    Circle input = nodeWrapper.getOutputHandle();
-                    MoveTo moveTo = (MoveTo) path.getElements().get(0);
-                    moveTo.setX(input.getCenterX());
-                    moveTo.setY(input.getCenterY());
+                for (CubicCurve curve : nodeWrapper.getOutputs()) {
+                    Circle from = nodeWrapper.getOutputHandle();
+                    double fromX = from.getCenterX();
+                    double fromY = from.getCenterY();
+                    double toX = curve.getEndX();
+                    double toY = curve.getEndY();
+
+                    curve.setStartX(fromX);
+                    curve.setStartY(fromY);
+
+                    curve.setControlX1(fromX + 200);
+                    curve.setControlY1((fromY + toY) / 2);
+                    curve.setControlX2(toX - 200);
+                    curve.setControlY2((fromY + toY) / 2);
                 }
             }
         });
@@ -275,6 +309,7 @@ public class ViewWorkflowService implements IWorkflowService {
     private static final List<Class<? extends Node>> elementsOrder = Arrays.asList(
             Canvas.class,
             Rectangle.class,
+            CubicCurve.class,
             Path.class,
             Circle.class,
             Text.class

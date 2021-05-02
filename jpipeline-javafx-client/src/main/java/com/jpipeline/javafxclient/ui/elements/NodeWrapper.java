@@ -4,6 +4,7 @@ import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.javafxclient.service.NodeService;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.CubicCurve;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
@@ -31,8 +32,8 @@ public class NodeWrapper {
     private Circle inputHandle;
     private Circle closeHandle;
 
-    private List<Path> outputs = new ArrayList<>();
-    private List<Path> inputs = new ArrayList<>();
+    private List<CubicCurve> outputs = new ArrayList<>();
+    private List<CubicCurve> inputs = new ArrayList<>();
 
     Disposable statusSubscription;
 
@@ -52,11 +53,11 @@ public class NodeWrapper {
         }
     }
 
-    public void addOutput(Path path) {
-        outputs.add(path);
+    public void addOutput(CubicCurve curve) {
+        outputs.add(curve);
     }
-    public void addInput(Path path) {
-        inputs.add(path);
+    public void addInput(CubicCurve curve) {
+        inputs.add(curve);
     }
 
     public void destroy() {
