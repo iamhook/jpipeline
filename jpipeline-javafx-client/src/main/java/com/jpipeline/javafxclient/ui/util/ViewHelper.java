@@ -5,21 +5,21 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 
-public class ViewHelper {
+import static com.jpipeline.javafxclient.Consts.HANDLE_RADIUS;
 
-    private static final double HANDLE_RADIUS = 5.0f;
+public class ViewHelper {
 
     public static Text createNameLabel(String name, Rectangle rectangle) {
         Text nameLabel = new Text(name);
-        nameLabel.xProperty().bind(rectangle.xProperty());
-        nameLabel.yProperty().bind(rectangle.yProperty());
+        nameLabel.xProperty().bind(rectangle.xProperty().add((rectangle.getWidth() - nameLabel.getLayoutBounds().getWidth())/2));
+        nameLabel.yProperty().bind(rectangle.yProperty().add(nameLabel.getLayoutBounds().getHeight()));
         return nameLabel;
     }
 
     public static Text createStatusLabel(Rectangle rectangle) {
         Text statusLabel = new Text();
         statusLabel.xProperty().bind(rectangle.xProperty());
-        statusLabel.yProperty().bind(rectangle.yProperty().add(rectangle.heightProperty().add(statusLabel.prefHeight(1))));
+        statusLabel.yProperty().bind(rectangle.yProperty().add(rectangle.heightProperty().add(statusLabel.getLayoutBounds().getHeight())));
         return statusLabel;
     }
 

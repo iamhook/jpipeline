@@ -5,6 +5,7 @@ import com.jpipeline.javafxclient.Main;
 import com.jpipeline.javafxclient.service.ManagerService;
 import com.jpipeline.javafxclient.service.NodeService;
 import com.jpipeline.javafxclient.ui.elements.WorkflowService;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
@@ -12,6 +13,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -19,6 +22,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class MainMenuController {
+
+    private static final Logger log = LoggerFactory.getLogger(MainMenuController.class);
 
     @FXML
     public AnchorPane rootPane;
@@ -39,7 +44,16 @@ public class MainMenuController {
 
     private Main main;
 
+    private boolean lastExecutorStatus = false;
+
+    ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+
     public void init() {
+        executor.scheduleAtFixedRate(this::updateServiceStatuses, 1, 1, TimeUnit.SECONDS);
+    }
+
+    // TODO rename it!
+    public void refresh() {
         WorkflowConfig config = ManagerService.getConfig();
 
         workflowContextHolder = new WorkflowService(config, canvasPane);
@@ -51,19 +65,25 @@ public class MainMenuController {
             nodeButton.setOnAction(event -> workflowContextHolder.createNode(nodeType));
             nodesMenu.getItems().add(nodeButton);
         }
-
-        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-
-        executor.scheduleAtFixedRate(this::updateServiceStatuses, 1, 5, TimeUnit.SECONDS);
-
     }
 
     private void updateServiceStatuses() {
         if (NodeService.checkIsAlive()) {
+            if (!lastExecutorStatus) {
+                lastExecutorStatus = true;
+                Platform.runLater(() -> {
+                    if (workflowContextHolder != null) {
+                        workflowContextHolder.destroy();
+                    }
+                    refresh();
+                });
+            }
             executorStatusIndicator.setFill(Color.GREEN);
         } else {
+            lastExecutorStatus = false;
             executorStatusIndicator.setFill(Color.RED);
         }
+
         if (ManagerService.checkIsAlive()) {
             managerStatusIndicator.setFill(Color.GREEN);
         } else {

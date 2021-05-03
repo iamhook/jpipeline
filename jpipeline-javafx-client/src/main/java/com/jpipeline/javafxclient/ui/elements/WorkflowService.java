@@ -57,4 +57,8 @@ public class WorkflowService implements IWorkflowService {
         ManagerService.deploy(modelService.getWorkflowConfig());
     }
 
+    public void destroy() {
+        viewService.destroy();
+    }
+
 }

@@ -24,14 +24,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.jpipeline.javafxclient.Consts.*;
+
 public class ViewWorkflowService implements IWorkflowService {
 
     private static final Logger log = LoggerFactory.getLogger(ViewWorkflowService.class);
-
-    private static final int NODE_HEIGHT = 50;
-    private static final int NODE_WIDTH = 100;
-    private static final double DEFAULT_X = 200;
-    private static final double DEFAULT_Y = 200;
 
     private Pane rootPane;
     private Canvas canvas;
@@ -128,10 +125,9 @@ public class ViewWorkflowService implements IWorkflowService {
         double toX = toHandle.getCenterX();
         double toY = toHandle.getCenterY();
 
-        CubicCurve curve = new CubicCurve(fromX, fromY,
-                fromX + 200, (fromY + toY) / 2,
-                toX - 200, (fromY + toY) / 2,
-                toX, toY);
+        CubicCurve curve = new CubicCurve();
+
+        updateCurve(fromX, fromY, toX, toY, curve);
 
         curve.setStroke(Color.FORESTGREEN);
         curve.setStrokeWidth(3);
@@ -153,6 +149,18 @@ public class ViewWorkflowService implements IWorkflowService {
 
         connectingNode = null;
         currentConnectionType = null;
+    }
+
+    private void updateCurve(double fromX, double fromY, double toX,
+                             double toY, CubicCurve curve) {
+        curve.setStartX(fromX);
+        curve.setStartY(fromY);
+        curve.setControlX1(fromX + NODE_WIDTH);
+        curve.setControlY1((fromY + toY) / 2);
+        curve.setControlX2(toX - NODE_WIDTH);
+        curve.setControlY2((fromY + toY) / 2);
+        curve.setEndX(toX);
+        curve.setEndY(toY);
     }
 
     @Override
@@ -232,13 +240,7 @@ public class ViewWorkflowService implements IWorkflowService {
                     double toX = to.getCenterX();
                     double toY = to.getCenterY();
 
-                    curve.setEndX(toX);
-                    curve.setEndY(toY);
-
-                    curve.setControlX1(fromX + 200);
-                    curve.setControlY1((fromY + toY) / 2);
-                    curve.setControlX2(toX - 200);
-                    curve.setControlY2((fromY + toY) / 2);
+                    updateCurve(fromX, fromY, toX, toY, curve);
                 }
                 for (CubicCurve curve : nodeWrapper.getOutputs()) {
                     Circle from = nodeWrapper.getOutputHandle();
@@ -247,13 +249,7 @@ public class ViewWorkflowService implements IWorkflowService {
                     double toX = curve.getEndX();
                     double toY = curve.getEndY();
 
-                    curve.setStartX(fromX);
-                    curve.setStartY(fromY);
-
-                    curve.setControlX1(fromX + 200);
-                    curve.setControlY1((fromY + toY) / 2);
-                    curve.setControlX2(toX - 200);
-                    curve.setControlY2((fromY + toY) / 2);
+                    updateCurve(fromX, fromY, toX, toY, curve);
                 }
             }
         });
@@ -290,6 +286,11 @@ public class ViewWorkflowService implements IWorkflowService {
             return Integer.compare(i1, i2);
         });
         rootPane.getChildren().setAll(workingCollection);
+    }
+
+    public void destroy() {
+        nodeWrappers.values().forEach(NodeWrapper::destroy);
+        nodeWrappers.clear();
     }
 
     static class Wrapper<T> { T value ; }
