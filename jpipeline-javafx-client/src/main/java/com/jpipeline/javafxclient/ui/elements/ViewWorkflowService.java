@@ -129,7 +129,7 @@ public class ViewWorkflowService implements IWorkflowService {
 
         updateCurve(fromX, fromY, toX, toY, curve);
 
-        curve.setStroke(Color.FORESTGREEN);
+        curve.setStroke(Color.GRAY);
         curve.setStrokeWidth(3);
         curve.setStrokeLineCap(StrokeLineCap.ROUND);
         curve.setFill(Color.TRANSPARENT);
@@ -153,12 +153,17 @@ public class ViewWorkflowService implements IWorkflowService {
 
     private void updateCurve(double fromX, double fromY, double toX,
                              double toY, CubicCurve curve) {
+
+        double yControlOffset = toY > fromY ? NODE_HEIGHT / 2f: NODE_HEIGHT / -2f;
+
         curve.setStartX(fromX);
         curve.setStartY(fromY);
-        curve.setControlX1(fromX + NODE_WIDTH);
-        curve.setControlY1((fromY + toY) / 2);
-        curve.setControlX2(toX - NODE_WIDTH);
-        curve.setControlY2((fromY + toY) / 2);
+        curve.setControlX1(fromX + NODE_WIDTH * 1.5);
+        //curve.setControlY1((fromY + toY) / 2);
+        curve.setControlY1(fromY + yControlOffset);
+        curve.setControlX2(toX - NODE_WIDTH * 1.5);
+        //curve.setControlY2((fromY + toY) / 2);
+        curve.setControlY2(toY - yControlOffset);
         curve.setEndX(toX);
         curve.setEndY(toY);
     }
@@ -171,15 +176,20 @@ public class ViewWorkflowService implements IWorkflowService {
         if (node.getY() == null)
             node.setY(DEFAULT_Y);
 
-        Rectangle rectangle = new Rectangle(node.getX(), node.getY(), NODE_WIDTH, NODE_HEIGHT);
+        Rectangle rectangle = new Rectangle();
+        rectangle.setStroke(Color.BLACK);
+        rectangle.setFill(Paint.valueOf(node.getColor()));
+
+        rectangle.setWidth(NODE_WIDTH);
+        rectangle.setWidth(NODE_HEIGHT);
+        rectangle.setX(node.getX());
+        rectangle.setY(node.getY());
         rootPane.getChildren().add(rectangle);
 
         NodeWrapper nodeWrapper = new NodeWrapper(node);
         nodeWrapper.setParent(rootPane);
         nodeWrapper.setRectangle(rectangle);
 
-        rectangle.setStroke(Color.BLACK);
-        rectangle.setFill(Paint.valueOf(node.getColor()));
 
         Circle outputHandle = ViewHelper.createOutputHandle(rectangle);
         Circle inputHandle = ViewHelper.createInputHandle(rectangle);
