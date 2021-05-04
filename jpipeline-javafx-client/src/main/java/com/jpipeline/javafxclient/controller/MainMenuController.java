@@ -1,10 +1,12 @@
 package com.jpipeline.javafxclient.controller;
 
 import com.jpipeline.common.WorkflowConfig;
+import com.jpipeline.common.util.NodeConfig;
 import com.jpipeline.javafxclient.Main;
 import com.jpipeline.javafxclient.service.ManagerService;
 import com.jpipeline.javafxclient.service.NodeService;
 import com.jpipeline.javafxclient.ui.elements.WorkflowService;
+import com.jpipeline.javafxclient.ui.util.ViewHelper;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -12,7 +14,9 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +24,9 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import static com.jpipeline.javafxclient.Consts.NODE_HEIGHT;
+import static com.jpipeline.javafxclient.Consts.NODE_WIDTH;
 
 public class MainMenuController {
 
@@ -54,16 +61,20 @@ public class MainMenuController {
 
     // TODO rename it!
     public void refresh() {
-        WorkflowConfig config = ManagerService.getConfig();
+        WorkflowConfig workflowConfig = ManagerService.getConfig();
 
-        workflowContextHolder = new WorkflowService(config, canvasPane);
+        workflowContextHolder = new WorkflowService(workflowConfig, canvasPane);
 
         List<String> nodeTypes = NodeService.getNodeTypes();
 
         for (String nodeType : nodeTypes) {
-            Button nodeButton = new Button(nodeType);
-            nodeButton.setOnAction(event -> workflowContextHolder.createNode(nodeType));
-            nodesMenu.getItems().add(nodeButton);
+            NodeConfig config = NodeService.getNodeConfig(nodeType);
+            Rectangle rectangle = ViewHelper.createNodeRectangle(Paint.valueOf(config.getColor()));
+            rectangle.setWidth(NODE_WIDTH);
+            rectangle.setHeight(NODE_HEIGHT);
+            Text nameLabel = ViewHelper.createNameLabel(nodeType, rectangle);
+            rectangle.setOnMouseClicked(event -> workflowContextHolder.createNode(nodeType));
+            nodesMenu.getItems().add(rectangle);
         }
     }
 

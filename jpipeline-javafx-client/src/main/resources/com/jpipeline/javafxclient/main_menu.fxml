@@ -10,28 +10,29 @@
 
 <AnchorPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768.0" prefWidth="1366" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jpipeline.javafxclient.controller.MainMenuController">
    <children>
-      <AnchorPane prefHeight="860.0" prefWidth="199.0">
+      <AnchorPane prefHeight="705.0" prefWidth="205.0">
          <children>
-            <Line endX="196.0" endY="500.0" startX="194.99998474121094" />
-            <ScrollPane hbarPolicy="NEVER" layoutX="-1.0" prefHeight="501.0" prefWidth="200.0">
+            <Line endX="205.0" endY="703.0" startX="203.99998474121094" startY="-0.9999958872795105" />
+            <ScrollPane hbarPolicy="NEVER" layoutX="-1.0" prefHeight="705.0" prefWidth="205.0" vbarPolicy="NEVER">
                <content>
-                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                  <AnchorPane prefHeight="705.0" prefWidth="205.0">
                      <children>
-                        <ListView fx:id="nodesMenu" prefHeight="200.0" prefWidth="200.0" />
+                        <ListView fx:id="nodesMenu" prefHeight="705.0" prefWidth="205.0" />
                      </children>
                   </AnchorPane>
                </content>
             </ScrollPane>
          </children>
       </AnchorPane>
-      <AnchorPane fx:id="canvasPane" layoutX="246.0" layoutY="78.0" prefHeight="519.0" prefWidth="1050.0" />
-      <Button layoutX="285.0" layoutY="34.0" mnemonicParsing="false" onAction="#deploy" prefHeight="40.0" prefWidth="91.0" text="Deploy" />
-      <AnchorPane fx:id="statusPane" layoutX="79.0" layoutY="703.0" prefHeight="42.0" prefWidth="1254.0">
+      <AnchorPane fx:id="canvasPane" layoutX="204.0" layoutY="-1.0" prefHeight="705.0" prefWidth="1162.0" />
+      <AnchorPane fx:id="statusPane" layoutY="703.0" prefHeight="64.0" prefWidth="1366.0">
          <children>
-            <Text layoutX="1135.0" layoutY="25.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Manager" />
-            <Rectangle fx:id="managerStatusIndicator" arcHeight="5.0" arcWidth="5.0" fill="#ff1f1f" height="15.0" layoutX="1194.0" layoutY="13.0" stroke="BLACK" strokeType="INSIDE" width="16.0" />
-            <Text layoutX="1042.0" layoutY="25.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Executor" />
-            <Rectangle fx:id="executorStatusIndicator" arcHeight="5.0" arcWidth="5.0" fill="#ff1f1f" height="15.0" layoutX="1099.0" layoutY="13.0" stroke="BLACK" strokeType="INSIDE" width="16.0" />
+            <Line endX="0.915812611579895" endY="0.9755859375" startX="1366.0001220703125" startY="1.0" />
+            <Text layoutX="1131.0" layoutY="35.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Manager" />
+            <Rectangle fx:id="managerStatusIndicator" arcHeight="5.0" arcWidth="5.0" fill="#ff1f1f" height="15.0" layoutX="1185.0" layoutY="23.0" stroke="BLACK" strokeType="INSIDE" width="16.0" />
+            <Text layoutX="1042.0" layoutY="35.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Executor" />
+            <Rectangle fx:id="executorStatusIndicator" arcHeight="5.0" arcWidth="5.0" fill="#ff1f1f" height="15.0" layoutX="1096.0" layoutY="23.0" stroke="BLACK" strokeType="INSIDE" width="16.0" />
+            <Button layoutX="908.0" layoutY="10.0" mnemonicParsing="false" onAction="#deploy" prefHeight="40.0" prefWidth="91.0" text="Deploy" />
          </children>
       </AnchorPane>
    </children>

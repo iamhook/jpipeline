@@ -176,12 +176,10 @@ public class ViewWorkflowService implements IWorkflowService {
         if (node.getY() == null)
             node.setY(DEFAULT_Y);
 
-        Rectangle rectangle = new Rectangle();
-        rectangle.setStroke(Color.BLACK);
-        rectangle.setFill(Paint.valueOf(node.getColor()));
+        Rectangle rectangle = ViewHelper.createNodeRectangle(Paint.valueOf(node.getColor()));
 
         rectangle.setWidth(NODE_WIDTH);
-        rectangle.setWidth(NODE_HEIGHT);
+        rectangle.setHeight(NODE_HEIGHT);
         rectangle.setX(node.getX());
         rectangle.setY(node.getY());
         rootPane.getChildren().add(rectangle);
