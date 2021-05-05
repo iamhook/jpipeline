@@ -79,7 +79,7 @@ public class MainMenuController {
             Rectangle rectangle = ViewHelper.createNodeRectangle(Paint.valueOf(config.getColor()));
             rectangle.setWidth(NODE_WIDTH);
             rectangle.setHeight(NODE_HEIGHT);
-            rectangle.setX((nodesMenu.getPrefWidth() - NODE_WIDTH) / 2);
+            rectangle.setX((nodesMenu.getParent().getLayoutBounds().getWidth() - NODE_WIDTH) / 2);
             rectangle.setY(offset + i * (NODE_HEIGHT + margin));
             Text nameLabel = ViewHelper.createNameLabel(nodeType, rectangle);
             rectangle.setOnMouseClicked(event -> workflowService.createNode(nodeType));
