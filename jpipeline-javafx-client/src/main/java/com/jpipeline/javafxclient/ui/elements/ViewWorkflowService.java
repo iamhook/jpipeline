@@ -34,8 +34,8 @@ public class ViewWorkflowService {
     private Pane rootPane;
     private Canvas canvas;
 
-    private final double canvasHeight;
-    private final double canvasWidth;
+    private final double canvasHeight = 2000;
+    private final double canvasWidth = 2000;
 
     private Map<NodeDTO, NodeWrapper> nodeWrappers = new HashMap<>();
 
@@ -48,13 +48,14 @@ public class ViewWorkflowService {
         this.rootPane = rootPane;
         this.workflowService = workflowService;
 
-        canvasHeight = rootPane.getPrefHeight();
-        canvasWidth = rootPane.getPrefWidth();
 
+        //this.canvas = new Canvas(rootPane.getWidth(), rootPane.getHeight());
+        rootPane.setPrefHeight(canvasHeight);
+        rootPane.setPrefWidth(canvasWidth);
         this.canvas = new Canvas(canvasWidth, canvasHeight);
         rootPane.getChildren().add(canvas);
         setClip();
-        createCanvasGrid(true);
+        //createCanvasGrid(true);
     }
 
     private void setClip() {
@@ -68,7 +69,7 @@ public class ViewWorkflowService {
         GraphicsContext gc = canvas.getGraphicsContext2D() ;
         gc.setStroke(Color.LIGHTGRAY);
         gc.setLineWidth(1.0);
-        for (int x = 0; x < canvas.getWidth(); x+=10) {
+        for (int x = 0; x < canvas.getWidth(); x+=30) {
             double x1 ;
             if (sharp) {
                 x1 = x + 0.5 ;
@@ -80,7 +81,7 @@ public class ViewWorkflowService {
             gc.stroke();
         }
 
-        for (int y = 0; y < canvas.getHeight(); y+=10) {
+        for (int y = 0; y < canvas.getHeight(); y+=30) {
             double y1 ;
             if (sharp) {
                 y1 = y + 0.5 ;

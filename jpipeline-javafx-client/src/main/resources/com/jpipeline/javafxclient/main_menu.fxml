@@ -9,7 +9,12 @@
 
 <AnchorPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="841.0" prefWidth="1300.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jpipeline.javafxclient.controller.MainMenuController">
    <children>
-      <ScrollPane hbarPolicy="NEVER" pannable="true" prefWidth="155.0" style="-fx-background-color: transparent;" vbarPolicy="NEVER" AnchorPane.bottomAnchor="61.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <ScrollPane focusTraversable="false" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="61.0" AnchorPane.leftAnchor="141.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <content>
+          <AnchorPane fx:id="canvasPane" minHeight="0.0" minWidth="0.0" prefHeight="0.0" prefWidth="0.0" style="-fx-background-color: #D3D3D333, linear-gradient(from 0.5px 0.0px to 20.5px  0.0px, repeat, lightgray 5%, transparent 5%),        linear-gradient(from 0.0px 0.5px to  0.0px 20.5px, repeat, lightgray 5%, transparent 5%);" />
+        </content>
+      </ScrollPane>
+      <ScrollPane hbarPolicy="NEVER" pannable="true" prefWidth="141.0" style="-fx-background-color: transparent;" AnchorPane.bottomAnchor="61.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
          <content>
             <AnchorPane fx:id="nodesMenu">
                <children>
@@ -18,7 +23,6 @@
             </AnchorPane>
          </content>
       </ScrollPane>
-      <AnchorPane fx:id="canvasPane" AnchorPane.bottomAnchor="61.0" AnchorPane.leftAnchor="151.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
       <AnchorPane fx:id="statusPane" layoutY="709.0" prefHeight="64.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0">
          <children>
             <Line endX="0.915812611579895" endY="0.9755859375" startX="1366.0001220703125" startY="1.0" stroke="#b5b5b5" />
