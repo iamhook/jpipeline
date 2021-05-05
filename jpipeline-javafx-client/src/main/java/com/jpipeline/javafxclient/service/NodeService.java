@@ -3,6 +3,7 @@ package com.jpipeline.javafxclient.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jpipeline.common.WorkflowConfig;
 import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.common.entity.Node;
 import com.jpipeline.common.util.NodeConfig;
@@ -32,6 +33,17 @@ public class NodeService {
             log.error(e.toString(), e);
         }
         return Collections.emptyList();
+    }
+
+    public static WorkflowConfig getConfig() {
+        try {
+            String response = httpService.get("/api/service/config").body();
+            return OM.readValue(response, new TypeReference<>() {
+            });
+        } catch (Exception e) {
+            log.error(e.toString());
+            throw new RuntimeException(e);
+        }
     }
 
     public static NodeDTO createNewNode(String nodeType) {

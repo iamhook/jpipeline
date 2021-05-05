@@ -2,8 +2,6 @@ package com.jpipeline.manager.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpipeline.common.WorkflowConfig;
-import com.jpipeline.common.dto.NodeDTO;
-import com.jpipeline.common.util.CJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,10 +15,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/manager")
@@ -39,8 +33,6 @@ public class ManagerController {
     @Value("${jpipeline.executor.port}")
     private Integer executorPort;
 
-    private Process executor;
-
     @PostConstruct
     private void init() throws Exception {
         startExecutor();
@@ -53,12 +45,6 @@ public class ManagerController {
     public void deploy(@RequestBody WorkflowConfig config) throws Exception {
         saveConfig(config);
         restartExecutor();
-    }
-
-    @GetMapping("/config")
-    private WorkflowConfig getNodeConfig() throws IOException {
-        String jsonString = Files.readString(Path.of(configPath), Charset.defaultCharset());
-        return OM.readValue(jsonString, WorkflowConfig.class);
     }
 
     private void saveConfig(WorkflowConfig config) throws IOException {

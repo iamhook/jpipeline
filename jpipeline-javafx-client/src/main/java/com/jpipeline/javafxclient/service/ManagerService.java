@@ -12,16 +12,6 @@ public class ManagerService {
     private static final Logger log = LoggerFactory.getLogger(ManagerService.class);
     private static HttpService httpService = new HttpService("localhost", 9543);
 
-    public static WorkflowConfig getConfig() {
-        try {
-            String response = httpService.get("/api/manager/config").body();
-            return OM.readValue(response, new TypeReference<WorkflowConfig>() {});
-        } catch (Exception e) {
-            log.error(e.toString());
-            throw new RuntimeException(e);
-        }
-    }
-
     public static void deploy(WorkflowConfig config) {
         try {
             httpService.post("/api/manager/deploy", OM.writeValueAsString(config));

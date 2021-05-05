@@ -3,6 +3,7 @@ package com.jpipeline.javafxclient.ui.elements;
 import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.javafxclient.ui.util.InterfaceHelper;
 import com.jpipeline.javafxclient.ui.util.ViewHelper;
+import com.jpipeline.javafxclient.ui.util.Wrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
@@ -26,7 +27,7 @@ import java.util.Map;
 
 import static com.jpipeline.javafxclient.Consts.*;
 
-public class ViewWorkflowService implements IWorkflowService {
+public class ViewWorkflowService {
 
     private static final Logger log = LoggerFactory.getLogger(ViewWorkflowService.class);
 
@@ -92,7 +93,6 @@ public class ViewWorkflowService implements IWorkflowService {
         }
     }
 
-    @Override
     public void disconnectNodes(NodeDTO fromNode, NodeDTO toNode) {
         NodeWrapper fromNodeWrapper = nodeWrappers.get(fromNode);
         NodeWrapper toNodeWrapper = nodeWrappers.get(toNode);
@@ -106,14 +106,12 @@ public class ViewWorkflowService implements IWorkflowService {
         rootPane.getChildren().remove(curve);
     }
 
-    @Override
     public void deleteNode(NodeDTO node) {
         NodeWrapper nodeWrapper = nodeWrappers.get(node);
         nodeWrapper.destroy();
         nodeWrappers.remove(node);
     }
 
-    @Override
     public void connectNodes(NodeDTO fromNode, NodeDTO toNode) {
         NodeWrapper fromNodeWrapper = nodeWrappers.get(fromNode);
         NodeWrapper toNodeWrapper = nodeWrappers.get(toNode);
@@ -155,21 +153,22 @@ public class ViewWorkflowService implements IWorkflowService {
                              double toY, CubicCurve curve) {
 
         double yControlOffset = toY > fromY ? NODE_HEIGHT / 2f: NODE_HEIGHT / -2f;
+        //double xControlOffset = Math.min(NODE_WIDTH * 1.5, Math.abs(toX - fromX));
+        double xControlOffset = NODE_WIDTH * 1.5;
 
         curve.setStartX(fromX);
         curve.setStartY(fromY);
-        curve.setControlX1(fromX + NODE_WIDTH * 1.5);
+        curve.setControlX1(fromX + xControlOffset);
         //curve.setControlY1((fromY + toY) / 2);
         curve.setControlY1(fromY + yControlOffset);
-        curve.setControlX2(toX - NODE_WIDTH * 1.5);
+        curve.setControlX2(toX - xControlOffset);
         //curve.setControlY2((fromY + toY) / 2);
         curve.setControlY2(toY - yControlOffset);
         curve.setEndX(toX);
         curve.setEndY(toY);
     }
 
-    @Override
-    public void createNode(NodeDTO node) {
+    public void createNode(NodeDTO node, boolean deployed) {
 
         if (node.getX() == null)
             node.setX(DEFAULT_X);
@@ -178,6 +177,9 @@ public class ViewWorkflowService implements IWorkflowService {
 
         Rectangle rectangle = ViewHelper.createNodeRectangle(Paint.valueOf(node.getColor()));
 
+        if (!deployed) {
+            rectangle.setOpacity(0.7);
+        }
         rectangle.setWidth(NODE_WIDTH);
         rectangle.setHeight(NODE_HEIGHT);
         rectangle.setX(node.getX());
@@ -187,7 +189,6 @@ public class ViewWorkflowService implements IWorkflowService {
         NodeWrapper nodeWrapper = new NodeWrapper(node);
         nodeWrapper.setParent(rootPane);
         nodeWrapper.setRectangle(rectangle);
-
 
         Circle outputHandle = ViewHelper.createOutputHandle(rectangle);
         Circle inputHandle = ViewHelper.createInputHandle(rectangle);
@@ -300,8 +301,6 @@ public class ViewWorkflowService implements IWorkflowService {
         nodeWrappers.values().forEach(NodeWrapper::destroy);
         nodeWrappers.clear();
     }
-
-    static class Wrapper<T> { T value ; }
 
     private enum ConnectionType {
         OUTPUT_TO_INPUT,

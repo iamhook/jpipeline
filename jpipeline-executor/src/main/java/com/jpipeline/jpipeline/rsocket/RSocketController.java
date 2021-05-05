@@ -23,8 +23,11 @@ public class RSocketController {
     @MessageMapping("/node/{nodeId}")
     public Flux<Node.NodeSignal> status(@DestinationVariable String nodeId) {
         Node node = workflowService.getNode(UUID.fromString(nodeId));
-        return Flux.just(new Node.NodeSignal(Node.SignalType.STATUS, node.getStatus()))
-                .concatWith(node.getSignalSink().asFlux());
+        if (node != null) {
+            return Flux.just(new Node.NodeSignal(Node.SignalType.STATUS, node.getStatus()))
+                    .concatWith(node.getSignalSink().asFlux());
+        }
+        return Flux.empty();
     }
 
 }

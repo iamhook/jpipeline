@@ -15,11 +15,11 @@ import java.util.UUID;
 public class NodeController {
 
     @Autowired
-    private WorkflowService workflowContext;
+    private WorkflowService workflowService;
 
     @GetMapping("/{id}/pressButton")
     public void pressButton(@PathVariable UUID id) throws NotFoundException {
-        workflowContext.pressButton(id);
+        workflowService.pressButton(id);
     }
 
 }

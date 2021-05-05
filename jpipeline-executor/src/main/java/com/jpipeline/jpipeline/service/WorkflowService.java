@@ -54,7 +54,7 @@ public class WorkflowService {
     }
 
     public void deploy(WorkflowConfig config) {
-        List<NodeDTO> nodes = config.getNodes();
+        Collection<NodeDTO> nodes = config.getNodes();
 
         if (nodes != null) {
             List<Node> collect = nodes.stream()
@@ -95,6 +95,10 @@ public class WorkflowService {
 
     public Node getNode(UUID id) {
         return nodeMap.get(id);
+    }
+
+    public WorkflowConfig getConfig() {
+        return new WorkflowConfig(nodeDTOMap.values());
     }
 
 }

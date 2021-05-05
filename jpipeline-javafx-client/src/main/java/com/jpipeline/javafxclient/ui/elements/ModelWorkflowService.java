@@ -4,7 +4,7 @@ import com.jpipeline.common.WorkflowConfig;
 import com.jpipeline.common.dto.NodeDTO;
 import lombok.Getter;
 
-public class ModelWorkflowService implements IWorkflowService {
+public class ModelWorkflowService {
 
     @Getter
     private WorkflowConfig workflowConfig;
@@ -15,22 +15,18 @@ public class ModelWorkflowService implements IWorkflowService {
         this.workflowService = workflowService;
     }
 
-    @Override
     public void createNode(NodeDTO node) {
         workflowConfig.addNode(node);
     }
 
-    @Override
     public void connectNodes(NodeDTO fromNode, NodeDTO toNode) {
         fromNode.addWire(toNode.getId());
     }
 
-    @Override
     public void disconnectNodes(NodeDTO fromNode, NodeDTO toNode) {
         fromNode.deleteWire(toNode.getId());
     }
 
-    @Override
     public void deleteNode(NodeDTO node) {
         workflowConfig.getNodes().remove(node);
         workflowConfig.getNodes().forEach(nodeDTO -> nodeDTO.deleteWire(node.getId()));

@@ -7,8 +7,11 @@ import com.jpipeline.javafxclient.service.ManagerService;
 import com.jpipeline.javafxclient.service.NodeService;
 import com.jpipeline.javafxclient.ui.elements.WorkflowService;
 import com.jpipeline.javafxclient.ui.util.ViewHelper;
+import com.jpipeline.javafxclient.ui.util.Wrapper;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.geometry.Point2D;
+import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.AnchorPane;
@@ -16,6 +19,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +40,7 @@ public class MainMenuController {
     public AnchorPane rootPane;
 
     @FXML
-    public ListView nodesMenu;
+    public Pane nodesMenu;
 
     @FXML
     public Pane canvasPane;
@@ -47,7 +51,7 @@ public class MainMenuController {
     @FXML
     public Rectangle executorStatusIndicator;
 
-    private WorkflowService workflowContextHolder;
+    private WorkflowService workflowService;
 
     private Main main;
 
@@ -61,30 +65,38 @@ public class MainMenuController {
 
     // TODO rename it!
     public void refresh() {
-        WorkflowConfig workflowConfig = ManagerService.getConfig();
+        WorkflowConfig workflowConfig = NodeService.getConfig();
 
-        workflowContextHolder = new WorkflowService(workflowConfig, canvasPane);
+        workflowService = new WorkflowService(workflowConfig, canvasPane);
 
         List<String> nodeTypes = NodeService.getNodeTypes();
 
+        int i = 0;
+        double offset = 20;
+        double margin = 20;
         for (String nodeType : nodeTypes) {
             NodeConfig config = NodeService.getNodeConfig(nodeType);
             Rectangle rectangle = ViewHelper.createNodeRectangle(Paint.valueOf(config.getColor()));
             rectangle.setWidth(NODE_WIDTH);
             rectangle.setHeight(NODE_HEIGHT);
+            rectangle.setX((nodesMenu.getPrefWidth() - NODE_WIDTH) / 2);
+            rectangle.setY(offset + i * (NODE_HEIGHT + margin));
             Text nameLabel = ViewHelper.createNameLabel(nodeType, rectangle);
-            rectangle.setOnMouseClicked(event -> workflowContextHolder.createNode(nodeType));
-            nodesMenu.getItems().add(rectangle);
+            rectangle.setOnMouseClicked(event -> workflowService.createNode(nodeType));
+            nodesMenu.getChildren().add(rectangle);
+            nodesMenu.getChildren().add(nameLabel);
+            i++;
         }
     }
+
 
     private void updateServiceStatuses() {
         if (NodeService.checkIsAlive()) {
             if (!lastExecutorStatus) {
                 lastExecutorStatus = true;
                 Platform.runLater(() -> {
-                    if (workflowContextHolder != null) {
-                        workflowContextHolder.destroy();
+                    if (workflowService != null) {
+                        workflowService.destroy();
                     }
                     refresh();
                 });
@@ -104,7 +116,7 @@ public class MainMenuController {
 
     @FXML
     public void deploy() {
-        workflowContextHolder.deploy();
+        workflowService.deploy();
     }
 
     public void setMain(Main main) {
