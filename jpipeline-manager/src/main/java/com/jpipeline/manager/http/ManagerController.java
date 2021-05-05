@@ -62,7 +62,6 @@ public class ManagerController {
     @PostMapping("/start")
     public void startExecutor() throws Exception {
         log.info("Run '{}'", runCommand);
-        executor = Runtime.getRuntime().exec(runCommand);
         log.info("JPipelineExecutor started");
     }
 
