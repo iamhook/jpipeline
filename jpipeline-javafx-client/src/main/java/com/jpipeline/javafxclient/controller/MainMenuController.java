@@ -83,6 +83,7 @@ public class MainMenuController {
             rectangle.setY(offset + i * (NODE_HEIGHT + margin));
             Text nameLabel = ViewHelper.createNameLabel(nodeType, rectangle);
             rectangle.setOnMouseClicked(event -> workflowService.createNode(nodeType));
+            nameLabel.setOnMouseClicked(event -> workflowService.createNode(nodeType));
             nodesMenu.getChildren().add(rectangle);
             nodesMenu.getChildren().add(nameLabel);
             i++;

@@ -6,10 +6,12 @@ import com.jpipeline.javafxclient.ui.util.ViewHelper;
 import com.jpipeline.javafxclient.ui.util.Wrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.*;
@@ -48,26 +50,6 @@ public class ViewWorkflowService {
         rootPane.setPrefHeight(canvasHeight);
         rootPane.setPrefWidth(canvasWidth);
         setClip();
-
-        rootPane.setOnMouseMoved(event -> {
-            if (connectingWire != null) {
-                if (currentConnectionType.equals(ConnectionType.INPUT_TO_OUTPUT)) {
-                    updateCurve(event.getX(), event.getY(), connectingWire.getEndX(), connectingWire.getEndY(), connectingWire);
-                } else {
-                    updateCurve(connectingWire.getStartX(), connectingWire.getStartY(), event.getX(), event.getY(), connectingWire);
-                }
-                sortChildren();
-            }
-        });
-
-        rootPane.setOnMouseClicked(event -> {
-            if (connectingWire != null) {
-                rootPane.getChildren().remove(connectingWire);
-                connectingWire = null;
-                connectingNode = null;
-                currentConnectionType = null;
-            }
-        });
     }
 
     private void setClip() {
@@ -139,10 +121,8 @@ public class ViewWorkflowService {
         curve.setStartX(fromX);
         curve.setStartY(fromY);
         curve.setControlX1(fromX + xControlOffset);
-        //curve.setControlY1((fromY + toY) / 2);
         curve.setControlY1(fromY + yControlOffset);
         curve.setControlX2(toX - xControlOffset);
-        //curve.setControlY2((fromY + toY) / 2);
         curve.setControlY2(toY - yControlOffset);
         curve.setEndX(toX);
         curve.setEndY(toY);
@@ -158,8 +138,9 @@ public class ViewWorkflowService {
         Rectangle rectangle = ViewHelper.createNodeRectangle(Paint.valueOf(node.getColor()));
 
         if (!deployed) {
-            rectangle.setOpacity(0.7);
+            rectangle.setOpacity(NOT_DEPLOYED_NODE_OPACITY);
         }
+
         rectangle.setWidth(NODE_WIDTH);
         rectangle.setHeight(NODE_HEIGHT);
         rectangle.setX(node.getX());
@@ -176,11 +157,8 @@ public class ViewWorkflowService {
 
         Text nameLabel = ViewHelper.createNameLabel(node.getType(), rectangle);
         Text statusLabel = ViewHelper.createStatusLabel(rectangle);
-        rootPane.getChildren().add(outputHandle);
-        rootPane.getChildren().add(inputHandle);
-        rootPane.getChildren().add(closeHandle);
-        rootPane.getChildren().add(nameLabel);
-        rootPane.getChildren().add(statusLabel);
+
+        rootPane.getChildren().addAll(outputHandle, inputHandle, closeHandle, nameLabel, statusLabel);
 
         nodeWrapper.setInputHandle(inputHandle);
         nodeWrapper.setOutputHandle(outputHandle);
@@ -188,30 +166,54 @@ public class ViewWorkflowService {
         nodeWrapper.setNameLabel(nameLabel);
         nodeWrapper.setStatusLabel(statusLabel);
 
-        inputHandle.setOnMouseClicked(event -> {
+        inputHandle.setOnMousePressed(event -> {
             if (connectingNode == null) {
                 currentConnectionType = ConnectionType.INPUT_TO_OUTPUT;
                 connectingNode = node;
                 connectingWire = ViewHelper.createConnectionCurve();
                 updateCurve(inputHandle.getCenterX(), inputHandle.getCenterY(), inputHandle.getCenterX(), inputHandle.getCenterY(), connectingWire);
                 rootPane.getChildren().add(connectingWire);
-            } else if (currentConnectionType.equals(ConnectionType.OUTPUT_TO_INPUT)) {
-                workflowService.connectNodes(connectingNode, node);
-                rootPane.getChildren().remove(connectingWire);
-                connectingWire = null;
             }
         });
-        outputHandle.setOnMouseClicked(event -> {
+        outputHandle.setOnMousePressed(event -> {
             if (connectingNode == null) {
                 currentConnectionType = ConnectionType.OUTPUT_TO_INPUT;
                 connectingNode = node;
                 connectingWire = ViewHelper.createConnectionCurve();
                 updateCurve(outputHandle.getCenterX(), outputHandle.getCenterY(), outputHandle.getCenterX(), outputHandle.getCenterY(), connectingWire);
                 rootPane.getChildren().add(connectingWire);
-            } else if (currentConnectionType.equals(ConnectionType.INPUT_TO_OUTPUT)) {
-                workflowService.connectNodes(node, connectingNode);
-                rootPane.getChildren().remove(connectingWire);
-                connectingWire = null;
+            }
+        });
+        inputHandle.setOnMouseReleased(event -> {
+            if (connectingNode != null && currentConnectionType.equals(ConnectionType.INPUT_TO_OUTPUT)) {
+                double startX = connectingWire.getStartX();
+                double startY = connectingWire.getStartY();
+                nodeWrappers.values().stream()
+                        .filter(nw -> nw.getOutputHandle().contains(startX, startY))
+                        .limit(1).forEach(nw -> workflowService.connectNodes(nw.getNode(), connectingNode));
+                resetConnectionMode();
+            }
+        });
+        outputHandle.setOnMouseReleased(event -> {
+            if (connectingNode != null && currentConnectionType.equals(ConnectionType.OUTPUT_TO_INPUT)) {
+                double endX = connectingWire.getEndX();
+                double endY = connectingWire.getEndY();
+                nodeWrappers.values().stream()
+                        .filter(nw -> nw.getInputHandle().contains(endX, endY))
+                        .limit(1).forEach(nw -> workflowService.connectNodes(connectingNode, nw.getNode()));
+                resetConnectionMode();
+            }
+        });
+        inputHandle.setOnMouseDragged(event -> {
+            if (connectingWire != null) {
+                updateCurve(event.getX(), event.getY(), connectingWire.getEndX(), connectingWire.getEndY(), connectingWire);
+                sortChildren();
+            }
+        });
+        outputHandle.setOnMouseDragged(event -> {
+            if (connectingWire != null) {
+                updateCurve(connectingWire.getStartX(), connectingWire.getStartY(), event.getX(), event.getY(), connectingWire);
+                sortChildren();
             }
         });
 
@@ -219,9 +221,35 @@ public class ViewWorkflowService {
             workflowService.deleteNode(node);
         });
 
+        setUpDragging(nodeWrapper);
+
+        rectangle.setOnMouseClicked(event -> {
+            if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
+                InterfaceHelper.showNodeEditMenu(nodeWrapper, ((Node)event.getSource()).getScene().getWindow());
+            }
+        });
+
+        nodeWrappers.put(node, nodeWrapper);
+
+        nodeWrapper.init();
+    }
+
+    private void resetConnectionMode() {
+        if (connectingWire != null)
+            rootPane.getChildren().remove(connectingWire);
+        connectingWire = null;
+        connectingNode = null;
+        currentConnectionType = null;
+    }
+
+    private void setUpDragging(NodeWrapper nodeWrapper) {
         Wrapper<Point2D> mouseLocation = new Wrapper<>();
-        setUpDragging(rectangle, mouseLocation);
-        rectangle.setOnMouseDragged(event -> {
+
+        Rectangle rectangle = nodeWrapper.getRectangle();
+        Text nameLabel = nodeWrapper.getNameLabel();
+        NodeDTO node = nodeWrapper.getNode();
+
+        EventHandler<? super MouseEvent> dragHandler = event -> {
             if (mouseLocation.value != null) {
                 double deltaX = event.getSceneX() - mouseLocation.value.getX();
                 double deltaY = event.getSceneY() - mouseLocation.value.getY();
@@ -252,29 +280,22 @@ public class ViewWorkflowService {
                     updateCurve(fromX, fromY, toX, toY, curve);
                 }
             }
-        });
+        };
 
-        rectangle.setOnMouseClicked(event -> {
-            if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
-                InterfaceHelper.showNodeEditMenu(nodeWrapper, ((Node)event.getSource()).getScene().getWindow());
-            }
-        });
+        for (Shape shape : Arrays.asList(rectangle, nameLabel)) {
+            shape.setOnDragDetected(event -> {
+                shape.getParent().setCursor(Cursor.CLOSED_HAND);
+                mouseLocation.value = new Point2D(event.getSceneX(), event.getSceneY());
+            });
 
-        nodeWrappers.put(node, nodeWrapper);
+            shape.setOnMouseReleased(event -> {
+                shape.getParent().setCursor(Cursor.DEFAULT);
+                mouseLocation.value = null ;
+            });
 
-        nodeWrapper.init();
-    }
+            shape.setOnMouseDragged(dragHandler);
+        }
 
-    private static void setUpDragging(Shape shape, Wrapper<Point2D> mouseLocation) {
-        shape.setOnDragDetected(event -> {
-            shape.getParent().setCursor(Cursor.CLOSED_HAND);
-            mouseLocation.value = new Point2D(event.getSceneX(), event.getSceneY());
-        });
-
-        shape.setOnMouseReleased(event -> {
-            shape.getParent().setCursor(Cursor.DEFAULT);
-            mouseLocation.value = null ;
-        });
     }
 
     private void sortChildren() {

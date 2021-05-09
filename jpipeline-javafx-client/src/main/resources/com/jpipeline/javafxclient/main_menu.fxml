@@ -14,9 +14,9 @@
           <AnchorPane fx:id="canvasPane" minHeight="0.0" minWidth="0.0" prefHeight="0.0" prefWidth="0.0" style="-fx-background-color: #D3D3D333, linear-gradient(from 0.5px 0.0px to 20.5px  0.0px, repeat, lightgray 5%, transparent 5%),        linear-gradient(from 0.0px 0.5px to  0.0px 20.5px, repeat, lightgray 5%, transparent 5%);" />
         </content>
       </ScrollPane>
-      <ScrollPane hbarPolicy="NEVER" pannable="true" prefWidth="141.0" style="-fx-background-color: transparent;" AnchorPane.bottomAnchor="61.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <ScrollPane hbarPolicy="NEVER" prefWidth="141.0" style="-fx-background-color: transparent;" AnchorPane.bottomAnchor="61.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
          <content>
-            <AnchorPane fx:id="nodesMenu">
+            <AnchorPane fx:id="nodesMenu" minHeight="-Infinity" minWidth="-Infinity" prefHeight="779.0" prefWidth="124.0">
                <children>
                   <Line endX="140.21726989746094" endY="777.7071533203125" startX="140.21726989746094" startY="-0.9999873042106628" stroke="#b5b5b5" />
                </children>
