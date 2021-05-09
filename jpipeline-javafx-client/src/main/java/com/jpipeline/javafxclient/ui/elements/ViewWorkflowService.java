@@ -9,11 +9,8 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.*;
 import javafx.scene.text.Text;
@@ -32,7 +29,6 @@ public class ViewWorkflowService {
     private static final Logger log = LoggerFactory.getLogger(ViewWorkflowService.class);
 
     private Pane rootPane;
-    private Canvas canvas;
 
     private final double canvasHeight = 2000;
     private final double canvasWidth = 2000;
@@ -40,6 +36,7 @@ public class ViewWorkflowService {
     private Map<NodeDTO, NodeWrapper> nodeWrappers = new HashMap<>();
 
     private NodeDTO connectingNode;
+    private CubicCurve connectingWire;
     private ConnectionType currentConnectionType;
 
     private WorkflowService workflowService;
@@ -48,14 +45,29 @@ public class ViewWorkflowService {
         this.rootPane = rootPane;
         this.workflowService = workflowService;
 
-
-        //this.canvas = new Canvas(rootPane.getWidth(), rootPane.getHeight());
         rootPane.setPrefHeight(canvasHeight);
         rootPane.setPrefWidth(canvasWidth);
-        this.canvas = new Canvas(canvasWidth, canvasHeight);
-        rootPane.getChildren().add(canvas);
         setClip();
-        //createCanvasGrid(true);
+
+        rootPane.setOnMouseMoved(event -> {
+            if (connectingWire != null) {
+                if (currentConnectionType.equals(ConnectionType.INPUT_TO_OUTPUT)) {
+                    updateCurve(event.getX(), event.getY(), connectingWire.getEndX(), connectingWire.getEndY(), connectingWire);
+                } else {
+                    updateCurve(connectingWire.getStartX(), connectingWire.getStartY(), event.getX(), event.getY(), connectingWire);
+                }
+                sortChildren();
+            }
+        });
+
+        rootPane.setOnMouseClicked(event -> {
+            if (connectingWire != null) {
+                rootPane.getChildren().remove(connectingWire);
+                connectingWire = null;
+                connectingNode = null;
+                currentConnectionType = null;
+            }
+        });
     }
 
     private void setClip() {
@@ -63,35 +75,6 @@ public class ViewWorkflowService {
         clip.setLayoutX(0);
         clip.setLayoutY(0);
         rootPane.setClip(clip);
-    }
-
-    private void createCanvasGrid(boolean sharp) {
-        GraphicsContext gc = canvas.getGraphicsContext2D() ;
-        gc.setStroke(Color.LIGHTGRAY);
-        gc.setLineWidth(1.0);
-        for (int x = 0; x < canvas.getWidth(); x+=30) {
-            double x1 ;
-            if (sharp) {
-                x1 = x + 0.5 ;
-            } else {
-                x1 = x ;
-            }
-            gc.moveTo(x1, 0);
-            gc.lineTo(x1, canvas.getHeight());
-            gc.stroke();
-        }
-
-        for (int y = 0; y < canvas.getHeight(); y+=30) {
-            double y1 ;
-            if (sharp) {
-                y1 = y + 0.5 ;
-            } else {
-                y1 = y ;
-            }
-            gc.moveTo(0, y1);
-            gc.lineTo(canvas.getWidth(), y1);
-            gc.stroke();
-        }
     }
 
     public void disconnectNodes(NodeDTO fromNode, NodeDTO toNode) {
@@ -124,14 +107,9 @@ public class ViewWorkflowService {
         double toX = toHandle.getCenterX();
         double toY = toHandle.getCenterY();
 
-        CubicCurve curve = new CubicCurve();
+        CubicCurve curve = ViewHelper.createConnectionCurve();
 
         updateCurve(fromX, fromY, toX, toY, curve);
-
-        curve.setStroke(Color.GRAY);
-        curve.setStrokeWidth(3);
-        curve.setStrokeLineCap(StrokeLineCap.ROUND);
-        curve.setFill(Color.TRANSPARENT);
 
         curve.setOnMouseClicked(event -> {
             if (event.getButton().equals(MouseButton.SECONDARY)) {
@@ -152,10 +130,11 @@ public class ViewWorkflowService {
 
     private void updateCurve(double fromX, double fromY, double toX,
                              double toY, CubicCurve curve) {
-
         double yControlOffset = toY > fromY ? NODE_HEIGHT / 2f: NODE_HEIGHT / -2f;
-        //double xControlOffset = Math.min(NODE_WIDTH * 1.5, Math.abs(toX - fromX));
         double xControlOffset = NODE_WIDTH * 1.5;
+
+        double sqrt = Math.sqrt(Math.pow(Math.abs(toX - fromX), 2) + Math.pow(Math.abs(toY - fromY), 2));
+        xControlOffset = Math.min(sqrt, xControlOffset);
 
         curve.setStartX(fromX);
         curve.setStartY(fromY);
@@ -213,18 +192,29 @@ public class ViewWorkflowService {
             if (connectingNode == null) {
                 currentConnectionType = ConnectionType.INPUT_TO_OUTPUT;
                 connectingNode = node;
+                connectingWire = ViewHelper.createConnectionCurve();
+                updateCurve(inputHandle.getCenterX(), inputHandle.getCenterY(), inputHandle.getCenterX(), inputHandle.getCenterY(), connectingWire);
+                rootPane.getChildren().add(connectingWire);
             } else if (currentConnectionType.equals(ConnectionType.OUTPUT_TO_INPUT)) {
                 workflowService.connectNodes(connectingNode, node);
+                rootPane.getChildren().remove(connectingWire);
+                connectingWire = null;
             }
         });
         outputHandle.setOnMouseClicked(event -> {
             if (connectingNode == null) {
                 currentConnectionType = ConnectionType.OUTPUT_TO_INPUT;
                 connectingNode = node;
+                connectingWire = ViewHelper.createConnectionCurve();
+                updateCurve(outputHandle.getCenterX(), outputHandle.getCenterY(), outputHandle.getCenterX(), outputHandle.getCenterY(), connectingWire);
+                rootPane.getChildren().add(connectingWire);
             } else if (currentConnectionType.equals(ConnectionType.INPUT_TO_OUTPUT)) {
                 workflowService.connectNodes(node, connectingNode);
+                rootPane.getChildren().remove(connectingWire);
+                connectingWire = null;
             }
         });
+
         closeHandle.setOnMouseClicked(event -> {
             workflowService.deleteNode(node);
         });
@@ -270,7 +260,6 @@ public class ViewWorkflowService {
             }
         });
 
-
         nodeWrappers.put(node, nodeWrapper);
 
         nodeWrapper.init();
@@ -309,7 +298,6 @@ public class ViewWorkflowService {
     }
 
     private static final List<Class<? extends Node>> elementsOrder = Arrays.asList(
-            Canvas.class,
             Rectangle.class,
             CubicCurve.class,
             Path.class,

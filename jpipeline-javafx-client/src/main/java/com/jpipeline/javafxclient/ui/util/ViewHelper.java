@@ -3,12 +3,23 @@ package com.jpipeline.javafxclient.ui.util;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.CubicCurve;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.text.Text;
 
 import static com.jpipeline.javafxclient.Consts.HANDLE_RADIUS;
 
 public class ViewHelper {
+
+    public static CubicCurve createConnectionCurve() {
+        CubicCurve curve = new CubicCurve();
+        curve.setStroke(Color.GRAY);
+        curve.setStrokeWidth(3);
+        curve.setStrokeLineCap(StrokeLineCap.ROUND);
+        curve.setFill(Color.TRANSPARENT);
+        return curve;
+    }
 
     public static Rectangle createNodeRectangle(Paint fill) {
         Rectangle rectangle = new Rectangle();
