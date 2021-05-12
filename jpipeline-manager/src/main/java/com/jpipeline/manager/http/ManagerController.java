@@ -9,12 +9,16 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @RestController
 @RequestMapping("/api/manager")
@@ -22,7 +26,10 @@ public class ManagerController {
 
     private static final ObjectMapper OM = new ObjectMapper();
     private static final Logger log = LoggerFactory.getLogger(ManagerController.class);
-    HttpClient httpClient = HttpClient.newHttpClient();
+    private HttpClient httpClient = HttpClient.newHttpClient();
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
+
+
 
     @Value("${jpipeline.workflowConfigPath}")
     private String configPath;
@@ -62,7 +69,27 @@ public class ManagerController {
     @PostMapping("/start")
     public void startExecutor() throws Exception {
         log.info("Run '{}'", runCommand);
-        log.info("JPipelineExecutor started");
+
+        ProcessBuilder ps = new ProcessBuilder(runCommand.split("\\s"));
+
+        ps.redirectErrorStream(true);
+
+        Process pr = ps.start();
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+
+        executor.submit(() -> {
+            try {
+                String line;
+                while ((line = in.readLine()) != null) {
+                    System.out.println(line);
+                }
+                pr.waitFor();
+            } catch (InterruptedException | IOException e) {
+                e.printStackTrace();
+            }
+        });
+
     }
 
     @PostMapping("/stop")
