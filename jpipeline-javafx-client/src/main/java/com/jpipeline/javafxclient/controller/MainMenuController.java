@@ -63,8 +63,12 @@ public class MainMenuController {
         executor.scheduleAtFixedRate(this::updateServiceStatuses, 1, 1, TimeUnit.SECONDS);
     }
 
-    // TODO rename it!
-    public void refresh() {
+    @FXML
+    public void resetWorkflow() {
+        if (workflowService != null) {
+            workflowService.destroy();
+        }
+
         WorkflowConfig workflowConfig = NodeService.getConfig();
 
         workflowService = new WorkflowService(workflowConfig, canvasPane);
@@ -95,12 +99,7 @@ public class MainMenuController {
         if (NodeService.checkIsAlive()) {
             if (!lastExecutorStatus) {
                 lastExecutorStatus = true;
-                Platform.runLater(() -> {
-                    if (workflowService != null) {
-                        workflowService.destroy();
-                    }
-                    refresh();
-                });
+                Platform.runLater(this::resetWorkflow);
             }
             executorStatusIndicator.setFill(Color.GREEN);
         } else {

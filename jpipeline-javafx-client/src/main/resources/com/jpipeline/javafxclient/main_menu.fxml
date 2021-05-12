@@ -30,7 +30,8 @@
             <Rectangle fx:id="managerStatusIndicator" arcHeight="5.0" arcWidth="5.0" fill="#ff1f1f" height="15.0" layoutY="23.0" stroke="BLACK" strokeType="INSIDE" width="16.0" AnchorPane.rightAnchor="50.0" />
             <Text layoutX="1042.0" layoutY="35.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Executor" AnchorPane.rightAnchor="160.0" />
             <Rectangle fx:id="executorStatusIndicator" arcHeight="5.0" arcWidth="5.0" fill="#ff1f1f" height="15.0" layoutY="23.0" stroke="BLACK" strokeType="INSIDE" width="16.0" AnchorPane.rightAnchor="140.0" />
-            <Button layoutX="908.0" layoutY="10.0" mnemonicParsing="false" onAction="#deploy" prefHeight="40.0" prefWidth="91.0" text="Deploy" AnchorPane.rightAnchor="220.0" />
+            <Button layoutX="1060.0" layoutY="17.0" mnemonicParsing="false" onAction="#deploy" prefHeight="27.0" prefWidth="82.0" text="Deploy" AnchorPane.rightAnchor="225.0" />
+            <Button layoutX="964.0" layoutY="17.0" mnemonicParsing="false" onAction="#resetWorkflow" prefHeight="27.0" prefWidth="82.0" text="Reset" />
          </children>
       </AnchorPane>
    </children>
