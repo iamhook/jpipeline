@@ -9,11 +9,14 @@ import com.jpipeline.javafxclient.ui.elements.NodeWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Collection;
@@ -83,32 +86,35 @@ public class NodeEditMenuController {
                         });
             };
 
-            ChangeListener<String> propertyListener;
+            ChangeListener propertyListener;
             if (property.isMultiple()) {
                 propertyListener = (observable, oldValue, newValue) -> {
-                    if (property.isNumber()) {
+                    /*if (property.isNumber()) {
                         if (!newValue.matches("\\d*")) {
                             newValue = newValue.replaceAll("[^\\d]", "");
                         }
-                    }
+                    }*/
                     //propertyValueField.setText(newValue);
                     reloadValue.run();
                 };
             } else {
                 propertyListener = (observable, oldValue, newValue) -> {
-                    if (property.isNumber()) {
+                    if (property.isEnumeration()) {
+                        ChoiceObject choiceObject = (ChoiceObject) newValue;
+                        nodeProperties.put(propertyName, choiceObject.getValue());
+                    } else {
+                        nodeProperties.put(propertyName, newValue);
+                    }
+                    /*if (property.isNumber()) {
                         if (!newValue.matches("\\d*")) {
                             newValue = newValue.replaceAll("[^\\d]", "");
                         }
-                    }
+                    }*/
                     //propertyValueField.setText(newValue);
-                    nodeProperties.put(propertyName, newValue);
                 };
             }
 
             Consumer<Object> createField = (val) -> {
-                TextField propertyValueField = new TextField(val.toString());
-
                 if (property.isMultiple()) {
                     Button deleteRowButton = new Button("-");
                     int j1 = j.get();
@@ -119,8 +125,24 @@ public class NodeEditMenuController {
                     propertyGridPane.add(deleteRowButton, 0, j.get());
                 }
 
-                propertyGridPane.add(propertyValueField, 1, j.getAndIncrement());
-                propertyValueField.textProperty().addListener(propertyListener);
+                if (property.isEnumeration()) {
+                    ChoiceBox<ChoiceObject> propertyChoiceBox = new ChoiceBox<>();
+
+                    for (Object variant : property.getVariants()) {
+                        ChoiceObject choiceObject = new ChoiceObject(variant.toString(), variant);
+                        propertyChoiceBox.getItems().add(choiceObject);
+                        if (val.equals(variant))
+                            propertyChoiceBox.getSelectionModel().select(choiceObject);
+                    }
+                    propertyGridPane.add(propertyChoiceBox, 1, j.getAndIncrement());
+                    propertyChoiceBox.valueProperty().addListener(propertyListener);
+                } else {
+                    TextField propertyValueField = new TextField(val.toString());
+
+                    propertyGridPane.add(propertyValueField, 1, j.getAndIncrement());
+                    propertyValueField.textProperty().addListener(propertyListener);
+                }
+
             };
 
             if (property.isMultiple()) {
@@ -128,7 +150,6 @@ public class NodeEditMenuController {
                 addRowButton.setOnAction(event -> createField.accept(""));
                 gridPane.add(addRowButton, 1, i);
             }
-
 
             for (Object value : valueCollection) {
                 if (property.isComplex()) {
@@ -193,5 +214,16 @@ public class NodeEditMenuController {
     public void setNodeWrapper(NodeWrapper nodeWrapper) {
         this.node = nodeWrapper.getNode();
         this.nodeWrapper = nodeWrapper;
+    }
+
+    @Getter @Setter @AllArgsConstructor
+    private static class ChoiceObject {
+        String name;
+        Object value;
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 }

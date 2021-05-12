@@ -34,6 +34,13 @@ public class PropertyConfig {
         return Type.NUMBER.equals(type);
     }
 
+    @JsonIgnore
+    public boolean isEnumeration() {
+        return variants != null && variants.size() > 0;
+    }
+
+
+
     public Object getDefaultValue() {
         if (isComplex()) {
             CJson defaultValue = new CJson();
