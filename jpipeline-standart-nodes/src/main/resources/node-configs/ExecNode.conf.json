@@ -1,5 +1,7 @@
 {
   "color": "#ffbe0a",
+  "inputs": 1,
+  "outputs": 1,
   "properties": [
     {
       "name": "args",

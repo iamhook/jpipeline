@@ -1,6 +1,8 @@
 package com.jpipeline.javafxclient.ui.elements;
 
 import com.jpipeline.common.dto.NodeDTO;
+import com.jpipeline.common.util.NodeConfig;
+import com.jpipeline.javafxclient.service.NodeService;
 import com.jpipeline.javafxclient.ui.util.InterfaceHelper;
 import com.jpipeline.javafxclient.ui.util.ViewHelper;
 import com.jpipeline.javafxclient.ui.util.Wrapper;
@@ -130,6 +132,8 @@ public class ViewWorkflowService {
 
     public void createNode(NodeDTO node, boolean deployed) {
 
+        NodeConfig nodeConfig = NodeService.getNodeConfig(node.getType());
+
         if (node.getX() == null)
             node.setX(DEFAULT_X);
         if (node.getY() == null)
@@ -151,71 +155,82 @@ public class ViewWorkflowService {
         nodeWrapper.setParent(rootPane);
         nodeWrapper.setRectangle(rectangle);
 
-        Circle outputHandle = ViewHelper.createOutputHandle(rectangle);
-        Circle inputHandle = ViewHelper.createInputHandle(rectangle);
+
         Circle closeHandle = ViewHelper.createCloseHandle(rectangle);
 
         Text nameLabel = ViewHelper.createNameLabel(node.getType(), rectangle);
         Text statusLabel = ViewHelper.createStatusLabel(rectangle);
 
-        rootPane.getChildren().addAll(outputHandle, inputHandle, closeHandle, nameLabel, statusLabel);
+        rootPane.getChildren().addAll(closeHandle, nameLabel, statusLabel);
 
-        nodeWrapper.setInputHandle(inputHandle);
-        nodeWrapper.setOutputHandle(outputHandle);
         nodeWrapper.setCloseHandle(closeHandle);
         nodeWrapper.setNameLabel(nameLabel);
         nodeWrapper.setStatusLabel(statusLabel);
 
-        inputHandle.setOnMousePressed(event -> {
-            if (connectingNode == null) {
-                currentConnectionType = ConnectionType.INPUT_TO_OUTPUT;
-                connectingNode = node;
-                connectingWire = ViewHelper.createConnectionCurve();
-                updateCurve(inputHandle.getCenterX(), inputHandle.getCenterY(), inputHandle.getCenterX(), inputHandle.getCenterY(), connectingWire);
-                rootPane.getChildren().add(connectingWire);
-            }
-        });
-        outputHandle.setOnMousePressed(event -> {
-            if (connectingNode == null) {
-                currentConnectionType = ConnectionType.OUTPUT_TO_INPUT;
-                connectingNode = node;
-                connectingWire = ViewHelper.createConnectionCurve();
-                updateCurve(outputHandle.getCenterX(), outputHandle.getCenterY(), outputHandle.getCenterX(), outputHandle.getCenterY(), connectingWire);
-                rootPane.getChildren().add(connectingWire);
-            }
-        });
-        inputHandle.setOnMouseReleased(event -> {
-            if (connectingNode != null && currentConnectionType.equals(ConnectionType.INPUT_TO_OUTPUT)) {
-                double startX = connectingWire.getStartX();
-                double startY = connectingWire.getStartY();
-                nodeWrappers.values().stream()
-                        .filter(nw -> nw.getOutputHandle().contains(startX, startY))
-                        .limit(1).forEach(nw -> workflowService.connectNodes(nw.getNode(), connectingNode));
-                resetConnectionMode();
-            }
-        });
-        outputHandle.setOnMouseReleased(event -> {
-            if (connectingNode != null && currentConnectionType.equals(ConnectionType.OUTPUT_TO_INPUT)) {
-                double endX = connectingWire.getEndX();
-                double endY = connectingWire.getEndY();
-                nodeWrappers.values().stream()
-                        .filter(nw -> nw.getInputHandle().contains(endX, endY))
-                        .limit(1).forEach(nw -> workflowService.connectNodes(connectingNode, nw.getNode()));
-                resetConnectionMode();
-            }
-        });
-        inputHandle.setOnMouseDragged(event -> {
-            if (connectingWire != null) {
-                updateCurve(event.getX(), event.getY(), connectingWire.getEndX(), connectingWire.getEndY(), connectingWire);
-                sortChildren();
-            }
-        });
-        outputHandle.setOnMouseDragged(event -> {
-            if (connectingWire != null) {
-                updateCurve(connectingWire.getStartX(), connectingWire.getStartY(), event.getX(), event.getY(), connectingWire);
-                sortChildren();
-            }
-        });
+        if (nodeConfig.getInputs() > 0) {
+            Circle inputHandle = ViewHelper.createInputHandle(rectangle);
+            nodeWrapper.setInputHandle(inputHandle);
+            rootPane.getChildren().add(inputHandle);
+
+            inputHandle.setOnMousePressed(event -> {
+                if (connectingNode == null) {
+                    currentConnectionType = ConnectionType.INPUT_TO_OUTPUT;
+                    connectingNode = node;
+                    connectingWire = ViewHelper.createConnectionCurve();
+                    updateCurve(inputHandle.getCenterX(), inputHandle.getCenterY(), inputHandle.getCenterX(), inputHandle.getCenterY(), connectingWire);
+                    rootPane.getChildren().add(connectingWire);
+                }
+            });
+            inputHandle.setOnMouseReleased(event -> {
+                if (connectingNode != null && currentConnectionType.equals(ConnectionType.INPUT_TO_OUTPUT)) {
+                    double startX = connectingWire.getStartX();
+                    double startY = connectingWire.getStartY();
+                    nodeWrappers.values().stream()
+                            .filter(nw -> nw.getOutputHandle() != null && nw.getOutputHandle().contains(startX, startY))
+                            .limit(1).forEach(nw -> workflowService.connectNodes(nw.getNode(), connectingNode));
+                    resetConnectionMode();
+                }
+            });
+            inputHandle.setOnMouseDragged(event -> {
+                if (connectingWire != null) {
+                    updateCurve(event.getX(), event.getY(), connectingWire.getEndX(), connectingWire.getEndY(), connectingWire);
+                    sortChildren();
+                }
+            });
+        }
+
+        if (nodeConfig.getOutputs() > 0) {
+            Circle outputHandle = ViewHelper.createOutputHandle(rectangle);
+            nodeWrapper.setOutputHandle(outputHandle);
+            rootPane.getChildren().add(outputHandle);
+
+            outputHandle.setOnMousePressed(event -> {
+                if (connectingNode == null) {
+                    currentConnectionType = ConnectionType.OUTPUT_TO_INPUT;
+                    connectingNode = node;
+                    connectingWire = ViewHelper.createConnectionCurve();
+                    updateCurve(outputHandle.getCenterX(), outputHandle.getCenterY(), outputHandle.getCenterX(), outputHandle.getCenterY(), connectingWire);
+                    rootPane.getChildren().add(connectingWire);
+                }
+            });
+            outputHandle.setOnMouseReleased(event -> {
+                if (connectingNode != null && currentConnectionType.equals(ConnectionType.OUTPUT_TO_INPUT)) {
+                    double endX = connectingWire.getEndX();
+                    double endY = connectingWire.getEndY();
+                    nodeWrappers.values().stream()
+                            .filter(nw -> nw.getInputHandle() != null && nw.getInputHandle().contains(endX, endY))
+                            .limit(1).forEach(nw -> workflowService.connectNodes(connectingNode, nw.getNode()));
+                    resetConnectionMode();
+                }
+            });
+            outputHandle.setOnMouseDragged(event -> {
+                if (connectingWire != null) {
+                    updateCurve(connectingWire.getStartX(), connectingWire.getStartY(), event.getX(), event.getY(), connectingWire);
+                    sortChildren();
+                }
+            });
+        }
+
 
         closeHandle.setOnMouseClicked(event -> {
             workflowService.deleteNode(node);

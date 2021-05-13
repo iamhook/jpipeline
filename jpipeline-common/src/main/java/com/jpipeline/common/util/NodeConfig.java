@@ -10,4 +10,7 @@ import java.util.List;
 public class NodeConfig {
     private String color;
     private List<PropertyConfig> properties;
+
+    private int inputs;
+    private int outputs;
 }

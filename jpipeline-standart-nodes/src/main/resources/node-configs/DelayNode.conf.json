@@ -1,5 +1,7 @@
 {
   "color": "#ff430a",
+  "inputs": 1,
+  "outputs": 1,
   "properties": [
     {
       "name": "delay",

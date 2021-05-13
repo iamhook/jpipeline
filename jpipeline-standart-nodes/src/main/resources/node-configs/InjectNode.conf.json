@@ -1,5 +1,7 @@
 {
   "color": "#0ac6ff",
+  "inputs": 0,
+  "outputs": 1,
   "properties": [
     {
       "name": "firstMessage",
