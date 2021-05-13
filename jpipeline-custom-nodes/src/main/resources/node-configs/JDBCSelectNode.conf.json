@@ -1,0 +1,31 @@
+{
+  "color": "#aa430a",
+  "inputs": 1,
+  "outputs": 1,
+  "properties": [
+    {
+      "name": "url",
+      "type": "STRING",
+      "defaultValue": null,
+      "required": true
+    },
+    {
+      "name": "username",
+      "type": "STRING",
+      "defaultValue": null,
+      "required": true
+    },
+    {
+      "name": "password",
+      "type": "STRING",
+      "defaultValue": null,
+      "required": true
+    },
+    {
+      "name": "query",
+      "type": "STRING",
+      "defaultValue": null,
+      "required": true
+    }
+  ]
+}

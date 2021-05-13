@@ -160,10 +160,6 @@ public class NodeSupportService {
         }
     }
 
-    /*
-    * sdfsdf
-    *
-    * */
     private Object createComplexFieldValue(Class fieldType, CJson propertyJson, PropertyConfig propertyConfig) {
         try {
             Map<String, Field> nestedFields = EntityMetadata.findFields(fieldType).stream()
