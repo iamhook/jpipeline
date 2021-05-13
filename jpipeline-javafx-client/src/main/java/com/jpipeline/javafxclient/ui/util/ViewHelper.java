@@ -1,5 +1,6 @@
 package com.jpipeline.javafxclient.ui.util;
 
+import javafx.scene.Cursor;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
@@ -25,11 +26,13 @@ public class ViewHelper {
         Rectangle rectangle = new Rectangle();
         rectangle.setStroke(Color.BLACK);
         rectangle.setFill(fill);
+        rectangle.setCursor(Cursor.OPEN_HAND);
         return rectangle;
     }
 
     public static Text createNameLabel(String name, Rectangle rectangle) {
         Text nameLabel = new Text(name);
+        nameLabel.setCursor(Cursor.OPEN_HAND);
         nameLabel.xProperty().bind(rectangle.xProperty().add((rectangle.getWidth() - nameLabel.getLayoutBounds().getWidth())/2));
         nameLabel.yProperty().bind(rectangle.yProperty().add(nameLabel.getLayoutBounds().getHeight()));
         return nameLabel;
