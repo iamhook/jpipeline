@@ -3,10 +3,7 @@ package com.jpipeline.javafxclient.ui.elements;
 import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.javafxclient.service.NodeService;
 import javafx.scene.layout.Pane;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.CubicCurve;
-import javafx.scene.shape.Path;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.*;
 import javafx.scene.text.Text;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,6 +28,7 @@ public class NodeWrapper {
     private Circle outputHandle;
     private Circle inputHandle;
     private Circle closeHandle;
+    private Shape nodeButton;
 
     private List<CubicCurve> outputs = new ArrayList<>();
     private List<CubicCurve> inputs = new ArrayList<>();
@@ -72,6 +70,7 @@ public class NodeWrapper {
         parent.getChildren().remove(rectangle);
         parent.getChildren().remove(nameLabel);
         parent.getChildren().remove(statusLabel);
+        parent.getChildren().remove(nodeButton);
     }
 
 }

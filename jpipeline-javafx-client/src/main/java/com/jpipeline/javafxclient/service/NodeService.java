@@ -58,6 +58,14 @@ public class NodeService {
         return null;
     }
 
+    public static void pressButton(String nodeId) {
+        try {
+            httpService.get("/api/node/" + nodeId + "/pressButton").body();
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+        }
+    }
+
     public static NodeConfig getNodeConfig(String nodeType) {
         return configsCache.computeIfAbsent(nodeType, s -> {
             try {

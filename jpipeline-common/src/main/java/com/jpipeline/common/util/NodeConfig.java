@@ -13,4 +13,9 @@ public class NodeConfig {
 
     private int inputs;
     private int outputs;
+    private boolean hasButton;
+
+    public boolean hasButton() {
+        return hasButton;
+    }
 }

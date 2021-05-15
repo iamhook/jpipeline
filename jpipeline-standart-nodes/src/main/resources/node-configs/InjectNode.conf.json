@@ -2,6 +2,7 @@
   "color": "#0ac6ff",
   "inputs": 0,
   "outputs": 1,
+  "hasButton": true,
   "properties": [
     {
       "name": "firstMessage",

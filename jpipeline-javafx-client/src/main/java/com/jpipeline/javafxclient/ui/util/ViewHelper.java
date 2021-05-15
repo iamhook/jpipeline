@@ -1,15 +1,14 @@
 package com.jpipeline.javafxclient.ui.util;
 
+import com.jpipeline.javafxclient.service.NodeService;
 import javafx.scene.Cursor;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.CubicCurve;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.StrokeLineCap;
+import javafx.scene.shape.*;
 import javafx.scene.text.Text;
 
 import static com.jpipeline.javafxclient.Consts.HANDLE_RADIUS;
+import static com.jpipeline.javafxclient.Consts.NODE_BUTTON_SIZE;
 
 public class ViewHelper {
 
@@ -27,6 +26,8 @@ public class ViewHelper {
         rectangle.setStroke(Color.BLACK);
         rectangle.setFill(fill);
         rectangle.setCursor(Cursor.OPEN_HAND);
+        rectangle.setArcWidth(7);
+        rectangle.setArcHeight(7);
         return rectangle;
     }
 
@@ -43,6 +44,23 @@ public class ViewHelper {
         statusLabel.xProperty().bind(rectangle.xProperty());
         statusLabel.yProperty().bind(rectangle.yProperty().add(rectangle.heightProperty().add(statusLabel.getLayoutBounds().getHeight())));
         return statusLabel;
+    }
+
+    public static Shape createNodeButton(Rectangle rectangle, String nodeId) {
+        Rectangle button = new Rectangle(NODE_BUTTON_SIZE, NODE_BUTTON_SIZE);
+        button.setArcHeight(5);
+        button.setArcWidth(5);
+        button.setStroke(Color.GRAY);
+        button.setCursor(Cursor.HAND);
+        button.xProperty().bind(rectangle.xProperty().subtract(3));
+        button.yProperty().bind(rectangle.yProperty().add(rectangle.heightProperty()).subtract(button.getHeight() - 3));
+
+        button.setFill(Color.WHITE);
+        button.setOnMouseEntered(event -> button.setFill(Color.LIGHTGREY));
+        button.setOnMouseExited(event -> button.setFill(Color.WHITE));
+        button.setOnMouseClicked(event -> NodeService.pressButton(nodeId));
+
+        return button;
     }
 
     public static Circle createCloseHandle(Rectangle rectangle) {

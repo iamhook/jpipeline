@@ -155,7 +155,6 @@ public class ViewWorkflowService {
         nodeWrapper.setParent(rootPane);
         nodeWrapper.setRectangle(rectangle);
 
-
         Circle closeHandle = ViewHelper.createCloseHandle(rectangle);
 
         Text nameLabel = ViewHelper.createNameLabel(node.getType(), rectangle);
@@ -166,6 +165,12 @@ public class ViewWorkflowService {
         nodeWrapper.setCloseHandle(closeHandle);
         nodeWrapper.setNameLabel(nameLabel);
         nodeWrapper.setStatusLabel(statusLabel);
+
+        if (nodeConfig.hasButton()) {
+            Shape nodeButton = ViewHelper.createNodeButton(rectangle, node.getId());
+            nodeWrapper.setNodeButton(nodeButton);
+            rootPane.getChildren().add(nodeButton);
+        }
 
         if (nodeConfig.getInputs() > 0) {
             Circle inputHandle = ViewHelper.createInputHandle(rectangle);
