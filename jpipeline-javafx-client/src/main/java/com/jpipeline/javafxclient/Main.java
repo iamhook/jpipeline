@@ -1,6 +1,7 @@
 package com.jpipeline.javafxclient;
 
 import com.jpipeline.javafxclient.controller.MainMenuController;
+import com.jpro.webapi.JProApplication;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -9,7 +10,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class Main extends Application {
+public class Main extends JProApplication {
 
     private Stage primaryStage;
     private AnchorPane rootLayout;

@@ -47,6 +47,11 @@ dependencies {
     testImplementation group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.14.1'
     testImplementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
 
+    implementation group: 'io.projectreactor', name: 'reactor-core', version: '3.4.2'
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.4'
+
+
 
 }
 
@@ -74,8 +79,6 @@ jar {
  ******************  jpro Configuration ******************
  */
 apply plugin: 'com.sandec.jpro'
-
-
 
 /**
  * jpro settings

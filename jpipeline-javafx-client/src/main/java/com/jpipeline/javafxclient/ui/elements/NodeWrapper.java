@@ -2,8 +2,12 @@ package com.jpipeline.javafxclient.ui.elements;
 
 import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.javafxclient.service.NodeService;
+import javafx.application.Platform;
 import javafx.scene.layout.Pane;
-import javafx.scene.shape.*;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.CubicCurve;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 import lombok.Getter;
 import lombok.Setter;
@@ -45,7 +49,7 @@ public class NodeWrapper {
                     .onBackpressureDrop()
                     .limitRate(1)
                     .delayElements(Duration.ofMillis(100))
-                    .subscribe(nodeStatus -> statusLabel.setText(nodeStatus.getStatus()));
+                    .subscribe(nodeStatus -> Platform.runLater(() -> statusLabel.setText(nodeStatus.getStatus())));
         } catch (Exception e) {
             e.printStackTrace();
         }

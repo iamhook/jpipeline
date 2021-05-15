@@ -103,16 +103,16 @@ public class MainMenuController {
                 lastExecutorStatus = true;
                 Platform.runLater(this::resetWorkflow);
             }
-            executorStatusIndicator.setFill(Color.GREEN);
+            Platform.runLater(() -> executorStatusIndicator.setFill(Color.GREEN));
         } else {
             lastExecutorStatus = false;
-            executorStatusIndicator.setFill(Color.RED);
+            Platform.runLater(() -> executorStatusIndicator.setFill(Color.RED));
         }
 
         if (ManagerService.checkIsAlive()) {
-            managerStatusIndicator.setFill(Color.GREEN);
+            Platform.runLater(() -> managerStatusIndicator.setFill(Color.GREEN));
         } else {
-            managerStatusIndicator.setFill(Color.RED);
+            Platform.runLater(() -> managerStatusIndicator.setFill(Color.RED));
         }
     }
 

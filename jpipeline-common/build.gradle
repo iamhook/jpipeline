@@ -1,5 +1,13 @@
-bootJar {
+/*bootJar {
     enabled = true
+}*/
+
+dependencies {
+    implementation group: 'io.projectreactor', name: 'reactor-core', version: '3.4.2'
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.4'
+
+
 }
 
 jar {

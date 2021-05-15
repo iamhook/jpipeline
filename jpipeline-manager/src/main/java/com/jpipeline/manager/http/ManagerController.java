@@ -42,7 +42,7 @@ public class ManagerController {
 
     @PostConstruct
     private void init() throws Exception {
-        startExecutor();
+        //startExecutor();
     }
 
     @GetMapping("/checkIsAlive")
