@@ -59,7 +59,7 @@ public class NodeWrapper {
     }
 
     public void destroy() {
-        if (!statusSubscription.isDisposed())
+        if (statusSubscription != null && !statusSubscription.isDisposed())
             statusSubscription.dispose();
 
         getOutputs().forEach(path -> parent.getChildren().remove(path));

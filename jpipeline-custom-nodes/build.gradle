@@ -10,4 +10,9 @@ jar {
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
+
+    copy {
+        from 'build/libs/jpipeline-custom-nodes.jar'
+        into "/opt/jpipeline/libs"
+    }
 }
