@@ -2,11 +2,9 @@ package com.jpipeline.javafxclient.ui.util;
 
 import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.javafxclient.Main;
-import com.jpipeline.javafxclient.controller.MainMenuController;
 import com.jpipeline.javafxclient.controller.NodeEditMenuController;
 import com.jpipeline.javafxclient.ui.elements.NodeWrapper;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Modality;
