@@ -5,6 +5,7 @@ public class Consts {
     public static final int NODE_HEIGHT = 50;
     public static final int NODE_WIDTH = 100;
     public static final double NODE_BUTTON_SIZE = 15.;
+    public static final double PROGRESS_INDICATOR_SIZE = 100.;
     public static final double DEFAULT_X = 200;
     public static final double DEFAULT_Y = 200;
     public static final double NOT_DEPLOYED_NODE_OPACITY = 0.7;

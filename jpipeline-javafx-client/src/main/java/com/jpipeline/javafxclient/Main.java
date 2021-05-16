@@ -33,8 +33,8 @@ public class Main extends Application {
         primaryStage.setScene(scene);
         MainMenuController mainMenuController = loader.getController();
         mainMenuController.setMain(this);
-        mainMenuController.init();
         primaryStage.show();
+        mainMenuController.init();
     }
 
 

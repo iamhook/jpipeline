@@ -14,6 +14,10 @@ import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.effect.ColorAdjust;
+import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -29,8 +33,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static com.jpipeline.javafxclient.Consts.NODE_HEIGHT;
-import static com.jpipeline.javafxclient.Consts.NODE_WIDTH;
+import static com.jpipeline.javafxclient.Consts.*;
 
 public class MainMenuController {
 
@@ -46,10 +49,15 @@ public class MainMenuController {
     public Pane canvasPane;
 
     @FXML
+    public ScrollPane canvasWrapper;
+
+    @FXML
     public Rectangle managerStatusIndicator;
 
     @FXML
     public Rectangle executorStatusIndicator;
+
+    public ProgressIndicator progressIndicator;
 
     private WorkflowService workflowService;
 
@@ -60,7 +68,7 @@ public class MainMenuController {
     ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
     public void init() {
-        executor.scheduleAtFixedRate(this::updateServiceStatuses, 1, 1, TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate(this::updateServiceStatuses, 0, 1, TimeUnit.SECONDS);
     }
 
     @FXML
@@ -78,6 +86,7 @@ public class MainMenuController {
         int i = 0;
         double offset = 20;
         double margin = 20;
+        nodesMenu.getChildren().clear();
         for (String nodeType : nodeTypes) {
             NodeConfig config = NodeService.getNodeConfig(nodeType);
             Rectangle rectangle = ViewHelper.createNodeRectangle(Paint.valueOf(config.getColor()));
@@ -96,6 +105,44 @@ public class MainMenuController {
         }
     }
 
+    public void createProgressIndicator() {
+        progressIndicator = new ProgressIndicator();
+        rootPane.getChildren().add(progressIndicator);
+
+        /*progressIndicator.setVisible(true);*/
+
+        //progressIndicator.setLayoutX(nodesMenu.getWidth() + 30);
+        progressIndicator.setManaged(false);
+        progressIndicator.resize(PROGRESS_INDICATOR_SIZE, PROGRESS_INDICATOR_SIZE);
+        progressIndicator.layoutXProperty().bind(canvasWrapper.widthProperty().divide(2)
+                .add(nodesMenu.getWidth())
+                .subtract(progressIndicator.getWidth()/2));
+        progressIndicator.layoutYProperty().bind(canvasWrapper.heightProperty().divide(2)
+                .subtract(progressIndicator.getHeight()/2));
+        progressIndicator.setProgress(ProgressIndicator.INDETERMINATE_PROGRESS);
+    }
+
+    private void showProgressIndicator() {
+        canvasPane.setDisable(true);
+        if (progressIndicator == null) {
+            createProgressIndicator();
+        }
+        GaussianBlur blur = new GaussianBlur(5); // 55 is just to show edge effect more clearly.
+        canvasWrapper.setEffect(blur);
+        nodesMenu.setEffect(blur);
+        progressIndicator.setVisible(true);
+    }
+
+    private void hideProgressIndicator() {
+        canvasPane.setDisable(false);
+        if (progressIndicator == null) {
+            createProgressIndicator();
+        }
+        progressIndicator.setVisible(false);
+        canvasWrapper.setEffect(null);
+        nodesMenu.setEffect(null);
+    }
+
 
     private void updateServiceStatuses() {
         if (NodeService.checkIsAlive()) {
@@ -103,16 +150,24 @@ public class MainMenuController {
                 lastExecutorStatus = true;
                 Platform.runLater(this::resetWorkflow);
             }
-            executorStatusIndicator.setFill(Color.GREEN);
+
+            Platform.runLater(() -> {
+                hideProgressIndicator();
+                canvasPane.setDisable(false);
+                executorStatusIndicator.setFill(Color.GREEN);
+            });
         } else {
             lastExecutorStatus = false;
-            executorStatusIndicator.setFill(Color.RED);
+            Platform.runLater(() -> {
+                showProgressIndicator();
+                executorStatusIndicator.setFill(Color.RED);
+            });
         }
 
         if (ManagerService.checkIsAlive()) {
-            managerStatusIndicator.setFill(Color.GREEN);
+            Platform.runLater(() -> managerStatusIndicator.setFill(Color.GREEN));
         } else {
-            managerStatusIndicator.setFill(Color.RED);
+            Platform.runLater(() -> managerStatusIndicator.setFill(Color.RED));
         }
     }
 
