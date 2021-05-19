@@ -7,6 +7,8 @@ plugins {
 group 'org.example'
 version '1.0-SNAPSHOT'
 
+def javaFxVersion = 16
+
 dependencies {
     implementation project(":jpipeline-common")
     implementation 'org.springframework.boot:spring-boot-starter-rsocket:2.4.5'
@@ -17,6 +19,12 @@ dependencies {
     testImplementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
 
 
+    implementation 'org.kordamp.ikonli:ikonli-javafx:11.1.0'
+    implementation 'org.kordamp.ikonli:ikonli-fontawesome-pack:11.1.0'
+
+    runtimeOnly "org.openjfx:javafx-graphics:$javaFxVersion:win"
+    runtimeOnly "org.openjfx:javafx-graphics:$javaFxVersion:linux"
+    runtimeOnly "org.openjfx:javafx-graphics:$javaFxVersion:mac"
 }
 
 
@@ -27,12 +35,15 @@ repositories {
 }
 
 javafx {
-    version = "16"
+    version = javaFxVersion
     modules = [ 'javafx.controls', 'javafx.fxml' ]
 }
 
 jar {
+
     enabled = true
+
+    dependsOn(':jpipeline-common:jar')
 
     manifest {
         attributes 'Main-Class': mainClassName
