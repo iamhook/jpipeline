@@ -6,6 +6,20 @@ dependencies {
 
 }
 
+bootRun {
+    dependsOn(':jpipeline-executor:bootJar')
+}
+
+jar {
+
+    dependsOn(':jpipeline-executor:bootJar')
+
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+}
+
 test {
     useJUnitPlatform()
 }
