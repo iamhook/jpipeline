@@ -1,0 +1,4 @@
+.scroll-bar {
+    -fx-focus-color: trasparent;
+    -fx-faint-focus-color: trasparent;
+}

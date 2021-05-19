@@ -2,28 +2,23 @@ package com.jpipeline.javafxclient.controller;
 
 import com.jpipeline.common.WorkflowConfig;
 import com.jpipeline.common.util.NodeConfig;
-import com.jpipeline.javafxclient.Main;
+import com.jpipeline.javafxclient.MainApplication;
 import com.jpipeline.javafxclient.service.ManagerService;
 import com.jpipeline.javafxclient.service.NodeService;
 import com.jpipeline.javafxclient.ui.elements.WorkflowService;
 import com.jpipeline.javafxclient.ui.util.ViewHelper;
-import com.jpipeline.javafxclient.ui.util.Wrapper;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,18 +52,24 @@ public class MainMenuController {
     @FXML
     public Rectangle executorStatusIndicator;
 
+    @FXML
+    public Button resetButton;
+
+    @FXML
+    public Button deployButton;
+
     public ProgressIndicator progressIndicator;
 
     private WorkflowService workflowService;
 
-    private Main main;
+    private MainApplication main;
 
     private boolean lastExecutorStatus = false;
 
     ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
     public void init() {
-        executor.scheduleAtFixedRate(this::updateServiceStatuses, 0, 1, TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate(this::updateServiceStatuses, 0, 500, TimeUnit.MILLISECONDS);
     }
 
     @FXML
@@ -114,20 +115,22 @@ public class MainMenuController {
         //progressIndicator.setLayoutX(nodesMenu.getWidth() + 30);
         progressIndicator.setManaged(false);
         progressIndicator.resize(PROGRESS_INDICATOR_SIZE, PROGRESS_INDICATOR_SIZE);
-        progressIndicator.layoutXProperty().bind(canvasWrapper.widthProperty().divide(2)
-                .add(nodesMenu.getWidth())
+        progressIndicator.layoutXProperty().bind(rootPane.widthProperty().divide(2)
                 .subtract(progressIndicator.getWidth()/2));
-        progressIndicator.layoutYProperty().bind(canvasWrapper.heightProperty().divide(2)
+        progressIndicator.layoutYProperty().bind(rootPane.heightProperty().divide(2)
                 .subtract(progressIndicator.getHeight()/2));
         progressIndicator.setProgress(ProgressIndicator.INDETERMINATE_PROGRESS);
+        progressIndicator.setStyle("-fx-accent: gray;");
     }
 
     private void showProgressIndicator() {
         canvasPane.setDisable(true);
+        resetButton.setDisable(true);
+        deployButton.setDisable(true);
         if (progressIndicator == null) {
             createProgressIndicator();
         }
-        GaussianBlur blur = new GaussianBlur(5); // 55 is just to show edge effect more clearly.
+        GaussianBlur blur = new GaussianBlur(5);
         canvasWrapper.setEffect(blur);
         nodesMenu.setEffect(blur);
         progressIndicator.setVisible(true);
@@ -135,6 +138,8 @@ public class MainMenuController {
 
     private void hideProgressIndicator() {
         canvasPane.setDisable(false);
+        resetButton.setDisable(false);
+        deployButton.setDisable(false);
         if (progressIndicator == null) {
             createProgressIndicator();
         }
@@ -176,7 +181,7 @@ public class MainMenuController {
         workflowService.deploy();
     }
 
-    public void setMain(Main main) {
+    public void setMain(MainApplication main) {
         this.main = main;
     }
 }

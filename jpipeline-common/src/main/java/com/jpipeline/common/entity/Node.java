@@ -35,7 +35,7 @@ public abstract class Node {
     protected final Sinks.Many sink = Sinks.many().multicast().onBackpressureBuffer();
 
     @Getter
-    private final Sinks.Many<NodeSignal> signalSink = Sinks.many().multicast().onBackpressureBuffer(Queues.SMALL_BUFFER_SIZE, false);
+    private final Sinks.Many<NodeSignal> signalSink = Sinks.many().multicast().onBackpressureBuffer(Queues.XS_BUFFER_SIZE, false);
 
     public Node(UUID id) {
         this.id = id;

@@ -1,12 +1,10 @@
 package com.jpipeline.javafxclient.ui.util;
 
 import com.jpipeline.common.dto.NodeDTO;
-import com.jpipeline.javafxclient.Main;
-import com.jpipeline.javafxclient.controller.MainMenuController;
+import com.jpipeline.javafxclient.MainApplication;
 import com.jpipeline.javafxclient.controller.NodeEditMenuController;
 import com.jpipeline.javafxclient.ui.elements.NodeWrapper;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Modality;
@@ -20,7 +18,7 @@ public class InterfaceHelper {
             NodeDTO node = nodeWrapper.getNode();
             Stage stage = new Stage();
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(Main.class.getResource("node_edit_menu.fxml"));
+            loader.setLocation(MainApplication.class.getResource("node_edit_menu.fxml"));
             Parent root = loader.load();
             stage.setScene(new Scene(root));
             stage.setTitle(node.getType() + " edit menu");
