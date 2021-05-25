@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jpipeline.common.entity.Node;
 import com.jpipeline.common.util.CJson;
 import com.jpipeline.javafxclient.service.NodeService;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.Pane;
@@ -21,10 +22,9 @@ public class DebugMenuController {
     private static final Logger log = LoggerFactory.getLogger(DebugMenuController.class);
 
     @FXML
-    private Pane rootPane;
-
+    private ListView nodeDebugListView;
     @FXML
-    private ListView listView;
+    private ListView executorLogsListView;
 
     @Setter
     private Stage stage;
@@ -53,13 +53,22 @@ public class DebugMenuController {
                         else
                             message = nodeSignal.getBody().toString();
 
-                        listView.getItems().add(
-                                new Text(message)
-                        );
+                        Platform.runLater(() -> nodeDebugListView.getItems().add(new Text(message)));
+
                     });
         } catch (JsonProcessingException e) {
             log.error(e.toString(), e);
         }
+    }
+
+    @FXML
+    public void clearNodeDebug() {
+        nodeDebugListView.getItems().clear();
+    }
+
+    @FXML
+    public void clearExecutorLogs() {
+
     }
 
     @FXML

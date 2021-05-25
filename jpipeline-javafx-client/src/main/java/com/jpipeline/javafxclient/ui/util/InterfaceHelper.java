@@ -47,7 +47,7 @@ public class InterfaceHelper {
             loader.setLocation(MainApplication.class.getResource("debug_menu.fxml"));
             Parent root = loader.load();
             debugStage.setScene(new Scene(root));
-            debugStage.initModality(Modality.WINDOW_MODAL);
+            debugStage.initModality(Modality.NONE);
             debugStage.initOwner(window);
             debugStage.setHeight(700);
             debugStage.setWidth(700);
