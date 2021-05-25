@@ -7,6 +7,8 @@ dependencies {
 jar {
     enabled = true
 
+    dependsOn(':jpipeline-common:jar')
+
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }

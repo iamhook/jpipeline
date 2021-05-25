@@ -17,6 +17,9 @@ bootRun {
 }
 
 bootJar {
+    dependsOn(':jpipeline-common:jar')
+    dependsOn(':jpipeline-standart-nodes:jar')
+
     manifest {
         attributes 'Main-Class': 'org.springframework.boot.loader.PropertiesLauncher'
     }

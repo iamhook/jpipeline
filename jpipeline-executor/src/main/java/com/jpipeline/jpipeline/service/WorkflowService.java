@@ -101,4 +101,8 @@ public class WorkflowService {
         return new WorkflowConfig(nodeDTOMap.values());
     }
 
+    public Collection<Node> getNodes() {
+        return nodeMap.values();
+    }
+
 }

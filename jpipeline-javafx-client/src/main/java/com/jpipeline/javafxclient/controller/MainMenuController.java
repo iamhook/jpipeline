@@ -6,6 +6,7 @@ import com.jpipeline.javafxclient.MainApplication;
 import com.jpipeline.javafxclient.service.ManagerService;
 import com.jpipeline.javafxclient.service.NodeService;
 import com.jpipeline.javafxclient.ui.elements.WorkflowService;
+import com.jpipeline.javafxclient.ui.util.InterfaceHelper;
 import com.jpipeline.javafxclient.ui.util.ViewHelper;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -69,11 +70,19 @@ public class MainMenuController {
     ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
     public void init() {
+        showProgressIndicator();
+        InterfaceHelper.createDebugMenu(rootPane.getScene().getWindow());
         executor.scheduleAtFixedRate(this::updateServiceStatuses, 0, 500, TimeUnit.MILLISECONDS);
     }
 
     @FXML
     public void resetWorkflow() {
+
+        // TODO should I reset workflow?
+
+        if (workflowService != null)
+            return;
+
         if (workflowService != null) {
             workflowService.destroy();
         }
@@ -153,6 +162,8 @@ public class MainMenuController {
         if (NodeService.checkIsAlive()) {
             if (!lastExecutorStatus) {
                 lastExecutorStatus = true;
+                NodeService.flushSignalFlux();
+                InterfaceHelper.resetDebugSignalSubscription();
                 Platform.runLater(this::resetWorkflow);
             }
 
@@ -174,6 +185,11 @@ public class MainMenuController {
         } else {
             Platform.runLater(() -> managerStatusIndicator.setFill(Color.RED));
         }
+    }
+
+    @FXML
+    public void openDebugMenu() {
+        InterfaceHelper.showDebugMenu();
     }
 
     @FXML

@@ -1,6 +1,8 @@
 package com.jpipeline.javafxclient.ui.elements;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpipeline.common.dto.NodeDTO;
+import com.jpipeline.common.entity.Node;
 import com.jpipeline.javafxclient.service.NodeService;
 import javafx.application.Platform;
 import javafx.scene.layout.Pane;
@@ -20,6 +22,8 @@ import java.util.List;
 @Setter
 @Getter
 public class NodeWrapper {
+
+    private static ObjectMapper OM = new ObjectMapper();
 
     private NodeDTO node;
 
@@ -45,7 +49,10 @@ public class NodeWrapper {
 
     public void init() {
         try {
-            statusSubscription = NodeService.getStatusStream(node.getId())
+            statusSubscription = NodeService.getSignalStream()
+                    .filter(nodeSignal -> nodeSignal.getNodeId().toString().equals(node.getId()))
+                    .filter(nodeSignal -> nodeSignal.getType().equals(Node.SignalType.STATUS))
+                    .map(nodeSignal -> OM.convertValue(nodeSignal.getBody(), Node.NodeStatus.class))
                     .onBackpressureDrop()
                     .limitRate(1)
                     .delayElements(Duration.ofMillis(100))

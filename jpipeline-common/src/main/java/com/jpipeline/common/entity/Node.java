@@ -50,10 +50,10 @@ public abstract class Node {
 
     protected final void setStatus(NodeStatus status) {
         this.status = status;
-        sendSignal(new NodeSignal(SignalType.STATUS, status));
+        sendSignal(new NodeSignal(SignalType.STATUS, status, this.id));
     }
 
-    private void sendSignal(NodeSignal signal) {
+    public void sendSignal(NodeSignal signal) {
         if (signal != null) {
             if (signalSink.currentSubscriberCount() > 0) {
                 Sinks.EmitResult result = signalSink.tryEmitNext(signal);
@@ -105,9 +105,10 @@ public abstract class Node {
     public static class NodeSignal {
         private SignalType type;
         private Object body;
+        private UUID nodeId;
     }
 
     public enum SignalType {
-        STATUS
+        STATUS, DEBUG
     }
 }

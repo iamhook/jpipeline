@@ -79,10 +79,18 @@ public class NodeService {
         });
     }
 
-    public static Flux<Node.NodeStatus> getStatusStream(String nodeId) throws JsonProcessingException {
-        return rSocketService.requestStream("", "/node/"+nodeId, Node.NodeSignal.class)
-                .map(nodeSignal -> OM.convertValue(nodeSignal.getBody(), Node.NodeStatus.class))
-                .onErrorContinue((throwable, o) -> {});
+    private static Flux<Node.NodeSignal> signalFlux;
+
+    public static void flushSignalFlux() {
+        signalFlux = null;
+    }
+
+    public static Flux<Node.NodeSignal> getSignalStream() throws JsonProcessingException {
+        if (signalFlux == null) {
+            signalFlux = rSocketService.requestStream("", "/node", Node.NodeSignal.class)
+                    .onErrorContinue((throwable, o) -> {});
+        }
+        return signalFlux;
     }
 
     public static boolean checkIsAlive() {

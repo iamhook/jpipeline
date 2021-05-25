@@ -21,6 +21,7 @@ public class DebugNode extends Node {
 
     @Override
     public void onInput(Object message) {
-        debugLog.info(message.toString());
+        sendSignal(new NodeSignal(SignalType.DEBUG, message, this.id));
+        //debugLog.info(message.toString());
     }
 }
