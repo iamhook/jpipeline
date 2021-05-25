@@ -5,7 +5,7 @@ import com.jpipeline.common.util.CJson;
 import com.jpipeline.common.util.NodeConfig;
 import com.jpipeline.common.util.PropertyConfig;
 import com.jpipeline.javafxclient.service.NodeService;
-import com.jpipeline.javafxclient.ui.elements.NodeWrapper;
+import com.jpipeline.javafxclient.ui.NodeWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;

@@ -1,4 +1,4 @@
-package com.jpipeline.javafxclient.ui.elements;
+package com.jpipeline.javafxclient.ui;
 
 import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.common.util.NodeConfig;
@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.jpipeline.javafxclient.Consts.*;
 
@@ -318,16 +319,6 @@ public class ViewWorkflowService {
 
     }
 
-    private void sortChildren() {
-        ObservableList<Node> workingCollection = FXCollections.observableArrayList(rootPane.getChildren());
-        workingCollection.sort((o1, o2) -> {
-            int i1 = elementsOrder.indexOf(o1.getClass());
-            int i2 = elementsOrder.indexOf(o2.getClass());
-            return Integer.compare(i1, i2);
-        });
-        rootPane.getChildren().setAll(workingCollection);
-    }
-
     public void destroy() {
         nodeWrappers.values().forEach(NodeWrapper::destroy);
         nodeWrappers.clear();
@@ -338,11 +329,26 @@ public class ViewWorkflowService {
         INPUT_TO_OUTPUT
     }
 
-    private static final List<Class<? extends Node>> elementsOrder = Arrays.asList(
-            Rectangle.class,
-            CubicCurve.class,
-            Path.class,
-            Circle.class,
-            Text.class
-    );
+    private void sortChildren() {
+        ObservableList<Node> currentChildren = FXCollections.observableArrayList(rootPane.getChildren());
+        ObservableList<Node> newChildren = FXCollections.observableArrayList();
+
+        newChildren.addAll(currentChildren.stream().filter(node -> node instanceof CubicCurve).collect(Collectors.toList()));
+
+        for (NodeWrapper wrapper : nodeWrappers.values()) {
+            newChildren.add(wrapper.getRectangle());
+            newChildren.add(wrapper.getCloseHandle());
+            if (wrapper.getOutputHandle() != null)
+                newChildren.add(wrapper.getOutputHandle());
+            if (wrapper.getInputHandle() != null)
+                newChildren.add(wrapper.getInputHandle());
+            if (wrapper.getNodeButton() != null)
+                newChildren.add(wrapper.getNodeButton());
+            newChildren.add(wrapper.getNameLabel());
+            newChildren.add(wrapper.getStatusLabel());
+        }
+
+        rootPane.getChildren().setAll(newChildren);
+    }
+
 }

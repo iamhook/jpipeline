@@ -23,6 +23,7 @@ public class DebugMenuController {
 
     @FXML
     private ListView nodeDebugListView;
+
     @FXML
     private ListView executorLogsListView;
 

@@ -5,7 +5,7 @@ import com.jpipeline.common.util.NodeConfig;
 import com.jpipeline.javafxclient.MainApplication;
 import com.jpipeline.javafxclient.service.ManagerService;
 import com.jpipeline.javafxclient.service.NodeService;
-import com.jpipeline.javafxclient.ui.elements.WorkflowService;
+import com.jpipeline.javafxclient.ui.WorkflowService;
 import com.jpipeline.javafxclient.ui.util.InterfaceHelper;
 import com.jpipeline.javafxclient.ui.util.ViewHelper;
 import javafx.application.Platform;

@@ -1,4 +1,4 @@
-package com.jpipeline.javafxclient.ui.elements;
+package com.jpipeline.javafxclient.ui;
 
 import com.jpipeline.common.WorkflowConfig;
 import com.jpipeline.common.dto.NodeDTO;
