@@ -10,6 +10,7 @@ import com.jpipeline.javafxclient.ui.util.InterfaceHelper;
 import com.jpipeline.javafxclient.ui.util.ViewHelper;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressIndicator;
@@ -24,6 +25,7 @@ import javafx.scene.text.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -43,6 +45,9 @@ public class MainMenuController {
 
     @FXML
     public Pane canvasPane;
+
+    @FXML
+    public Pane statusPane;
 
     @FXML
     public ScrollPane canvasWrapper;
@@ -67,13 +72,55 @@ public class MainMenuController {
 
     private boolean lastExecutorStatus = false;
 
+    private AnchorPane loginMenuWrapper;
+
     ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
     public void init() {
+        showConnectionMenu();
+    }
+
+    public void showConnectionMenu() {
+        try {
+            blurWorkArea();
+            blurStatusPane();
+
+            loginMenuWrapper = new AnchorPane();
+            FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("connection_menu.fxml"));
+            Pane pane = loader.load();
+            loginMenuWrapper.getChildren().add(pane);
+            loginMenuWrapper.setPrefHeight(pane.getPrefHeight());
+            loginMenuWrapper.setPrefWidth(pane.getPrefWidth());
+            loginMenuWrapper.setManaged(false);
+            loginMenuWrapper.layoutXProperty().bind(rootPane.widthProperty().divide(2)
+                    .subtract(loginMenuWrapper.getPrefWidth()/2));
+            loginMenuWrapper.layoutYProperty().bind(rootPane.heightProperty().divide(2)
+                    .subtract(loginMenuWrapper.getPrefHeight()/2));
+
+            rootPane.getChildren().add(loginMenuWrapper);
+
+            loginMenuWrapper.toFront();
+
+            ConnectionMenuController controller = loader.getController();
+            controller.setMainMenuController(this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void hideConnectionMenu() {
+        rootPane.getChildren().remove(loginMenuWrapper);
+        loginMenuWrapper = null;
+        unBlur();
+    }
+
+    public void connectionSuccessCallback() {
+        hideConnectionMenu();
         showProgressIndicator();
         InterfaceHelper.createDebugMenu(rootPane.getScene().getWindow());
         executor.scheduleAtFixedRate(this::updateServiceStatuses, 0, 500, TimeUnit.MILLISECONDS);
     }
+
 
     @FXML
     public void resetWorkflow() {
@@ -132,6 +179,23 @@ public class MainMenuController {
         progressIndicator.setStyle("-fx-accent: gray;");
     }
 
+    private void blurWorkArea() {
+        GaussianBlur blur = new GaussianBlur(5);
+        canvasWrapper.setEffect(blur);
+        nodesMenu.setEffect(blur);
+    }
+
+    private void blurStatusPane() {
+        GaussianBlur blur = new GaussianBlur(5);
+        statusPane.setEffect(blur);
+    }
+
+    private void unBlur() {
+        canvasWrapper.setEffect(null);
+        nodesMenu.setEffect(null);
+        statusPane.setEffect(null);
+    }
+
     private void showProgressIndicator() {
         canvasPane.setDisable(true);
         resetButton.setDisable(true);
@@ -139,9 +203,7 @@ public class MainMenuController {
         if (progressIndicator == null) {
             createProgressIndicator();
         }
-        GaussianBlur blur = new GaussianBlur(5);
-        canvasWrapper.setEffect(blur);
-        nodesMenu.setEffect(blur);
+        blurWorkArea();
         progressIndicator.setVisible(true);
     }
 
@@ -153,8 +215,7 @@ public class MainMenuController {
             createProgressIndicator();
         }
         progressIndicator.setVisible(false);
-        canvasWrapper.setEffect(null);
-        nodesMenu.setEffect(null);
+        unBlur();
     }
 
 

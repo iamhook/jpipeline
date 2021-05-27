@@ -1,6 +1,5 @@
 package com.jpipeline.javafxclient.service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpipeline.common.WorkflowConfig;
 import org.slf4j.Logger;
@@ -10,7 +9,11 @@ public class ManagerService {
 
     private static ObjectMapper OM = new ObjectMapper();
     private static final Logger log = LoggerFactory.getLogger(ManagerService.class);
-    private static HttpService httpService = new HttpService("localhost", 9543);
+    private static HttpService httpService;
+
+    public static void createHttpService() {
+        httpService = new HttpService(AuthContext.getManagerHost());
+    }
 
     public static void deploy(WorkflowConfig config) {
         try {

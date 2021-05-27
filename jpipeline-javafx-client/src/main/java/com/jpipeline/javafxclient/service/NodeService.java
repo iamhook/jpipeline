@@ -22,7 +22,7 @@ public class NodeService {
     private static Logger log = LoggerFactory.getLogger(NodeService.class);
 
     private static RSocketService rSocketService = new RSocketService();
-    private static HttpService httpService = new HttpService("localhost", 9544);
+    private static HttpService httpService = new HttpService("localhost:9544");
     private static Map<String, NodeConfig> configsCache = new ConcurrentHashMap<>();
 
     public static List<String> getNodeTypes() {

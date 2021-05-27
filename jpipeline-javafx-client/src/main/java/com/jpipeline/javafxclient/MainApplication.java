@@ -26,8 +26,7 @@ public class MainApplication extends Application {
         }
     }
     private void initRootLayout() throws IOException {
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(MainApplication.class.getResource("main_menu.fxml"));
+        FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("main_menu.fxml"));
         rootLayout = loader.load();
         Scene scene = new Scene(rootLayout);
         scene.getStylesheets().add(getClass().getResource("main.css").toString());

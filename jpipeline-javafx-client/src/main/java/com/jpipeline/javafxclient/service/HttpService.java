@@ -16,17 +16,15 @@ public class HttpService {
     private HttpClient httpClient = HttpClient.newHttpClient();
 
     private String host;
-    private Integer port;
 
-    public HttpService(String host, Integer port) {
+    public HttpService(String host) {
         this.host = host;
-        this.port = port;
     }
 
     public HttpResponse<String> get(String url) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .GET()
-                .uri(URI.create("http://" + host + ":" + port + url))
+                .uri(URI.create("http://" + host + url))
                 .build();
 
         return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -35,7 +33,7 @@ public class HttpService {
     public HttpResponse<String>  post(String url, String body) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(body))
-                .uri(URI.create("http://" + host + ":" + port + url))
+                .uri(URI.create("http://" + host + url))
                 .header("Content-Type", "application/json")
                 .build();
         return httpClient.send(request, HttpResponse.BodyHandlers.ofString());

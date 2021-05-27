@@ -18,8 +18,7 @@ public class InterfaceHelper {
         try {
             NodeDTO node = nodeWrapper.getNode();
             Stage stage = new Stage();
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(MainApplication.class.getResource("node_edit_menu.fxml"));
+            FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("node_edit_menu.fxml"));
             Parent root = loader.load();
             stage.setScene(new Scene(root));
             stage.setTitle(node.getType() + " edit menu");
@@ -43,8 +42,7 @@ public class InterfaceHelper {
     public static void createDebugMenu(Window window) {
         try {
             debugStage = new Stage();
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(MainApplication.class.getResource("debug_menu.fxml"));
+            FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("debug_menu.fxml"));
             Parent root = loader.load();
             debugStage.setScene(new Scene(root));
             debugStage.initModality(Modality.NONE);

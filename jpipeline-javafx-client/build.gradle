@@ -18,6 +18,8 @@ dependencies {
     implementation 'org.kordamp.ikonli:ikonli-javafx:11.1.0'
     implementation 'org.kordamp.ikonli:ikonli-fontawesome-pack:11.1.0'
 
+    implementation 'org.mapdb:mapdb:3.0.8'
+
     runtimeOnly "org.openjfx:javafx-graphics:$javaFxVersion:win"
     runtimeOnly "org.openjfx:javafx-graphics:$javaFxVersion:linux"
     runtimeOnly "org.openjfx:javafx-graphics:$javaFxVersion:mac"
