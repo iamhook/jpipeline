@@ -24,9 +24,28 @@ public class ManagerService {
         }
     }
 
+    public static boolean login() {
+        try {
+            JConnection connection = AuthContext.getConnection();
+            httpService.get("/api/auth/login?username=" + connection.getUsername() + "&password=" + connection.getPassword());
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static boolean checkIsAlive(String host) {
+        try {
+            new HttpService(host).get("/api/manager/checkIsAlive");
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public static boolean checkIsAlive() {
         try {
-            httpService.get("/checkIsAlive");
+            httpService.get("/api/manager/checkIsAlive");
             return true;
         } catch (Exception e) {
             return false;

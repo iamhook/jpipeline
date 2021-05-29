@@ -36,11 +36,13 @@ public class PropertiesStore {
         }
     }
 
+
+    // TODO refactor it
     public static void deleteConnection(JConnection connection) {
         DB db = DBMaker.fileDB(PATH).make();
         try {
             ConcurrentMap map = db.hashMap("store").createOrOpen();
-            List<JConnection> connections = (List<JConnection>) map.computeIfAbsent("connections", o -> new ArrayList<JConnection>());
+            Set<JConnection> connections = (Set<JConnection>) map.computeIfAbsent("connections", o -> new HashSet<>());
             connections.remove(connection);
             map.put("connections", connections);
         } finally {

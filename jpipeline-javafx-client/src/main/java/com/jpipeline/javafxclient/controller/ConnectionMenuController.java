@@ -77,11 +77,8 @@ public class ConnectionMenuController {
         String password = passwordField.getText();
 
         if (hostname != null && !hostname.isEmpty()) {
-            connection.setHostname(hostname);
-            AuthContext.setConnection(connection);
-            ManagerService.createHttpService();
 
-            boolean managerIsAlive = ManagerService.checkIsAlive();
+            boolean managerIsAlive = ManagerService.checkIsAlive(hostname);
 
             if (!managerIsAlive) {
                 errorText.setText("Manager " + hostname + " is not reachable");
@@ -93,6 +90,8 @@ public class ConnectionMenuController {
             return;
         }
 
+        connection.setHostname(hostname);
+
         if (username != null && !username.isEmpty()) {
             connection.setUsername(username);
         }
@@ -100,6 +99,10 @@ public class ConnectionMenuController {
         if (password != null && !password.isEmpty()) {
             connection.setPassword(password);
         }
+
+        AuthContext.setConnection(connection);
+        ManagerService.createHttpService();
+        boolean login = ManagerService.login();
 
         mainMenuController.connectionSuccessCallback();
         if (saveConnectionBox.isSelected())

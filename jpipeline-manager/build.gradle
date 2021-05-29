@@ -3,7 +3,9 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     implementation project(":jpipeline-common")
+    implementation project(":jpipeline-security")
 
+    compile 'com.auth0:java-jwt:3.3.0'
 }
 
 bootRun {

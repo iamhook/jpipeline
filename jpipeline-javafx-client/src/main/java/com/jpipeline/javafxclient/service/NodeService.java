@@ -7,10 +7,12 @@ import com.jpipeline.common.WorkflowConfig;
 import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.common.entity.Node;
 import com.jpipeline.common.util.NodeConfig;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -27,8 +29,9 @@ public class NodeService {
 
     public static List<String> getNodeTypes() {
         try {
-            String response = httpService.get("/api/nodesupport/types").body();
-            return OM.readValue(response, new TypeReference<List<String>>() {});
+            String response = EntityUtils.toString(httpService.get("/api/nodesupport/types").getEntity());
+            return OM.readValue(response, new TypeReference<>() {
+            });
         } catch (Exception e) {
             log.error(e.toString(), e);
         }
@@ -37,9 +40,8 @@ public class NodeService {
 
     public static WorkflowConfig getConfig() {
         try {
-            String response = httpService.get("/api/service/config").body();
-            return OM.readValue(response, new TypeReference<>() {
-            });
+            String response = EntityUtils.toString(httpService.get("/api/service/config").getEntity());
+            return OM.readValue(response, new TypeReference<>() {});
         } catch (Exception e) {
             log.error(e.toString());
             throw new RuntimeException(e);
@@ -48,7 +50,7 @@ public class NodeService {
 
     public static NodeDTO createNewNode(String nodeType) {
         try {
-            String response = httpService.get("/api/nodesupport/" + nodeType + "/create").body();
+            String response = EntityUtils.toString(httpService.get("/api/nodesupport/" + nodeType + "/create").getEntity());
             return OM.readValue(response, new TypeReference<>() {
             });
         } catch (Exception e) {
@@ -60,7 +62,7 @@ public class NodeService {
 
     public static void pressButton(String nodeId) {
         try {
-            httpService.get("/api/node/" + nodeId + "/pressButton").body();
+            httpService.get("/api/node/" + nodeId + "/pressButton");
         } catch (Exception e) {
             log.error(e.toString(), e);
         }
@@ -69,7 +71,7 @@ public class NodeService {
     public static NodeConfig getNodeConfig(String nodeType) {
         return configsCache.computeIfAbsent(nodeType, s -> {
             try {
-                String response = httpService.get("/api/nodesupport/" + nodeType + "/config").body();
+                String response = EntityUtils.toString(httpService.get("/api/nodesupport/" + nodeType + "/config").getEntity());
                 return OM.readValue(response, new TypeReference<>() {
                 });
             } catch (Exception e) {

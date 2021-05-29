@@ -5,4 +5,5 @@ include 'jpipeline-manager'
 include 'jpipeline-standart-nodes'
 include 'jpipeline-javafx-client'
 include 'jpipeline-custom-nodes'
+include 'jpipeline-security'
 

@@ -1,19 +1,24 @@
 package com.jpipeline.javafxclient.service;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 
 public class HttpService {
 
     private static Logger log = LoggerFactory.getLogger(HttpService.class);
 
-    private HttpClient httpClient = HttpClient.newHttpClient();
+    private HttpClient httpClient = HttpClientBuilder.create().setDefaultCookieStore(new BasicCookieStore()).build();
 
     private String host;
 
@@ -21,22 +26,17 @@ public class HttpService {
         this.host = host;
     }
 
-    public HttpResponse<String> get(String url) throws IOException, InterruptedException {
-        HttpRequest request = HttpRequest.newBuilder()
-                .GET()
-                .uri(URI.create("http://" + host + url))
-                .build();
-
-        return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+    public HttpResponse get(String url) throws IOException {
+        HttpResponse execute = httpClient.execute(new HttpGet("http://" + host + url));
+        return execute;
     }
 
-    public HttpResponse<String>  post(String url, String body) throws IOException, InterruptedException {
-        HttpRequest request = HttpRequest.newBuilder()
-                .POST(HttpRequest.BodyPublishers.ofString(body))
-                .uri(URI.create("http://" + host + url))
-                .header("Content-Type", "application/json")
-                .build();
-        return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+    public HttpResponse post(String url, String body) throws IOException {
+        HttpPost httpPost = new HttpPost("http://" + host + url);
+        StringEntity stringEntity = new StringEntity(body);
+        httpPost.setEntity(stringEntity);
+        httpPost.addHeader("Content-Type", "application/json");
+        return httpClient.execute(httpPost);
     }
 
 }

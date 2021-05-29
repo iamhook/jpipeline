@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ServerWebExchange;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -46,7 +47,10 @@ public class ManagerController {
     }
 
     @GetMapping("/checkIsAlive")
-    public void checkIsAlive() {}
+    public void checkIsAlive(ServerWebExchange exchange) {
+
+        return;
+    }
 
     @PostMapping("/deploy")
     public void deploy(@RequestBody WorkflowConfig config) throws Exception {
