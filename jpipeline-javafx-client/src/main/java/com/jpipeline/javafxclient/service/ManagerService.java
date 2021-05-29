@@ -12,7 +12,7 @@ public class ManagerService {
     private static HttpService httpService;
 
     public static void createHttpService() {
-        httpService = new HttpService(AuthContext.getManagerHost());
+        httpService = new HttpService(AuthContext.getConnection().getHostname());
     }
 
     public static void deploy(WorkflowConfig config) {

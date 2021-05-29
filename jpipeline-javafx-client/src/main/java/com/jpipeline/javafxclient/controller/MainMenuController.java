@@ -12,6 +12,8 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Cursor;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.ScrollPane;
@@ -22,6 +24,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,15 +67,15 @@ public class MainMenuController {
     @FXML
     public Button deployButton;
 
-    public ProgressIndicator progressIndicator;
+    private ProgressIndicator progressIndicator;
 
     private WorkflowService workflowService;
+
+    private Stage loginStage;
 
     private MainApplication main;
 
     private boolean lastExecutorStatus = false;
-
-    private AnchorPane loginMenuWrapper;
 
     ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
@@ -84,33 +87,26 @@ public class MainMenuController {
         try {
             blurWorkArea();
             blurStatusPane();
-
-            loginMenuWrapper = new AnchorPane();
+            loginStage = new Stage();
             FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("connection_menu.fxml"));
-            Pane pane = loader.load();
-            loginMenuWrapper.getChildren().add(pane);
-            loginMenuWrapper.setPrefHeight(pane.getPrefHeight());
-            loginMenuWrapper.setPrefWidth(pane.getPrefWidth());
-            loginMenuWrapper.setManaged(false);
-            loginMenuWrapper.layoutXProperty().bind(rootPane.widthProperty().divide(2)
-                    .subtract(loginMenuWrapper.getPrefWidth()/2));
-            loginMenuWrapper.layoutYProperty().bind(rootPane.heightProperty().divide(2)
-                    .subtract(loginMenuWrapper.getPrefHeight()/2));
+            Parent root = loader.load();
 
-            rootPane.getChildren().add(loginMenuWrapper);
-
-            loginMenuWrapper.toFront();
-
+            loginStage.setScene(new Scene(root));
+            loginStage.setTitle("Connection menu");
+            loginStage.initOwner(rootPane.getScene().getWindow());
+            loginStage.show();
+            loginStage.setResizable(false);
             ConnectionMenuController controller = loader.getController();
             controller.setMainMenuController(this);
+            controller.init();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void hideConnectionMenu() {
-        rootPane.getChildren().remove(loginMenuWrapper);
-        loginMenuWrapper = null;
+        loginStage.close();
+        loginStage = null;
         unBlur();
     }
 
