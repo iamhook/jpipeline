@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -30,8 +29,7 @@ public class NodeService {
     public static List<String> getNodeTypes() {
         try {
             String response = EntityUtils.toString(httpService.get("/api/nodesupport/types").getEntity());
-            return OM.readValue(response, new TypeReference<>() {
-            });
+            return OM.readValue(response, new TypeReference<>() {});
         } catch (Exception e) {
             log.error(e.toString(), e);
         }
@@ -51,8 +49,7 @@ public class NodeService {
     public static NodeDTO createNewNode(String nodeType) {
         try {
             String response = EntityUtils.toString(httpService.get("/api/nodesupport/" + nodeType + "/create").getEntity());
-            return OM.readValue(response, new TypeReference<>() {
-            });
+            return OM.readValue(response, new TypeReference<>() {});
         } catch (Exception e) {
             log.error(e.toString(), e);
         }
@@ -72,8 +69,7 @@ public class NodeService {
         return configsCache.computeIfAbsent(nodeType, s -> {
             try {
                 String response = EntityUtils.toString(httpService.get("/api/nodesupport/" + nodeType + "/config").getEntity());
-                return OM.readValue(response, new TypeReference<>() {
-                });
+                return OM.readValue(response, new TypeReference<>() {});
             } catch (Exception e) {
                 log.error(e.toString(), e);
             }

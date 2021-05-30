@@ -16,14 +16,16 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Paint;
-import javafx.scene.shape.*;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.CubicCurve;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -264,23 +266,24 @@ public class ViewWorkflowService {
     }
 
     private void setUpDragging(NodeWrapper nodeWrapper) {
-        Wrapper<Point2D> mouseLocation = new Wrapper<>();
+        Wrapper<Point2D> mouseDelta = new Wrapper<>();
 
         Rectangle rectangle = nodeWrapper.getRectangle();
         Text nameLabel = nodeWrapper.getNameLabel();
         NodeDTO node = nodeWrapper.getNode();
 
         EventHandler<? super MouseEvent> dragHandler = event -> {
-            if (mouseLocation.value != null) {
-                double deltaX = event.getSceneX() - mouseLocation.value.getX();
-                double deltaY = event.getSceneY() - mouseLocation.value.getY();
-                double newX = rectangle.getX() + deltaX ;
-                double newY = rectangle.getY() + deltaY ;
+            if (mouseDelta.value != null) {
+                double newX = event.getX() - mouseDelta.value.getX();
+                double newY = event.getY() - mouseDelta.value.getY();
+
+                newX = Math.round(newX / CANVAS_CELL_SIZE) * CANVAS_CELL_SIZE;
+                newY = Math.round(newY / CANVAS_CELL_SIZE) * CANVAS_CELL_SIZE;
+
                 rectangle.setX(newX);
                 rectangle.setY(newY);
                 node.setX(newX);
                 node.setY(newY);
-                mouseLocation.value = new Point2D(event.getSceneX(), event.getSceneY());
 
                 for (CubicCurve curve : nodeWrapper.getInputs()) {
                     Circle to = nodeWrapper.getInputHandle();
@@ -306,12 +309,13 @@ public class ViewWorkflowService {
         for (Shape shape : Arrays.asList(rectangle, nameLabel)) {
             shape.setOnDragDetected(event -> {
                 shape.getParent().setCursor(Cursor.CLOSED_HAND);
-                mouseLocation.value = new Point2D(event.getSceneX(), event.getSceneY());
+                Point2D localToScene = rectangle.localToScene(rectangle.getX(), rectangle.getY());
+                mouseDelta.value = new Point2D(event.getSceneX(), event.getSceneY()).subtract(localToScene);
             });
 
             shape.setOnMouseReleased(event -> {
                 shape.getParent().setCursor(Cursor.DEFAULT);
-                mouseLocation.value = null ;
+                mouseDelta.value = null ;
             });
 
             shape.setOnMouseDragged(dragHandler);

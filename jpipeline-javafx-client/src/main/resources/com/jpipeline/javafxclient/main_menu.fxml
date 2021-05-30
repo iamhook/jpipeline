@@ -10,7 +10,7 @@
    <children>
       <ScrollPane fx:id="canvasWrapper" focusTraversable="false" hbarPolicy="ALWAYS" layoutX="201.0" prefHeight="841.0" prefWidth="1003.0" style="-fx-background-color: transparent;" vbarPolicy="ALWAYS" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="141.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <content>
-          <AnchorPane fx:id="canvasPane" minHeight="0.0" minWidth="0.0" prefHeight="0.0" prefWidth="0.0" style="-fx-background-color: #D3D3D333, linear-gradient(from 0.5px 0.0px to 20.5px  0.0px, repeat, lightgray 5%, transparent 5%),        linear-gradient(from 0.0px 0.5px to  0.0px 20.5px, repeat, lightgray 5%, transparent 5%);" />
+          <AnchorPane fx:id="canvasPane" minHeight="0.0" minWidth="0.0" prefHeight="0.0" prefWidth="0.0" style="-fx-background-color: #D3D3D333, linear-gradient(from 0.5px 0.0px to 10.5px  0.0px, repeat, lightgray 5%, transparent 5%),        linear-gradient(from 0.0px 0.5px to  0.0px 10.5px, repeat, lightgray 5%, transparent 5%);" />
         </content>
       </ScrollPane>
       <ScrollPane hbarPolicy="NEVER" prefWidth="141.0" style="-fx-background-color: transparent;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
