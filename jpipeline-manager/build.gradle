@@ -1,6 +1,7 @@
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'org.springframework.boot:spring-boot-starter-rsocket:2.4.5'
 
     implementation project(":jpipeline-common")
     implementation project(":jpipeline-security")

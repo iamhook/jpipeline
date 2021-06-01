@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpipeline.common.WorkflowConfig;
 import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.common.entity.Node;
+import com.jpipeline.common.service.RSocketService;
 import com.jpipeline.common.util.NodeConfig;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
@@ -22,7 +23,7 @@ public class NodeService {
     private static ObjectMapper OM = new ObjectMapper();
     private static Logger log = LoggerFactory.getLogger(NodeService.class);
 
-    private static RSocketService rSocketService = new RSocketService();
+    private static RSocketService rSocketService = new RSocketService("ws://localhost:7000");
     private static HttpService httpService = new HttpService("localhost:9544");
     private static Map<String, NodeConfig> configsCache = new ConcurrentHashMap<>();
 

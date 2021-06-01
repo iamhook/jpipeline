@@ -1,3 +1,7 @@
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-rsocket:2.4.5'
+}
+
 bootJar {
     enabled = true
 }

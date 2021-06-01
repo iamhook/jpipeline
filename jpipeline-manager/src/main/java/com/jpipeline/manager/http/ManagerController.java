@@ -2,6 +2,7 @@ package com.jpipeline.manager.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpipeline.common.WorkflowConfig;
+import com.jpipeline.common.util.ManagerMeta;
 import com.jpipeline.manager.AuthService;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -33,6 +34,9 @@ public class ManagerController {
 
     @Autowired
     private HttpClient httpClient;
+
+    @Value("${spring.rsocket.server.port}")
+    private int rsocketPort;
 
     @Value("${jpipeline.workflowConfigPath}")
     private String configPath;
@@ -112,6 +116,14 @@ public class ManagerController {
             return false;
         }
     }
+
+    @GetMapping("/meta")
+    public ManagerMeta meta() {
+        return ManagerMeta.builder()
+                .rsocketPort(rsocketPort)
+                .build();
+    }
+
     @PreDestroy
     public void onExit() {
         stopExecutor();
