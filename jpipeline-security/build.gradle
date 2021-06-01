@@ -1,3 +1,15 @@
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
+    compile 'com.auth0:java-jwt:3.3.0'
+
+    implementation project(":jpipeline-common")
 }
+
+bootJar {
+    enabled = true
+}
+
+jar {
+    enabled = true
+}
+

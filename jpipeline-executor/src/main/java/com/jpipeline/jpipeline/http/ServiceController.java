@@ -2,10 +2,9 @@ package com.jpipeline.jpipeline.http;
 
 import com.jpipeline.common.WorkflowConfig;
 import com.jpipeline.jpipeline.service.WorkflowService;
+import com.jpipeline.security.AuthFilter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -17,6 +16,14 @@ public class ServiceController {
 
     @Autowired
     private WorkflowService workflowService;
+
+    @Autowired
+    private AuthFilter authFilter;
+
+    @PostMapping
+    public void setJwtSecret(@RequestParam String jwtSecret) {
+        authFilter.setJwtSecret(jwtSecret);
+    }
 
     @GetMapping("/checkIsAlive")
     public void checkIsAlive() {}

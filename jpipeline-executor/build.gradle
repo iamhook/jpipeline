@@ -7,6 +7,7 @@ dependencies {
 
     implementation project(":jpipeline-common")
     implementation project(":jpipeline-standart-nodes")
+    implementation project(":jpipeline-security")
 
 }
 

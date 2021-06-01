@@ -1,21 +1,24 @@
 package com.jpipeline.jpipeline;
 
+import com.jpipeline.security.AuthFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.net.Socket;
-import java.net.UnknownHostException;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
+@ComponentScan(basePackages = "com.jpipeline")
 public class JPipelineExecutorApplication {
 
     private static final Logger log = LoggerFactory.getLogger(JPipelineExecutorApplication.class);
@@ -23,6 +26,20 @@ public class JPipelineExecutorApplication {
     // TODO application.properties
     private static Integer managerPort = 9543;
     private static String managerHost = "localhost";
+
+    @Autowired
+    private AuthFilter authFilter;
+
+    @Autowired
+    private ApplicationArguments applicationArguments;
+
+    @PostConstruct
+    private void init() {
+        Set<String> optionNames = applicationArguments.getOptionNames();
+        if (optionNames.contains("jwtSecret")) {
+            authFilter.setJwtSecret(applicationArguments.getOptionValues("jwtSecret").get(0));
+        }
+    }
 
     public static void main(String[] args) {
         SpringApplication.run(JPipelineExecutorApplication.class, args);

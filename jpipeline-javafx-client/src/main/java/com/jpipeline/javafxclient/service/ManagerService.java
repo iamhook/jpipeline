@@ -2,8 +2,14 @@ package com.jpipeline.javafxclient.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpipeline.common.WorkflowConfig;
+import com.jpipeline.common.util.ErrorMessage;
+import com.jpipeline.common.util.exception.CustomException;
+import org.apache.http.HttpResponse;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 public class ManagerService {
 
@@ -27,10 +33,15 @@ public class ManagerService {
     public static boolean login() {
         try {
             JConnection connection = AuthContext.getConnection();
-            httpService.get("/api/auth/login?username=" + connection.getUsername() + "&password=" + connection.getPassword());
-            return true;
-        } catch (Exception e) {
-            return false;
+            HttpResponse response = httpService.get("/api/auth/login?username=" + connection.getUsername() + "&password=" + connection.getPassword());
+            if (response.getStatusLine().getStatusCode() == 200) {
+                return true;
+            } else {
+                ErrorMessage errorMessage = OM.readValue(EntityUtils.toString(response.getEntity()), ErrorMessage.class);
+                throw new CustomException(errorMessage.getMessage());
+            }
+        } catch (IOException e) {
+            throw new CustomException(e);
         }
     }
 

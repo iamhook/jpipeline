@@ -1,6 +1,5 @@
 package com.jpipeline.javafxclient.service;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -8,7 +7,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +16,7 @@ public class HttpService {
 
     private static Logger log = LoggerFactory.getLogger(HttpService.class);
 
-    private HttpClient httpClient = HttpClientBuilder.create().setDefaultCookieStore(new BasicCookieStore()).build();
+    private static HttpClient httpClient = HttpClientBuilder.create().setDefaultCookieStore(new BasicCookieStore()).build();
 
     private String host;
 

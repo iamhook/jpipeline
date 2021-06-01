@@ -2,11 +2,15 @@ package com.jpipeline.manager.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpipeline.common.WorkflowConfig;
+import com.jpipeline.manager.AuthService;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ServerWebExchange;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -14,10 +18,6 @@ import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -26,11 +26,13 @@ import java.util.concurrent.Executors;
 public class ManagerController {
 
     private static final ObjectMapper OM = new ObjectMapper();
+
     private static final Logger log = LoggerFactory.getLogger(ManagerController.class);
-    private HttpClient httpClient = HttpClient.newHttpClient();
-    private ExecutorService executor = Executors.newSingleThreadExecutor();
 
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
+    @Autowired
+    private HttpClient httpClient;
 
     @Value("${jpipeline.workflowConfigPath}")
     private String configPath;
@@ -47,10 +49,7 @@ public class ManagerController {
     }
 
     @GetMapping("/checkIsAlive")
-    public void checkIsAlive(ServerWebExchange exchange) {
-
-        return;
-    }
+    public void checkIsAlive() {}
 
     @PostMapping("/deploy")
     public void deploy(@RequestBody WorkflowConfig config) throws Exception {
@@ -71,8 +70,10 @@ public class ManagerController {
     }
 
     @PostMapping("/start")
-    public void startExecutor() throws Exception {
+    public Boolean startExecutor() throws Exception {
         log.info("Run '{}'", runCommand);
+
+        runCommand = runCommand + " --jwtSecret=" + AuthService.getJwtSecret();
 
         ProcessBuilder ps = new ProcessBuilder(runCommand.split("\\s"));
 
@@ -94,17 +95,16 @@ public class ManagerController {
             }
         });
 
+        return true;
     }
 
     @PostMapping("/stop")
-    public boolean stopExecutor() throws IOException, InterruptedException {
+    public boolean stopExecutor() {
         try {
-            HttpResponse<String> send = httpClient.send(HttpRequest.newBuilder()
-                    .GET()
-                    .uri(URI.create("http://localhost:" + executorPort + "/api/service/shutdown"))
-                    .build(), HttpResponse.BodyHandlers.ofString());
+            HttpGet httpGet = new HttpGet("http://localhost:" + executorPort + "/api/service/shutdown");
+            HttpResponse response = httpClient.execute(httpGet);
 
-            if (send.statusCode() == 200) {
+            if (response.getStatusLine().getStatusCode() == 200) {
                 return true;
             }
             return false;
@@ -112,9 +112,8 @@ public class ManagerController {
             return false;
         }
     }
-
     @PreDestroy
-    public void onExit() throws IOException, InterruptedException {
+    public void onExit() {
         stopExecutor();
     }
 }

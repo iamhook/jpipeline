@@ -9,13 +9,11 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Set;
 
 public class ConnectionMenuController {
@@ -102,11 +100,17 @@ public class ConnectionMenuController {
 
         AuthContext.setConnection(connection);
         ManagerService.createHttpService();
-        boolean login = ManagerService.login();
 
-        mainMenuController.connectionSuccessCallback();
-        if (saveConnectionBox.isSelected())
-            PropertiesStore.saveConnection(connection);
+        try {
+            if (ManagerService.login()) {
+                mainMenuController.connectionSuccessCallback();
+                if (saveConnectionBox.isSelected())
+                    PropertiesStore.saveConnection(connection);
+            }
+        } catch (Exception e) {
+            errorText.setText(e.getMessage());
+        }
+
     }
 
 }

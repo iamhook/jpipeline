@@ -12,7 +12,6 @@ public class PropertiesStore {
     private static final String PATH = "jpipeline-props.db";
 
     public static Set<JConnection> getConnections() {
-
         DB db = DBMaker.fileDB(PATH).make();
         try {
             ConcurrentMap map = db.hashMap("store").createOrOpen();
@@ -29,6 +28,8 @@ public class PropertiesStore {
         try {
             ConcurrentMap map = db.hashMap("store").createOrOpen();
             Set<JConnection> connections = (Set<JConnection>) map.computeIfAbsent("connections", o -> new HashSet<>());
+            if (connections.contains(connection))
+                connections.remove(connection);
             connections.add(connection);
             map.put("connections", connections);
         } finally {

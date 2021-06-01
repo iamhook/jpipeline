@@ -9,6 +9,7 @@ import com.jpipeline.javafxclient.ui.WorkflowService;
 import com.jpipeline.javafxclient.ui.util.InterfaceHelper;
 import com.jpipeline.javafxclient.ui.util.ViewHelper;
 import javafx.application.Platform;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Cursor;
@@ -94,8 +95,9 @@ public class MainMenuController {
             loginStage.setScene(new Scene(root));
             loginStage.setTitle("Connection menu");
             loginStage.initOwner(rootPane.getScene().getWindow());
-            loginStage.show();
+            loginStage.setOnCloseRequest(Event::consume);
             loginStage.setResizable(false);
+            loginStage.show();
             ConnectionMenuController controller = loader.getController();
             controller.setMainMenuController(this);
             controller.init();
@@ -121,10 +123,10 @@ public class MainMenuController {
     @FXML
     public void resetWorkflow() {
 
-        // TODO should I reset workflow?
+        /*// TODO should I reset workflow?
 
         if (workflowService != null)
-            return;
+            return;*/
 
         if (workflowService != null) {
             workflowService.destroy();
