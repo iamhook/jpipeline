@@ -19,6 +19,7 @@ public class ManagerService {
 
     public static void createHttpService() {
         httpService = new HttpService(AuthContext.getConnection().getHostname());
+        NodeService.setHttpService(httpService);
     }
 
     public static void deploy(WorkflowConfig config) {

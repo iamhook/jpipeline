@@ -26,7 +26,9 @@ public class ServiceController {
     }
 
     @GetMapping("/checkIsAlive")
-    public void checkIsAlive() {}
+    public boolean checkIsAlive() {
+        return true;
+    }
 
     @GetMapping("/shutdown")
     public void shutdown() {

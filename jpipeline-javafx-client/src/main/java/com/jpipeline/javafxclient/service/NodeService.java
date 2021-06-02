@@ -8,6 +8,7 @@ import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.common.entity.Node;
 import com.jpipeline.common.service.RSocketService;
 import com.jpipeline.common.util.NodeConfig;
+import lombok.Setter;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,12 +25,15 @@ public class NodeService {
     private static Logger log = LoggerFactory.getLogger(NodeService.class);
 
     private static RSocketService rSocketService = new RSocketService("ws://localhost:7000");
-    private static HttpService httpService = new HttpService("localhost:9544");
+
+    @Setter
+    private static HttpService httpService;
+
     private static Map<String, NodeConfig> configsCache = new ConcurrentHashMap<>();
 
     public static List<String> getNodeTypes() {
         try {
-            String response = EntityUtils.toString(httpService.get("/api/nodesupport/types").getEntity());
+            String response = EntityUtils.toString(httpService.get("/proxy/api/nodesupport/types").getEntity());
             return OM.readValue(response, new TypeReference<>() {});
         } catch (Exception e) {
             log.error(e.toString(), e);
@@ -39,7 +43,7 @@ public class NodeService {
 
     public static WorkflowConfig getConfig() {
         try {
-            String response = EntityUtils.toString(httpService.get("/api/service/config").getEntity());
+            String response = EntityUtils.toString(httpService.get("/proxy/api/service/config").getEntity());
             return OM.readValue(response, new TypeReference<>() {});
         } catch (Exception e) {
             log.error(e.toString());
@@ -49,7 +53,7 @@ public class NodeService {
 
     public static NodeDTO createNewNode(String nodeType) {
         try {
-            String response = EntityUtils.toString(httpService.get("/api/nodesupport/" + nodeType + "/create").getEntity());
+            String response = EntityUtils.toString(httpService.get("/proxy/api/nodesupport/" + nodeType + "/create").getEntity());
             return OM.readValue(response, new TypeReference<>() {});
         } catch (Exception e) {
             log.error(e.toString(), e);
@@ -60,7 +64,7 @@ public class NodeService {
 
     public static void pressButton(String nodeId) {
         try {
-            httpService.get("/api/node/" + nodeId + "/pressButton");
+            httpService.get("/proxy/api/node/" + nodeId + "/pressButton");
         } catch (Exception e) {
             log.error(e.toString(), e);
         }
@@ -69,7 +73,7 @@ public class NodeService {
     public static NodeConfig getNodeConfig(String nodeType) {
         return configsCache.computeIfAbsent(nodeType, s -> {
             try {
-                String response = EntityUtils.toString(httpService.get("/api/nodesupport/" + nodeType + "/config").getEntity());
+                String response = EntityUtils.toString(httpService.get("/proxy/api/nodesupport/" + nodeType + "/config").getEntity());
                 return OM.readValue(response, new TypeReference<>() {});
             } catch (Exception e) {
                 log.error(e.toString(), e);
@@ -94,8 +98,7 @@ public class NodeService {
 
     public static boolean checkIsAlive() {
         try {
-            httpService.get("/api/service/checkIsAlive");
-            return true;
+            return Boolean.parseBoolean(EntityUtils.toString(httpService.get("/proxy/api/service/checkIsAlive").getEntity()));
         } catch (Exception e) {
             return false;
         }
