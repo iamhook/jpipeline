@@ -7,7 +7,7 @@ import com.jpipeline.javafxclient.service.ManagerService;
 import com.jpipeline.javafxclient.service.NodeService;
 import com.jpipeline.javafxclient.ui.WorkflowService;
 import com.jpipeline.javafxclient.ui.util.InterfaceHelper;
-import com.jpipeline.javafxclient.ui.util.ViewHelper;
+import com.jpipeline.javafxclient.ui.util.CanvasHelper;
 import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -144,13 +144,13 @@ public class MainMenuController {
         nodesMenu.getChildren().clear();
         for (String nodeType : nodeTypes) {
             NodeConfig config = NodeService.getNodeConfig(nodeType);
-            Rectangle rectangle = ViewHelper.createNodeRectangle(Paint.valueOf(config.getColor()));
+            Rectangle rectangle = CanvasHelper.createNodeRectangle(Paint.valueOf(config.getColor()));
             rectangle.setWidth(NODE_WIDTH);
             rectangle.setCursor(Cursor.HAND);
             rectangle.setHeight(NODE_HEIGHT);
             rectangle.setX((nodesMenu.getParent().getLayoutBounds().getWidth() - NODE_WIDTH) / 2);
             rectangle.setY(offset + i * (NODE_HEIGHT + margin));
-            Text nameLabel = ViewHelper.createNameLabel(nodeType, rectangle);
+            Text nameLabel = CanvasHelper.createNameLabel(nodeType, rectangle);
             nameLabel.setCursor(Cursor.HAND);
             rectangle.setOnMouseClicked(event -> workflowService.createNode(nodeType));
             nameLabel.setOnMouseClicked(event -> workflowService.createNode(nodeType));

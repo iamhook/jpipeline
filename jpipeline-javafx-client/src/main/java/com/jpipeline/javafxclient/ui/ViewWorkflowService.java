@@ -4,7 +4,7 @@ import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.common.util.NodeConfig;
 import com.jpipeline.javafxclient.service.NodeService;
 import com.jpipeline.javafxclient.ui.util.InterfaceHelper;
-import com.jpipeline.javafxclient.ui.util.ViewHelper;
+import com.jpipeline.javafxclient.ui.util.CanvasHelper;
 import com.jpipeline.javafxclient.ui.util.Wrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -94,7 +94,7 @@ public class ViewWorkflowService {
         double toX = toHandle.getCenterX();
         double toY = toHandle.getCenterY();
 
-        CubicCurve curve = ViewHelper.createConnectionCurve();
+        CubicCurve curve = CanvasHelper.createConnectionCurve();
 
         updateCurve(fromX, fromY, toX, toY, curve);
 
@@ -142,11 +142,7 @@ public class ViewWorkflowService {
         if (node.getY() == null)
             node.setY(DEFAULT_Y);
 
-        Rectangle rectangle = ViewHelper.createNodeRectangle(Paint.valueOf(node.getColor()));
-
-        if (!deployed) {
-            rectangle.setOpacity(NOT_DEPLOYED_NODE_OPACITY);
-        }
+        Rectangle rectangle = CanvasHelper.createNodeRectangle(Paint.valueOf(node.getColor()));
 
         rectangle.setWidth(NODE_WIDTH);
         rectangle.setHeight(NODE_HEIGHT);
@@ -158,10 +154,10 @@ public class ViewWorkflowService {
         nodeWrapper.setParent(rootPane);
         nodeWrapper.setRectangle(rectangle);
 
-        Circle closeHandle = ViewHelper.createCloseHandle(rectangle);
+        Circle closeHandle = CanvasHelper.createCloseHandle(rectangle);
 
-        Text nameLabel = ViewHelper.createNameLabel(node.getType(), rectangle);
-        Text statusLabel = ViewHelper.createStatusLabel(rectangle);
+        Text nameLabel = CanvasHelper.createNameLabel(node.getType(), rectangle);
+        Text statusLabel = CanvasHelper.createStatusLabel(rectangle);
 
         rootPane.getChildren().addAll(closeHandle, nameLabel, statusLabel);
 
@@ -169,14 +165,21 @@ public class ViewWorkflowService {
         nodeWrapper.setNameLabel(nameLabel);
         nodeWrapper.setStatusLabel(statusLabel);
 
+        if (!deployed) {
+            rectangle.setOpacity(NOT_DEPLOYED_NODE_OPACITY);
+            rectangle.setStyle("-fx-stroke-width: 1; -fx-stroke: black; -fx-stroke-dash-array: 2 2 2 2;");
+        }
+
         if (nodeConfig.hasButton()) {
-            Shape nodeButton = ViewHelper.createNodeButton(rectangle, node.getId());
+            Shape nodeButton = CanvasHelper.createNodeButton(rectangle, node.getId());
             nodeWrapper.setNodeButton(nodeButton);
             rootPane.getChildren().add(nodeButton);
+            if (!deployed)
+                nodeButton.setDisable(true);
         }
 
         if (nodeConfig.getInputs() > 0) {
-            Circle inputHandle = ViewHelper.createInputHandle(rectangle);
+            Circle inputHandle = CanvasHelper.createInputHandle(rectangle);
             nodeWrapper.setInputHandle(inputHandle);
             rootPane.getChildren().add(inputHandle);
 
@@ -184,7 +187,7 @@ public class ViewWorkflowService {
                 if (connectingNode == null) {
                     currentConnectionType = ConnectionType.INPUT_TO_OUTPUT;
                     connectingNode = node;
-                    connectingWire = ViewHelper.createConnectionCurve();
+                    connectingWire = CanvasHelper.createConnectionCurve();
                     updateCurve(inputHandle.getCenterX(), inputHandle.getCenterY(), inputHandle.getCenterX(), inputHandle.getCenterY(), connectingWire);
                     rootPane.getChildren().add(connectingWire);
                 }
@@ -208,7 +211,7 @@ public class ViewWorkflowService {
         }
 
         if (nodeConfig.getOutputs() > 0) {
-            Circle outputHandle = ViewHelper.createOutputHandle(rectangle);
+            Circle outputHandle = CanvasHelper.createOutputHandle(rectangle);
             nodeWrapper.setOutputHandle(outputHandle);
             rootPane.getChildren().add(outputHandle);
 
@@ -216,7 +219,7 @@ public class ViewWorkflowService {
                 if (connectingNode == null) {
                     currentConnectionType = ConnectionType.OUTPUT_TO_INPUT;
                     connectingNode = node;
-                    connectingWire = ViewHelper.createConnectionCurve();
+                    connectingWire = CanvasHelper.createConnectionCurve();
                     updateCurve(outputHandle.getCenterX(), outputHandle.getCenterY(), outputHandle.getCenterX(), outputHandle.getCenterY(), connectingWire);
                     rootPane.getChildren().add(connectingWire);
                 }

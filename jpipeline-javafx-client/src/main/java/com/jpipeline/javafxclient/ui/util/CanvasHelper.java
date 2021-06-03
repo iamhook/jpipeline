@@ -10,7 +10,7 @@ import javafx.scene.text.Text;
 import static com.jpipeline.javafxclient.Consts.HANDLE_RADIUS;
 import static com.jpipeline.javafxclient.Consts.NODE_BUTTON_SIZE;
 
-public class ViewHelper {
+public class CanvasHelper {
 
     public static CubicCurve createConnectionCurve() {
         CubicCurve curve = new CubicCurve();
