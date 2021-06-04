@@ -115,6 +115,7 @@ public class MainMenuController {
     public void connectionSuccessCallback() {
         hideConnectionMenu();
         showProgressIndicator();
+        // TODO refactor it now!!!!!
         InterfaceHelper.createDebugMenu(rootPane.getScene().getWindow());
         executor.scheduleAtFixedRate(this::updateServiceStatuses, 0, 500, TimeUnit.MILLISECONDS);
     }
@@ -163,10 +164,6 @@ public class MainMenuController {
     public void createProgressIndicator() {
         progressIndicator = new ProgressIndicator();
         rootPane.getChildren().add(progressIndicator);
-
-        /*progressIndicator.setVisible(true);*/
-
-        //progressIndicator.setLayoutX(nodesMenu.getWidth() + 30);
         progressIndicator.setManaged(false);
         progressIndicator.resize(PROGRESS_INDICATOR_SIZE, PROGRESS_INDICATOR_SIZE);
         progressIndicator.layoutXProperty().bind(rootPane.widthProperty().divide(2)
