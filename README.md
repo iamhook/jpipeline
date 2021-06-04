@@ -1,5 +1,5 @@
 # JPipeline
-[Node-RED](https://github.com/node-red/node-red) analog fully written in Java.
+[Node-RED](https://github.com/node-red/node-red) analogue, written fully in Java.
 
 ## Modules
 
