@@ -19,7 +19,7 @@ import java.util.List;
 @Component
 public class AuthFilter implements WebFilter {
 
-    private static final List<String> excludedUrls = Arrays.asList("/api/auth/login", "/api/manager/checkIsAlive");
+    private static final List<String> excludedUrls = Arrays.asList("/api/auth/login", "/api/manager/checkIsAlive", "/api/manager/meta");
 
     @Value("${jpipeline.jwt-cookie-name}")
     private String JWT_COOKIE;

@@ -1,10 +1,8 @@
 package com.jpipeline.common.util;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
-@Getter @Setter @Builder
+@Getter @Setter @Builder @AllArgsConstructor @NoArgsConstructor
 public class ManagerMeta {
     private int rsocketPort;
 }

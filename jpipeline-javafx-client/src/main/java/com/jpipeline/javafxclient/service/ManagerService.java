@@ -1,8 +1,11 @@
 package com.jpipeline.javafxclient.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpipeline.common.WorkflowConfig;
+import com.jpipeline.common.service.RSocketService;
 import com.jpipeline.common.util.ErrorMessage;
+import com.jpipeline.common.util.ManagerMeta;
 import com.jpipeline.common.util.exception.CustomException;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
@@ -16,10 +19,25 @@ public class ManagerService {
     private static ObjectMapper OM = new ObjectMapper();
     private static final Logger log = LoggerFactory.getLogger(ManagerService.class);
     private static HttpService httpService;
+    private static ManagerMeta meta;
 
     public static void createHttpService() {
-        httpService = new HttpService(AuthContext.getConnection().getHostname());
+        String hostname = AuthContext.getConnection().getHostname();
+        Integer port = AuthContext.getConnection().getPort();
+        httpService = new HttpService(hostname, port);
+        meta = getMeta();
         NodeService.setHttpService(httpService);
+        NodeService.setRSocketService(new RSocketService("ws://" + hostname + ":" + meta.getRsocketPort()));
+    }
+
+    private static ManagerMeta getMeta() {
+        try {
+            String response = EntityUtils.toString(httpService.get("/api/manager/meta").getEntity());
+            return OM.readValue(response, new TypeReference<>() {});
+        } catch (Exception e) {
+            log.error(e.toString());
+            throw new RuntimeException(e);
+        }
     }
 
     public static void deploy(WorkflowConfig config) {

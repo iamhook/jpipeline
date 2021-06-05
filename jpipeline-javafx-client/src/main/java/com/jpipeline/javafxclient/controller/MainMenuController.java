@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import static com.jpipeline.javafxclient.Consts.*;
@@ -115,7 +116,7 @@ public class MainMenuController {
     public void connectionSuccessCallback() {
         hideConnectionMenu();
         showProgressIndicator();
-        // TODO refactor it now!!!!!
+        lastExecutorStatus = false;
         InterfaceHelper.createDebugMenu(rootPane.getScene().getWindow());
         executor.scheduleAtFixedRate(this::updateServiceStatuses, 0, 500, TimeUnit.MILLISECONDS);
     }
@@ -215,31 +216,35 @@ public class MainMenuController {
 
 
     private void updateServiceStatuses() {
-        if (NodeService.checkIsAlive()) {
-            if (!lastExecutorStatus) {
-                lastExecutorStatus = true;
-                NodeService.flushSignalFlux();
-                InterfaceHelper.resetDebugSignalSubscription();
-                Platform.runLater(this::resetWorkflow);
+        try {
+            if (NodeService.checkIsAlive()) {
+                if (!lastExecutorStatus) {
+                    lastExecutorStatus = true;
+                    NodeService.flushSignalFlux();
+                    InterfaceHelper.resetDebugSignalSubscription();
+                    Platform.runLater(this::resetWorkflow);
+                }
+
+                Platform.runLater(() -> {
+                    hideProgressIndicator();
+                    canvasPane.setDisable(false);
+                    executorStatusIndicator.setFill(Color.GREEN);
+                });
+            } else {
+                lastExecutorStatus = false;
+                Platform.runLater(() -> {
+                    showProgressIndicator();
+                    executorStatusIndicator.setFill(Color.RED);
+                });
             }
 
-            Platform.runLater(() -> {
-                hideProgressIndicator();
-                canvasPane.setDisable(false);
-                executorStatusIndicator.setFill(Color.GREEN);
-            });
-        } else {
-            lastExecutorStatus = false;
-            Platform.runLater(() -> {
-                showProgressIndicator();
-                executorStatusIndicator.setFill(Color.RED);
-            });
-        }
-
-        if (ManagerService.checkIsAlive()) {
-            Platform.runLater(() -> managerStatusIndicator.setFill(Color.GREEN));
-        } else {
-            Platform.runLater(() -> managerStatusIndicator.setFill(Color.RED));
+            if (ManagerService.checkIsAlive()) {
+                Platform.runLater(() -> managerStatusIndicator.setFill(Color.GREEN));
+            } else {
+                Platform.runLater(() -> managerStatusIndicator.setFill(Color.RED));
+            }
+        } catch (Exception e) {
+            log.error(e.toString(), e);
         }
     }
 

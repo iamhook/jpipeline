@@ -24,7 +24,8 @@ public class NodeService {
     private static ObjectMapper OM = new ObjectMapper();
     private static Logger log = LoggerFactory.getLogger(NodeService.class);
 
-    private static RSocketService rSocketService = new RSocketService("ws://localhost:7000");
+    @Setter
+    private static RSocketService rSocketService;
 
     @Setter
     private static HttpService httpService;

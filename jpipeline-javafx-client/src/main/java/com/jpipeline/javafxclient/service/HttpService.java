@@ -16,9 +16,13 @@ public class HttpService {
 
     private static Logger log = LoggerFactory.getLogger(HttpService.class);
 
-    private static HttpClient httpClient = HttpClientBuilder.create().setDefaultCookieStore(new BasicCookieStore()).build();
+    private HttpClient httpClient = HttpClientBuilder.create().setDefaultCookieStore(new BasicCookieStore()).build();
 
     private String host;
+
+    public HttpService(String hostname, Integer port) {
+        this.host = hostname + (port == null? "" : ":" + port);
+    }
 
     public HttpService(String host) {
         this.host = host;

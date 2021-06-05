@@ -30,6 +30,9 @@ public class ConnectionMenuController {
     public TextField hostnameField;
 
     @FXML
+    public TextField portField;
+
+    @FXML
     public TextField usernameField;
 
     @FXML
@@ -55,6 +58,7 @@ public class ConnectionMenuController {
         JConnection connection = connectionsList.getSelectionModel().getSelectedItem();
         if (connection == null) return;
         hostnameField.setText(connection.getHostname());
+        portField.setText(connection.getPort() == null ? "" : connection.getPort().toString());
         usernameField.setText(connection.getUsername());
         passwordField.setText(connection.getPassword());
     }
@@ -71,15 +75,18 @@ public class ConnectionMenuController {
         JConnection connection = new JConnection();
 
         String hostname = hostnameField.getText();
+        String port = portField.getText();
         String username = usernameField.getText();
         String password = passwordField.getText();
 
+        String host = hostname + (port == null? "" : ":" + port);
+
         if (hostname != null && !hostname.isEmpty()) {
 
-            boolean managerIsAlive = ManagerService.checkIsAlive(hostname);
+            boolean managerIsAlive = ManagerService.checkIsAlive(host);
 
             if (!managerIsAlive) {
-                errorText.setText("Manager " + hostname + " is not reachable");
+                errorText.setText("Manager " + host + " is not reachable");
                 return;
             }
 
@@ -89,6 +96,9 @@ public class ConnectionMenuController {
         }
 
         connection.setHostname(hostname);
+
+        if (port != null && !port.isEmpty())
+            connection.setPort(Integer.parseInt(port));
 
         if (username != null && !username.isEmpty()) {
             connection.setUsername(username);
