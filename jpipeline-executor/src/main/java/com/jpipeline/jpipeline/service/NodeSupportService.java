@@ -61,10 +61,28 @@ public class NodeSupportService {
 
     }
 
+    private Resource getNodeFxml(Class<? extends Node> nodeClass) {
+        try {
+            final Resource resource = resourceLoader.getResource("classpath:node-fxml/" +
+                    nodeClass.getSimpleName() + ".fxml");
+            return resource;
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            return null;
+        }
+
+    }
+
     @SneakyThrows
     public NodeConfig getNodeConfig(String type) {
         Class<Node> nodeClass = (Class<Node>) Class.forName(nodesPackage+"."+type);
         return getNodeConfig(nodeClass);
+    }
+
+    @SneakyThrows
+    public Resource getNodeFxml(String type) {
+        Class<Node> nodeClass = (Class<Node>) Class.forName(nodesPackage+"."+type);
+        return getNodeFxml(nodeClass);
     }
 
     @SneakyThrows

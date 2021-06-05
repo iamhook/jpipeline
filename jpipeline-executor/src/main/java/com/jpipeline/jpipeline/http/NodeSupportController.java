@@ -4,6 +4,7 @@ import com.jpipeline.common.util.NodeConfig;
 import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.jpipeline.service.NodeSupportService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,8 +25,13 @@ public class NodeSupportController {
     }
 
     @GetMapping("/{type}/config")
-    public NodeConfig getProperties(@PathVariable String type) {
+    public NodeConfig getNodeConfig(@PathVariable String type) {
         return nodeSupportService.getNodeConfig(type);
+    }
+
+    @GetMapping("/{type}/fxml")
+    public Resource getNodeFxml(@PathVariable String type) {
+        return nodeSupportService.getNodeFxml(type);
     }
 
     @GetMapping("/{type}/create")

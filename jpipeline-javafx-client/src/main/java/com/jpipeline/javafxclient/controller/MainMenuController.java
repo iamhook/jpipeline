@@ -6,8 +6,8 @@ import com.jpipeline.javafxclient.MainApplication;
 import com.jpipeline.javafxclient.service.ManagerService;
 import com.jpipeline.javafxclient.service.NodeService;
 import com.jpipeline.javafxclient.ui.WorkflowService;
-import com.jpipeline.javafxclient.ui.util.InterfaceHelper;
 import com.jpipeline.javafxclient.ui.util.CanvasHelper;
+import com.jpipeline.javafxclient.ui.util.InterfaceHelper;
 import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import static com.jpipeline.javafxclient.Consts.*;
@@ -83,6 +82,8 @@ public class MainMenuController {
 
     public void init() {
         showConnectionMenu();
+        InterfaceHelper.createDebugMenu(rootPane.getScene().getWindow());
+        executor.scheduleAtFixedRate(this::updateServiceStatuses, 0, 500, TimeUnit.MILLISECONDS);
     }
 
     public void showConnectionMenu() {
@@ -117,8 +118,7 @@ public class MainMenuController {
         hideConnectionMenu();
         showProgressIndicator();
         lastExecutorStatus = false;
-        InterfaceHelper.createDebugMenu(rootPane.getScene().getWindow());
-        executor.scheduleAtFixedRate(this::updateServiceStatuses, 0, 500, TimeUnit.MILLISECONDS);
+
     }
 
 

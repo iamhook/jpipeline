@@ -7,7 +7,6 @@ import com.jpipeline.javafxclient.service.NodeService;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
-import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import lombok.Setter;
@@ -34,7 +33,7 @@ public class DebugMenuController {
 
 
     public void init() {
-        resetSignalSubscription();
+
     }
 
     public void resetSignalSubscription() {

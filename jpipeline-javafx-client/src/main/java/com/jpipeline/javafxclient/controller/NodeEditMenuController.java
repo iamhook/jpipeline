@@ -6,33 +6,29 @@ import com.jpipeline.common.util.NodeConfig;
 import com.jpipeline.common.util.PropertyConfig;
 import com.jpipeline.javafxclient.service.NodeService;
 import com.jpipeline.javafxclient.ui.NodeWrapper;
-import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Collection;
-import java.util.Collections;
+import java.io.FileInputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class NodeEditMenuController {
 
-    @FXML
-    private Pane rootPane;
+    private static final String ID_PREFIX = "property_";
 
     @FXML
-    private GridPane gridPane;
+    private Pane rootPane;
 
     @Setter
     private Stage stage;
@@ -42,178 +38,75 @@ public class NodeEditMenuController {
     private NodeDTO node;
 
 
-
     public void init() {
+        CJson nodeProperties = node.getProperties();
         NodeConfig nodeConfig = NodeService.getNodeConfig(node.getType());
+        Map<String, PropertyConfig> propertyConfigs = nodeConfig.getProperties().stream().collect(Collectors.toMap(pc -> pc.getName(), pc -> pc));
 
-        showProperties(gridPane, nodeConfig.getProperties(), node.getProperties());
-    }
+        try {
+            String fxmlPath = NodeService.getNodeFxml(node.getType());
 
-    // TODO rename
-    private void showProperties(GridPane gridPane, List<PropertyConfig> propertyConfigs, CJson nodeProperties) {
-        int i = 0;
-        TextField nameField = new TextField(node.getType());
-        gridPane.addRow(i++, new Text("Name"), nameField);
+            FXMLLoader loader = new FXMLLoader();
+            Pane pane = loader.load(new FileInputStream(fxmlPath));
+            rootPane.getChildren().add(pane);
 
-        for (PropertyConfig property : propertyConfigs) {
-            String propertyName = property.getName();
+            Map<String, Node> propertyNodes = findPropertyNodes(pane.getChildren())
+                    .stream().collect(Collectors.toMap(n -> n.getId().replace(ID_PREFIX, ""), n -> n));
 
+            for (Map.Entry<String, Node> entry : propertyNodes.entrySet()) {
+                String propertyName = entry.getKey();
+                Node propertyNode = entry.getValue();
+                if (propertyConfigs.containsKey(propertyName)) {
+                    PropertyConfig propertyConfig = propertyConfigs.get(propertyName);
+                    if (propertyNode instanceof TextField) {
+                        TextField textField = (TextField) propertyNode;
 
-            Text propertyNameField = new Text(propertyName);
-            gridPane.add(propertyNameField, 0, i);
-
-            Collection valueCollection;
-            if (property.isMultiple()) {
-                valueCollection = (Collection) nodeProperties.get(propertyName);
-            }
-            else {
-                valueCollection = Collections.singletonList(nodeProperties.get(propertyName));
-            }
-
-            AtomicInteger j = new AtomicInteger();
-            GridPane propertyGridPane = new GridPane();
-            gridPane.add(propertyGridPane, 1, i++);
-
-            Runnable reloadValue = () -> {
-                valueCollection.clear();
-                propertyGridPane.getChildren().stream()
-                        .filter(n -> n instanceof TextField)
-                        .forEach(n -> {
-                            String text = ((TextField) n).getText();
-                            if (text != null && !text.isEmpty()) {
-                                valueCollection.add(text);
-                            }
+                        if (nodeProperties.containsKey(propertyName)) {
+                            textField.setText(nodeProperties.get(propertyName).toString());
+                        }
+                        // TextField listener
+                        textField.textProperty().addListener((observable, oldValue, newValue) -> {
+                            nodeProperties.put(propertyName, newValue);
                         });
-            };
-
-            ChangeListener propertyListener;
-            if (property.isMultiple()) {
-                propertyListener = (observable, oldValue, newValue) -> {
-                    /*if (property.isNumber()) {
-                        if (!newValue.matches("\\d*")) {
-                            newValue = newValue.replaceAll("[^\\d]", "");
+                    } else if (propertyNode instanceof ChoiceBox) {
+                        ChoiceBox<ChoiceObject> choiceBox = (ChoiceBox<ChoiceObject>) propertyNode;
+                        for (Object variant : propertyConfig.getVariants()) {
+                            ChoiceObject choiceObject = new ChoiceObject(variant.toString(), variant.toString());
+                            choiceBox.getItems().add(choiceObject);
+                            if (nodeProperties.containsKey(propertyName)) {
+                                if (nodeProperties.get(propertyName).equals(choiceObject.getValue())) {
+                                    choiceBox.getSelectionModel().select(choiceObject);
+                                }
+                            }
                         }
-                    }*/
-                    //propertyValueField.setText(newValue);
-                    reloadValue.run();
-                };
-            } else {
-                propertyListener = (observable, oldValue, newValue) -> {
-                    if (property.isEnumeration()) {
-                        ChoiceObject choiceObject = (ChoiceObject) newValue;
-                        nodeProperties.put(propertyName, choiceObject.getValue());
-                    } else {
-                        nodeProperties.put(propertyName, newValue);
+
+                        // ChoiceBox listener
+                        choiceBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+                            nodeProperties.put(propertyName, newValue.getValue());
+                        });
                     }
-                    /*if (property.isNumber()) {
-                        if (!newValue.matches("\\d*")) {
-                            newValue = newValue.replaceAll("[^\\d]", "");
-                        }
-                    }*/
-                    //propertyValueField.setText(newValue);
-                };
-            }
 
-            Consumer<Object> createField = (val) -> {
-                if (property.isMultiple()) {
-                    Button deleteRowButton = new Button("-");
-                    int j1 = j.get();
-                    deleteRowButton.setOnAction(event -> {
-                        propertyGridPane.getChildren().removeIf(n -> GridPane.getRowIndex(n) == j1);
-                        reloadValue.run();
-                    });
-                    propertyGridPane.add(deleteRowButton, 0, j.get());
-                }
-
-                if (property.isEnumeration()) {
-                    ChoiceBox<ChoiceObject> propertyChoiceBox = new ChoiceBox<>();
-
-                    for (Object variant : property.getVariants()) {
-                        ChoiceObject choiceObject = new ChoiceObject(variant.toString(), variant);
-                        propertyChoiceBox.getItems().add(choiceObject);
-                        if (val.equals(variant))
-                            propertyChoiceBox.getSelectionModel().select(choiceObject);
-                    }
-                    propertyGridPane.add(propertyChoiceBox, 1, j.getAndIncrement());
-                    propertyChoiceBox.valueProperty().addListener(propertyListener);
-                } else {
-                    TextField propertyValueField = new TextField(val.toString());
-
-                    propertyGridPane.add(propertyValueField, 1, j.getAndIncrement());
-                    propertyValueField.textProperty().addListener(propertyListener);
-                }
-
-            };
-
-            if (property.isMultiple()) {
-                Button addRowButton = new Button("+");
-                addRowButton.setOnAction(event -> createField.accept(""));
-                gridPane.add(addRowButton, 1, i);
-            }
-
-            for (Object value : valueCollection) {
-                if (property.isComplex()) {
-                    GridPane subGridPane = new GridPane();
-                    propertyGridPane.add(subGridPane, 1, j.getAndIncrement());
-                    Button deleteRowButton = new Button("-");
-                    int j1 = j.get();
-                    deleteRowButton.setOnAction(event -> {
-                        propertyGridPane.getChildren().removeIf(n -> GridPane.getRowIndex(n) == j1);
-                        reloadValue.run();
-                    });
-                    propertyGridPane.add(deleteRowButton, 0, j.get());
-                    showProperties(subGridPane, property.getNested(), new CJson((Map)value));
-
-                } else {
-                    String propertyValue = "";
-                    if (value != null) {
-                        propertyValue = value.toString();
-                    }
-                    createField.accept(propertyValue);
                 }
             }
 
-            /*if (property.isMultiple()) {
 
-            } else {
-                Object value = nodeProperties.get(propertyName);
-
-                String propertyValue = "";
-                if (value != null) {
-                    propertyValue = value.toString();
-                }
-
-                TextField propertyValueField = new TextField(propertyValue);
-
-                gridPane.add(propertyValueField, 1, i);
-
-                propertyValueField.textProperty().addListener((observable, oldValue, newValue) -> {
-                    if (property.isNumber()) {
-                        if (!newValue.matches("\\d*")) {
-                            newValue = newValue.replaceAll("[^\\d]", "");
-                        }
-                    }
-
-                    propertyValueField.setText(newValue);
-                    nodeProperties.put(propertyName, newValue);
-                });
-            }*/
-
-            i++;
-
-
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-
-    @FXML
-    public void closeModal() {
-        stage.close();
-    }
-
-    public void setNodeWrapper(NodeWrapper nodeWrapper) {
-        this.node = nodeWrapper.getNode();
-        this.nodeWrapper = nodeWrapper;
+    public List<Node> findPropertyNodes(List<Node> children) {
+        List<Node> properties = new ArrayList<>();
+        for (Node node : children) {
+            if (node.getId() != null && node.getId().startsWith(ID_PREFIX)) {
+                properties.add(node);
+            } else {
+                if (node instanceof Pane) {
+                    properties.addAll(findPropertyNodes(((Pane) node).getChildren()));
+                }
+            }
+        }
+        return properties;
     }
 
     @Getter @Setter @AllArgsConstructor
@@ -225,5 +118,15 @@ public class NodeEditMenuController {
         public String toString() {
             return name;
         }
+    }
+
+    @FXML
+    public void closeModal() {
+        stage.close();
+    }
+
+    public void setNodeWrapper(NodeWrapper nodeWrapper) {
+        this.node = nodeWrapper.getNode();
+        this.nodeWrapper = nodeWrapper;
     }
 }

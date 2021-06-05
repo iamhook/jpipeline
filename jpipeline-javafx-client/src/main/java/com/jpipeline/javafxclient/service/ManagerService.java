@@ -28,6 +28,7 @@ public class ManagerService {
         meta = getMeta();
         NodeService.setHttpService(httpService);
         NodeService.setRSocketService(new RSocketService("ws://" + hostname + ":" + meta.getRsocketPort()));
+        NodeService.clearCache();
     }
 
     private static ManagerMeta getMeta() {
