@@ -8,6 +8,7 @@ import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -29,20 +30,27 @@ public class ExecutorProxyController {
 
     @RequestMapping("/**")
     public ResponseEntity proxy(ServerWebExchange exchange, HttpMethod method) throws IOException {
-        ServerHttpRequest request = exchange.getRequest();
-        String path = request.getPath().subPath(2).toString();
-        HttpUriRequest req = RequestBuilder
-                .create(method.name())
-                .setUri("http://localhost:" + executorPort + path)
-                .build();
+        try {
+            ServerHttpRequest request = exchange.getRequest();
+            String path = request.getPath().subPath(2).toString();
+            HttpUriRequest req = RequestBuilder
+                    .create(method.name())
+                    .setUri("http://localhost:" + executorPort + path)
+                    .build();
 
 
-        HttpResponse response = httpClient.execute(req);
+            HttpResponse response = httpClient.execute(req);
 
-        return ResponseEntity
-                .status(response.getStatusLine().getStatusCode())
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(EntityUtils.toString(response.getEntity()));
+            return ResponseEntity
+                    .status(response.getStatusLine().getStatusCode())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(EntityUtils.toString(response.getEntity()));
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(false);
+        }
     }
 
 }
