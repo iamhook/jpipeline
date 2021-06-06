@@ -1,5 +1,8 @@
 package com.jpipeline.javafxclient.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jpipeline.common.util.ErrorMessage;
+import com.jpipeline.common.util.exception.CustomException;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -7,12 +10,15 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 public class HttpService {
+
+    private static final ObjectMapper OM = new ObjectMapper();
 
     private static Logger log = LoggerFactory.getLogger(HttpService.class);
 
@@ -29,8 +35,13 @@ public class HttpService {
     }
 
     public HttpResponse get(String url) throws IOException {
-        HttpResponse execute = httpClient.execute(new HttpGet("http://" + host + url));
-        return execute;
+        HttpResponse response = httpClient.execute(new HttpGet("http://" + host + url));
+        if (response.getStatusLine().getStatusCode() == 200) {
+            return response;
+        } else {
+            ErrorMessage errorMessage = OM.readValue(EntityUtils.toString(response.getEntity()), ErrorMessage.class);
+            throw new CustomException(errorMessage.getMessage());
+        }
     }
 
     public HttpResponse post(String url, String body) throws IOException {
@@ -38,7 +49,14 @@ public class HttpService {
         StringEntity stringEntity = new StringEntity(body);
         httpPost.setEntity(stringEntity);
         httpPost.addHeader("Content-Type", "application/json");
-        return httpClient.execute(httpPost);
+
+        HttpResponse response = httpClient.execute(httpPost);
+        if (response.getStatusLine().getStatusCode() == 200) {
+            return response;
+        } else {
+            ErrorMessage errorMessage = OM.readValue(EntityUtils.toString(response.getEntity()), ErrorMessage.class);
+            throw new CustomException(errorMessage.getMessage());
+        }
     }
 
 }

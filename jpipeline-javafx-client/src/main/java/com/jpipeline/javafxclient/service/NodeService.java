@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class NodeService {
 
-    private static ObjectMapper OM = new ObjectMapper();
+    private static final ObjectMapper OM = new ObjectMapper();
     private static Logger log = LoggerFactory.getLogger(NodeService.class);
 
     @Setter
@@ -100,14 +100,9 @@ public class NodeService {
         return nodeFxmlCache.computeIfAbsent(nodeType, s -> {
             try {
                 HttpResponse response = httpService.get("/proxy/api/nodesupport/" + nodeType + "/fxml");
-                if (response.getStatusLine().getStatusCode() == 200) {
-                    String path = "tmp/" + nodeType + ".fxml";
-                    FileUtils.write(new File(path), EntityUtils.toString(response.getEntity()), Charset.defaultCharset());
-                    return path;
-                } else {
-                    ErrorMessage errorMessage = OM.readValue(EntityUtils.toString(response.getEntity()), ErrorMessage.class);
-                    throw new CustomException(errorMessage.getMessage());
-                }
+                String path = "tmp/" + nodeType + ".fxml";
+                FileUtils.write(new File(path), EntityUtils.toString(response.getEntity()), Charset.defaultCharset());
+                return path;
             } catch (Exception e) {
                 log.error(e.toString(), e);
             }

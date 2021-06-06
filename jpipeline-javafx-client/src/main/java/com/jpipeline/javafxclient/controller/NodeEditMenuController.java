@@ -28,7 +28,7 @@ public class NodeEditMenuController {
     private static final String ID_PREFIX = "property_";
 
     @FXML
-    private Pane rootPane;
+    private Pane wrapper;
 
     @Setter
     private Stage stage;
@@ -48,7 +48,11 @@ public class NodeEditMenuController {
 
             FXMLLoader loader = new FXMLLoader();
             Pane pane = loader.load(new FileInputStream(fxmlPath));
-            rootPane.getChildren().add(pane);
+            stage.setWidth(pane.getPrefWidth());
+            stage.setHeight(600);
+            stage.centerOnScreen();
+            wrapper.getChildren().add(pane);
+
 
             Map<String, Node> propertyNodes = findPropertyNodes(pane.getChildren())
                     .stream().collect(Collectors.toMap(n -> n.getId().replace(ID_PREFIX, ""), n -> n));

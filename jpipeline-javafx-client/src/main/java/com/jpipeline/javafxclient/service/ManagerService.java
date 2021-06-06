@@ -53,13 +53,8 @@ public class ManagerService {
     public static boolean login() {
         try {
             JConnection connection = AuthContext.getConnection();
-            HttpResponse response = httpService.get("/api/auth/login?username=" + connection.getUsername() + "&password=" + connection.getPassword());
-            if (response.getStatusLine().getStatusCode() == 200) {
-                return true;
-            } else {
-                ErrorMessage errorMessage = OM.readValue(EntityUtils.toString(response.getEntity()), ErrorMessage.class);
-                throw new CustomException(errorMessage.getMessage());
-            }
+            httpService.get("/api/auth/login?username=" + connection.getUsername() + "&password=" + connection.getPassword());
+            return true;
         } catch (IOException e) {
             throw new CustomException(e);
         }

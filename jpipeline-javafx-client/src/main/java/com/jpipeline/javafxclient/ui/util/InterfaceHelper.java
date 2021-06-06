@@ -23,8 +23,6 @@ public class InterfaceHelper {
             stage.setScene(new Scene(root));
             stage.setTitle(node.getType() + " edit menu");
             stage.initOwner(window);
-            stage.setHeight(700);
-            stage.setWidth(700);
             stage.show();
 
             NodeEditMenuController controller = loader.getController();
