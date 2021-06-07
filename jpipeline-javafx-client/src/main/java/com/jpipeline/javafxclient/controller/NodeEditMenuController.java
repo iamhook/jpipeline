@@ -10,7 +10,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputControl;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import lombok.AllArgsConstructor;
@@ -62,8 +64,8 @@ public class NodeEditMenuController {
                 Node propertyNode = entry.getValue();
                 if (propertyConfigs.containsKey(propertyName)) {
                     PropertyConfig propertyConfig = propertyConfigs.get(propertyName);
-                    if (propertyNode instanceof TextField) {
-                        TextField textField = (TextField) propertyNode;
+                    if (propertyNode instanceof TextInputControl) {
+                        TextInputControl textField = (TextInputControl) propertyNode;
 
                         if (nodeProperties.containsKey(propertyName) && nodeProperties.get(propertyName) != null) {
                             textField.setText(nodeProperties.get(propertyName).toString());

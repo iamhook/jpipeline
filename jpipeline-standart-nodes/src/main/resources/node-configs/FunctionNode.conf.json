@@ -1,0 +1,13 @@
+{
+  "color": "#dff538",
+  "inputs": 1,
+  "outputs": 1,
+  "properties": [
+    {
+      "name": "function",
+      "defaultValue": "return message;",
+      "type": "STRING",
+      "required": true
+    }
+  ]
+}

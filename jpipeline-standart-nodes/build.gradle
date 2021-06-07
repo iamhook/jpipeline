@@ -1,6 +1,8 @@
 dependencies {
     implementation project(":jpipeline-common")
 
+    implementation  'org.codehaus.groovy:groovy-all:3.0.8'
+
 }
 
 jar {
