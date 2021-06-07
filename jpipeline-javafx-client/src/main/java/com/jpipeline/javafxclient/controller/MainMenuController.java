@@ -12,15 +12,16 @@ import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
@@ -31,9 +32,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.jpipeline.javafxclient.Consts.*;
 
@@ -45,7 +48,7 @@ public class MainMenuController {
     public AnchorPane rootPane;
 
     @FXML
-    public Pane nodesMenu;
+    public VBox nodesMenu;
 
     @FXML
     public Pane canvasPane;
@@ -145,28 +148,39 @@ public class MainMenuController {
         workflowService = new WorkflowService(workflowConfig, canvasPane);
         workflowService.setController(this);
 
-        List<String> nodeTypes = NodeService.getNodeTypes();
-
-        int i = 0;
-        double offset = 20;
-        double margin = 20;
+        double offset = 10;
+        double margin = 10;
         nodesMenu.getChildren().clear();
-        for (String nodeType : nodeTypes) {
-            NodeConfig config = NodeService.getNodeConfig(nodeType);
-            Rectangle rectangle = CanvasHelper.createNodeRectangle(Paint.valueOf(config.getColor()));
-            rectangle.setWidth(NODE_WIDTH);
-            rectangle.setCursor(Cursor.HAND);
-            rectangle.setHeight(NODE_HEIGHT);
-            rectangle.setX((nodesMenu.getParent().getLayoutBounds().getWidth() - NODE_WIDTH) / 2);
-            rectangle.setY(offset + i * (NODE_HEIGHT + margin));
-            Text nameLabel = CanvasHelper.createNameLabel(nodeType, rectangle);
-            nameLabel.setCursor(Cursor.HAND);
-            rectangle.setOnMouseClicked(event -> workflowService.createNode(nodeType));
-            nameLabel.setOnMouseClicked(event -> workflowService.createNode(nodeType));
-            nodesMenu.getChildren().add(rectangle);
-            nodesMenu.getChildren().add(nameLabel);
-            i++;
+
+        Map<String, List<NodeConfig>> categories = NodeService.getNodeTypes().stream().map(NodeService::getNodeConfig)
+                .collect(Collectors.groupingBy(NodeConfig::getCategory));
+
+        for (Map.Entry<String, List<NodeConfig>> entry : categories.entrySet()) {
+            AnchorPane categoryPane = new AnchorPane();
+            String categoryName = entry.getKey();
+            int i = 0;
+            List<NodeConfig> nodeConfigs = entry.getValue();
+
+            for (NodeConfig config : nodeConfigs) {
+                Rectangle rectangle = CanvasHelper.createNodeRectangle(Paint.valueOf(config.getColor()));
+                rectangle.setWidth(NODE_WIDTH);
+                rectangle.setCursor(Cursor.HAND);
+                rectangle.setHeight(NODE_HEIGHT);
+                rectangle.setX((nodesMenu.getParent().getLayoutBounds().getWidth() - NODE_WIDTH) / 2);
+                rectangle.setY(offset + i * (NODE_HEIGHT + margin));
+                Text nameLabel = CanvasHelper.createNameLabel(config.getName(), rectangle);
+                nameLabel.setCursor(Cursor.HAND);
+                rectangle.setOnMouseClicked(event -> workflowService.createNode(config.getName()));
+                nameLabel.setOnMouseClicked(event -> workflowService.createNode(config.getName()));
+                categoryPane.getChildren().add(rectangle);
+                categoryPane.getChildren().add(nameLabel);
+                i++;
+            }
+
+            nodesMenu.getChildren().add(new TitledPane(categoryName, categoryPane));
         }
+
+
     }
 
     public void createProgressIndicator() {

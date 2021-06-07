@@ -53,7 +53,9 @@ public class NodeSupportService {
             final Resource resource = resourceLoader.getResource("classpath:node-configs/" +
                     nodeClass.getSimpleName() + ".conf.json");
             byte[] configBinaryData = FileCopyUtils.copyToByteArray(resource.getInputStream());
-            return OM.readValue(configBinaryData, NodeConfig.class);
+            NodeConfig nodeConfig = OM.readValue(configBinaryData, NodeConfig.class);
+            nodeConfig.setName(nodeClass.getSimpleName());
+            return nodeConfig;
         } catch (Exception e) {
             log.error(e.toString(), e);
             return null;

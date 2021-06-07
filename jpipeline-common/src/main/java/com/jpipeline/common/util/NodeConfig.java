@@ -8,6 +8,8 @@ import java.util.List;
 @Getter
 @Setter
 public class NodeConfig {
+    private String name;
+    private String category = "Other";
     private String color;
     private List<PropertyConfig> properties;
 
