@@ -1,6 +1,7 @@
 package com.jpipeline.jpipeline.entity;
 
 import com.jpipeline.common.entity.Node;
+import com.jpipeline.common.util.JPMessage;
 import com.jpipeline.common.util.annotations.NodeProperty;
 
 import java.sql.*;
@@ -37,7 +38,7 @@ public class JDBCSelectNode extends Node {
     }
 
     @Override
-    public synchronized void onInput(Object message) {
+    public synchronized void onInput(JPMessage message) {
         try {
             Statement selectStmt = connection.createStatement();
             ResultSet rs = selectStmt
@@ -51,7 +52,8 @@ public class JDBCSelectNode extends Node {
                     row.put(md.getColumnName(i),rs.getObject(i));
                 }
 
-                send(row);
+                message.setPayload(row);
+                send(message);
                 setStatus(new NodeStatus("extracted " + ++extracted));
             }
 

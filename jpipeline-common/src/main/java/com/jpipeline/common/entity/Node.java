@@ -1,6 +1,7 @@
 package com.jpipeline.common.entity;
 
 import com.jpipeline.common.util.CJson;
+import com.jpipeline.common.util.JPMessage;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -68,7 +69,7 @@ public abstract class Node {
         }
     }
 
-    public final void send(Object message) {
+    public final void send(JPMessage message) {
         if (message != null) {
             if (sink.currentSubscriberCount() > 0) {
                 Sinks.EmitResult result = sink.tryEmitNext(message);
@@ -83,7 +84,7 @@ public abstract class Node {
         }
     }
 
-    public void onSubscribe(Flux<Object> input) {
+    public void onSubscribe(Flux<JPMessage> input) {
         if (input != null)
             input.subscribe(this::onInput);
     }
@@ -92,7 +93,7 @@ public abstract class Node {
         subscriber.onSubscribe(sink.asFlux());
     }
 
-    public abstract void onInput(Object message);
+    public abstract void onInput(JPMessage message);
 
     public void pressButton() {};
 

@@ -2,14 +2,19 @@ package com.jpipeline.javafxclient.ui;
 
 import com.jpipeline.common.WorkflowConfig;
 import com.jpipeline.common.dto.NodeDTO;
+import com.jpipeline.javafxclient.controller.MainMenuController;
 import com.jpipeline.javafxclient.service.ManagerService;
 import com.jpipeline.javafxclient.service.NodeService;
 import javafx.scene.layout.Pane;
+import lombok.Setter;
 
 public class WorkflowService {
 
     private ViewWorkflowService viewService;
     private ModelWorkflowService modelService;
+
+    @Setter
+    private MainMenuController controller;
 
     public void createNode(NodeDTO node) {
         modelService.createNode(node);
@@ -51,6 +56,7 @@ public class WorkflowService {
 
     public void deploy() {
         ManagerService.deploy(modelService.getWorkflowConfig());
+        controller.onDeploy();
     }
 
     public void destroy() {

@@ -35,6 +35,11 @@ public class PropertyConfig {
     }
 
     @JsonIgnore
+    public boolean isBoolean() {
+        return Type.BOOLEAN.equals(type);
+    }
+
+    @JsonIgnore
     public boolean isEnumeration() {
         return variants != null && variants.size() > 0;
     }
@@ -54,7 +59,7 @@ public class PropertyConfig {
     }
 
     private enum Type {
-        NUMBER, STRING, COMPLEX
+        NUMBER, STRING, BOOLEAN, COMPLEX
     }
 
 }

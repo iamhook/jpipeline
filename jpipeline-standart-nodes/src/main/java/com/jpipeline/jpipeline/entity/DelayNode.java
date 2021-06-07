@@ -2,6 +2,7 @@ package com.jpipeline.jpipeline.entity;
 
 
 import com.jpipeline.common.entity.Node;
+import com.jpipeline.common.util.JPMessage;
 import com.jpipeline.common.util.annotations.NodeProperty;
 
 import java.time.Duration;
@@ -29,7 +30,7 @@ public class DelayNode extends Node {
     }
 
     @Override
-    public void onInput(Object message) {
+    public void onInput(JPMessage message) {
         send(message);
     }
 

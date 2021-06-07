@@ -1,6 +1,7 @@
 package com.jpipeline.jpipeline.entity;
 
 import com.jpipeline.common.entity.Node;
+import com.jpipeline.common.util.JPMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +21,7 @@ public class DebugNode extends Node {
     }
 
     @Override
-    public void onInput(Object message) {
+    public void onInput(JPMessage message) {
         sendSignal(new NodeSignal(SignalType.DEBUG, message, this.id));
         //debugLog.info(message.toString());
     }

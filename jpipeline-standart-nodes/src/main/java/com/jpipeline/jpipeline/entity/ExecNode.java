@@ -1,6 +1,7 @@
 package com.jpipeline.jpipeline.entity;
 
 import com.jpipeline.common.entity.Node;
+import com.jpipeline.common.util.JPMessage;
 import com.jpipeline.common.util.annotations.NodeProperty;
 
 import java.io.BufferedReader;
@@ -29,7 +30,7 @@ public class ExecNode extends Node {
     }
 
     @Override
-    public void onInput(Object message) {
+    public void onInput(JPMessage message) {
         try {
             Runtime run = Runtime.getRuntime();
             Process pr = run.exec(command);
@@ -41,7 +42,7 @@ public class ExecNode extends Node {
                 output.append(line + "\n");
             }
 
-            send(output.toString());
+            send(message.setPayload(output.toString()));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }

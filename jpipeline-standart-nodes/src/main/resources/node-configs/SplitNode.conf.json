@@ -1,0 +1,25 @@
+{
+  "color": "#dff538",
+  "inputs": 1,
+  "outputs": 1,
+  "properties": [
+    {
+      "name": "stringDelimiter",
+      "defaultValue": "\n",
+      "type": "STRING",
+      "required": true
+    },
+    {
+      "name": "subListSize",
+      "defaultValue": 1,
+      "type": "NUMBER",
+      "required": true
+    },
+    {
+      "name": "copyKeyInto",
+      "defaultValue": null,
+      "type": "STRING",
+      "required": false
+    }
+  ]
+}

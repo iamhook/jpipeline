@@ -1,6 +1,7 @@
 package com.jpipeline.jpipeline.entity;
 
 import com.jpipeline.common.entity.Node;
+import com.jpipeline.common.util.JPMessage;
 import com.jpipeline.common.util.annotations.NodeProperty;
 
 import java.util.UUID;
@@ -8,7 +9,7 @@ import java.util.UUID;
 public class InjectNode extends Node {
 
     @NodeProperty
-    private String firstMessage;
+    private String payload;
 
     public InjectNode(UUID id) {
         super(id);
@@ -20,13 +21,13 @@ public class InjectNode extends Node {
     }
 
     @Override
-    public void onInput(Object message) {
+    public void onInput(JPMessage message) {
 
     }
 
     @Override
     public void pressButton() {
-        send(firstMessage);
+        send(new JPMessage(payload));
     }
 
 

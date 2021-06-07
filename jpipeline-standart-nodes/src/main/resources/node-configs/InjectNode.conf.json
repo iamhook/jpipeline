@@ -5,7 +5,7 @@
   "hasButton": true,
   "properties": [
     {
-      "name": "firstMessage",
+      "name": "payload",
       "defaultValue": null,
       "type": "STRING",
       "required": true

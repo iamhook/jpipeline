@@ -65,7 +65,7 @@ public class NodeEditMenuController {
                     if (propertyNode instanceof TextField) {
                         TextField textField = (TextField) propertyNode;
 
-                        if (nodeProperties.containsKey(propertyName)) {
+                        if (nodeProperties.containsKey(propertyName) && nodeProperties.get(propertyName) != null) {
                             textField.setText(nodeProperties.get(propertyName).toString());
                         }
                         // TextField listener

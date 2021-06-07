@@ -80,6 +80,12 @@ public class MainMenuController {
 
     ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
+    public void onDeploy() {
+        lastExecutorStatus = false;
+        showProgressIndicator();
+        executorStatusIndicator.setFill(Color.RED);
+    }
+
     public void init() {
         showConnectionMenu();
         InterfaceHelper.createDebugMenu(rootPane.getScene().getWindow());
@@ -137,6 +143,7 @@ public class MainMenuController {
         WorkflowConfig workflowConfig = NodeService.getConfig();
 
         workflowService = new WorkflowService(workflowConfig, canvasPane);
+        workflowService.setController(this);
 
         List<String> nodeTypes = NodeService.getNodeTypes();
 
