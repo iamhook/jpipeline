@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -130,6 +131,10 @@ public class MainMenuController {
 
     }
 
+    private static final List<String> categoriesOrder = Arrays.asList(
+            "Other", "Util", "Sequence", "Function", "Common"
+    );
+
 
     @FXML
     public void resetWorkflow() {
@@ -152,10 +157,16 @@ public class MainMenuController {
         double margin = 10;
         nodesMenu.getChildren().clear();
 
-        Map<String, List<NodeConfig>> categories = NodeService.getNodeTypes().stream().map(NodeService::getNodeConfig)
-                .collect(Collectors.groupingBy(NodeConfig::getCategory));
+        List<Map.Entry<String, List<NodeConfig>>> categories =
+                NodeService.getNodeTypes().stream().map(NodeService::getNodeConfig)
+                .collect(Collectors.groupingBy(NodeConfig::getCategory)).entrySet().stream()
+                        .sorted((o1, o2) -> {
+                            int i1 = categoriesOrder.indexOf(o1.getKey());
+                            int i2 = categoriesOrder.indexOf(o2.getKey());
+                            return Integer.compare(i2, i1);
+                        }).collect(Collectors.toList());
 
-        for (Map.Entry<String, List<NodeConfig>> entry : categories.entrySet()) {
+        for (Map.Entry<String, List<NodeConfig>> entry : categories) {
             AnchorPane categoryPane = new AnchorPane();
             String categoryName = entry.getKey();
             int i = 0;

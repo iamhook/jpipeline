@@ -2,3 +2,46 @@
     -fx-focus-color: trasparent;
     -fx-faint-focus-color: trasparent;
 }
+
+.curve:hover, #nodesMenu .node-rectangle:hover {
+    -fx-stroke: orangered;
+}
+
+.name-label {
+    -fx-cursor: move;
+}
+
+.curve {
+    -fx-fill: transparent;
+    -fx-stroke-width: 3;
+    -fx-stroke: grey;
+}
+
+.node-handle {
+    -fx-stroke: grey;
+}
+.node-handle:hover {
+    -fx-fill: orangered;
+}
+
+.node-button {
+    -fx-fill: white;
+    -fx-arc-height: 5;
+    -fx-arc-width: 5;
+    -fx-stroke: grey;
+    -fx-cursor: hand;
+}
+.node-button:hover {
+    -fx-fill: lightgrey;
+}
+
+.node-rectangle {
+    -fx-stroke: black;
+    -fx-cursor: move;
+    -fx-arc-height: 7;
+    -fx-arc-width: 7;
+}
+
+#nodesMenu .node-rectangle:hover, #nodesMenu .name-label:hover {
+    -fx-cursor: hand;
+}
