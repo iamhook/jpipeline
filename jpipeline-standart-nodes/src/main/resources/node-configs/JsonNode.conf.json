@@ -1,0 +1,22 @@
+{
+  "color": "#dff538",
+  "inputs": 1,
+  "outputs": 1,
+  "properties": [
+    {
+      "name": "action",
+      "defaultValue": "bidirectional",
+      "variants": {
+        "bidirectional": "Bidirectional", "toString": "Only object to string", "toObject": "Only string to object"
+      },
+      "type": "STRING",
+      "required": true
+    },
+    {
+      "name": "field",
+      "defaultValue": "payload",
+      "type": "STRING",
+      "required": true
+    }
+  ]
+}

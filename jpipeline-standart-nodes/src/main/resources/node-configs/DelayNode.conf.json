@@ -12,7 +12,9 @@
     {
       "name": "unit",
       "type": "STRING",
-      "variants": ["ms", "s", "m", "h"],
+      "variants": {
+        "ms": "Milliseconds", "s": "Seconds", "m": "Minutes", "h": "Hours"
+      },
       "defaultValue": "ms",
       "required": true
     }

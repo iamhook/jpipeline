@@ -86,11 +86,15 @@ public abstract class Node {
 
     public void onSubscribe(Flux<JPMessage> input) {
         if (input != null)
-            input.subscribe(this::onInput);
+            input.subscribe(this::onInputHandler);
     }
 
     public void subscribe(Node subscriber) {
         subscriber.onSubscribe(sink.asFlux());
+    }
+
+    private void onInputHandler(JPMessage message) {
+        onInput(new JPMessage(message));
     }
 
     public abstract void onInput(JPMessage message);

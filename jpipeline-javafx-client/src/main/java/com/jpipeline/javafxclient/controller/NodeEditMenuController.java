@@ -74,8 +74,8 @@ public class NodeEditMenuController {
                         });
                     } else if (propertyNode instanceof ChoiceBox) {
                         ChoiceBox<ChoiceObject> choiceBox = (ChoiceBox<ChoiceObject>) propertyNode;
-                        for (Object variant : propertyConfig.getVariants()) {
-                            ChoiceObject choiceObject = new ChoiceObject(variant.toString(), variant.toString());
+                        for (Map.Entry<String, String> variant : propertyConfig.getVariants().entrySet()) {
+                            ChoiceObject choiceObject = new ChoiceObject(variant.getValue(), variant.getKey());
                             choiceBox.getItems().add(choiceObject);
                             if (nodeProperties.containsKey(propertyName)) {
                                 if (nodeProperties.get(propertyName).equals(choiceObject.getValue())) {

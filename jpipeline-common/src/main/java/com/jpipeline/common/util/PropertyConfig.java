@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
 
 @Getter
@@ -17,7 +18,7 @@ public class PropertyConfig {
     private boolean required;
     private boolean multiple;
     private List<PropertyConfig> nested;
-    private List<Object> variants;
+    private Map<String, String> variants;
 
     @JsonIgnore
     public boolean isComplex() {
@@ -43,8 +44,6 @@ public class PropertyConfig {
     public boolean isEnumeration() {
         return variants != null && variants.size() > 0;
     }
-
-
 
     public Object getDefaultValue() {
         if (isComplex()) {
