@@ -7,6 +7,7 @@ import com.jpipeline.javafxclient.service.NodeService;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import lombok.Setter;
@@ -42,7 +43,8 @@ public class DebugMenuController {
 
         try {
             signalSubscribe = NodeService.getSignalStream()
-                    .filter(nodeSignal -> nodeSignal.getType().equals(Node.SignalType.DEBUG))
+                    .filter(nodeSignal -> nodeSignal.getType().equals(Node.SignalType.DEBUG)
+                            || nodeSignal.getType().equals(Node.SignalType.ERROR))
                     .filter(nodeSignal -> nodeSignal.getBody() != null)
                     .subscribe(nodeSignal -> {
                         String message;
@@ -53,7 +55,11 @@ public class DebugMenuController {
                         else
                             message = nodeSignal.getBody().toString();
 
-                        Platform.runLater(() -> nodeDebugListView.getItems().add(new Text(message)));
+                        Text msg = new Text(message);
+                        if (nodeSignal.getType().equals(Node.SignalType.ERROR)) {
+                            msg.setFill(Color.RED);
+                        }
+                        Platform.runLater(() -> nodeDebugListView.getItems().add(msg));
 
                     });
         } catch (JsonProcessingException e) {

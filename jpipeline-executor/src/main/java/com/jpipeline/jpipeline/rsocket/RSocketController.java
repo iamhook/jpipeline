@@ -29,4 +29,13 @@ public class RSocketController {
                 .concatWith(Flux.fromIterable(nodes).flatMap(node -> node.getSignalSink().asFlux()));
     }
 
+    @MessageMapping("/errors")
+    public Flux<Node.NodeSignal> errors() {
+        Collection<Node> nodes = workflowService.getNodes();
+
+        return Flux.fromIterable(nodes)
+                .flatMap(node -> node.getSignalSink().asFlux())
+                .filter(nodeSignal -> nodeSignal.getType().equals(Node.SignalType.ERROR));
+    }
+
 }

@@ -1,14 +1,19 @@
 package com.jpipeline.entity.util;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpipeline.common.entity.Node;
 import com.jpipeline.common.util.CJson;
 import com.jpipeline.common.util.JPMessage;
 import com.jpipeline.common.util.annotations.NodeProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 
 public class JsonNode extends Node {
+
+    private static final ObjectMapper OM = new ObjectMapper();
 
     @NodeProperty
     private String action;
@@ -32,7 +37,12 @@ public class JsonNode extends Node {
 
         if (value instanceof String) {
             if ((action.equals("bidirectional") || action.equals("toObject"))) {
-                payload = CJson.fromJson((String) value);
+                try {
+                    payload = OM.readValue((String) value, CJson.class);
+                } catch (Exception e) {
+                    log.debug("sdfsdf {}", "govno");
+                    log.error(e.toString(), e);
+                }
             }
         } else if (action.equals("bidirectional") || action.equals("toString")) {
             payload = CJson.fromObject(value).toJson();

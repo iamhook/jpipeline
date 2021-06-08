@@ -1,6 +1,7 @@
 package com.jpipeline.common.entity;
 
 import com.jpipeline.common.util.CJson;
+import com.jpipeline.common.util.JLogger;
 import com.jpipeline.common.util.JPMessage;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,13 +17,13 @@ import java.util.UUID;
 
 public abstract class Node {
 
-    protected static final Logger log = LoggerFactory.getLogger(Node.class);
-
     @Getter
     protected final UUID id;
 
     @Getter
     private final String type;
+
+    protected final JLogger log;
 
     @Getter @Setter
     private Boolean active = true;
@@ -41,6 +42,7 @@ public abstract class Node {
     public Node(UUID id) {
         this.id = id;
         this.type = this.getClass().getSimpleName();
+        this.log = new JLogger(this);
     }
 
     public final void init() {
@@ -114,6 +116,6 @@ public abstract class Node {
     }
 
     public enum SignalType {
-        STATUS, DEBUG
+        STATUS, DEBUG, ERROR
     }
 }
