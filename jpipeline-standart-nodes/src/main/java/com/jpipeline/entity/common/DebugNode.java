@@ -2,14 +2,10 @@ package com.jpipeline.entity.common;
 
 import com.jpipeline.common.entity.Node;
 import com.jpipeline.common.util.JPMessage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 
 public class DebugNode extends Node {
-
-    private static final Logger debugLog = LoggerFactory.getLogger(Node.class);
 
     public DebugNode(UUID id) {
         super(id);
@@ -22,7 +18,6 @@ public class DebugNode extends Node {
 
     @Override
     public void onInput(JPMessage message) {
-        sendSignal(new NodeSignal(SignalType.DEBUG, message, this.id));
-        //debugLog.info(message.toString());
+        log.debug(message);
     }
 }

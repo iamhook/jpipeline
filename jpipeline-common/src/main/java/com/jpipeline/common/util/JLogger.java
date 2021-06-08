@@ -3,7 +3,6 @@ package com.jpipeline.common.util;
 import com.jpipeline.common.entity.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import reactor.core.publisher.Sinks;
 
 public class JLogger {
 
@@ -15,20 +14,30 @@ public class JLogger {
         this.node = node;
     }
 
-    public void debug(String msg) {
-        logger.debug(msg);
+    public void debug(Object msg) {
+        logger.debug(msg.toString());
+        sendDebugSignal(msg);
     }
 
     public void debug(String format, Object... arguments) {
         logger.debug(format, arguments);
+        String msg = String.format(format.replaceAll("\\{}", "%s"), arguments);
+        sendDebugSignal(msg);
     }
 
-    public void info(String msg) {
-        logger.info(msg);
+    public void info(Object msg) {
+        logger.info(msg.toString());
+        sendDebugSignal(msg);
     }
 
-    public void error(String msg) {
-        logger.error(msg);
+    public void info(String format, Object... arguments) {
+        logger.info(format, arguments);
+        String msg = String.format(format.replaceAll("\\{}", "%s"), arguments);
+        sendDebugSignal(msg);
+    }
+
+    public void error(Object msg) {
+        logger.error(msg.toString());
         sendErrorSignal(msg);
     }
 
@@ -39,12 +48,16 @@ public class JLogger {
 
     public void error(String format, Object... arguments) {
         logger.error(format, arguments);
-        // TODO fix
-        sendErrorSignal(format);
+        String msg = String.format(format.replaceAll("\\{}", "%s"), arguments);
+        sendErrorSignal(msg);
     }
 
-    private void sendErrorSignal(String error) {
-        node.sendSignal(new Node.NodeSignal(Node.SignalType.ERROR, error, node.getId()));
+    private void sendDebugSignal(Object message) {
+        node.sendSignal(new Node.NodeSignal(Node.SignalType.DEBUG, message, node.getId()));
+    }
+
+    private void sendErrorSignal(Object message) {
+        node.sendSignal(new Node.NodeSignal(Node.SignalType.ERROR, message, node.getId()));
     }
 
 }

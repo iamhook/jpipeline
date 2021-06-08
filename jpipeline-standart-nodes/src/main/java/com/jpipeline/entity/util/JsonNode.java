@@ -40,7 +40,6 @@ public class JsonNode extends Node {
                 try {
                     payload = OM.readValue((String) value, CJson.class);
                 } catch (Exception e) {
-                    log.debug("sdfsdf {}", "govno");
                     log.error(e.toString(), e);
                 }
             }
