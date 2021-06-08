@@ -1,4 +1,4 @@
-package com.jpipeline.jpipeline.entity;
+package com.jpipeline.entity.function;
 
 
 import com.jpipeline.common.entity.Node;

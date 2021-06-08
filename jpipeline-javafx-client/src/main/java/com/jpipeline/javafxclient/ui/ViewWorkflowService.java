@@ -283,6 +283,9 @@ public class ViewWorkflowService {
                 newX = Math.round(newX / CANVAS_CELL_SIZE) * CANVAS_CELL_SIZE;
                 newY = Math.round(newY / CANVAS_CELL_SIZE) * CANVAS_CELL_SIZE;
 
+                if (newX < 0) newX = 0;
+                if (newY < 0) newY = 0;
+
                 rectangle.setX(newX);
                 rectangle.setY(newY);
                 node.setX(newX);

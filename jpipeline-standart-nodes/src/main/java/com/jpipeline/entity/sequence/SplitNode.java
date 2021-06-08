@@ -1,4 +1,4 @@
-package com.jpipeline.jpipeline.entity;
+package com.jpipeline.entity.sequence;
 
 import com.jpipeline.common.entity.Node;
 import com.jpipeline.common.util.JPMessage;

@@ -67,7 +67,6 @@ public class CanvasHelper {
         handle.centerXProperty().bind(rectangle.xProperty().add(x));
         handle.centerYProperty().bind(rectangle.yProperty().add(y));
         handle.getStyleClass().add("node-handle");
-
         return handle;
     }
 
