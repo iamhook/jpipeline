@@ -38,6 +38,12 @@ public class NodeSupportService {
     @Autowired
     private ResourceLoader resourceLoader;
 
+    private Class<? extends Node> findClass(String type) {
+        return reflections.getSubTypesOf(Node.class).stream()
+                .filter(aClass -> aClass.getSimpleName().equals(type))
+                .findFirst().orElse(null);
+    }
+
     public List<String> getNodeTypes() {
         ArrayList<Class<? extends Node>> nodeClasses = new ArrayList<>(reflections.getSubTypesOf(Node.class));
         return nodeClasses.stream().map(Class::getSimpleName).collect(Collectors.toList());
@@ -108,10 +114,6 @@ public class NodeSupportService {
                 .properties(properties)
                 .wires(new HashSet<>())
                 .build();
-    }
-
-    private Class<? extends Node> findClass(String type) {
-        return reflections.getSubTypesOf(Node.class).stream().filter(aClass -> aClass.getSimpleName().equals(type)).findFirst().orElse(null);
     }
 
     @SneakyThrows

@@ -3,8 +3,8 @@ package com.jpipeline.javafxclient.ui;
 import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.common.util.NodeConfig;
 import com.jpipeline.javafxclient.service.NodeService;
-import com.jpipeline.javafxclient.ui.util.InterfaceHelper;
 import com.jpipeline.javafxclient.ui.util.CanvasHelper;
+import com.jpipeline.javafxclient.ui.util.InterfaceHelper;
 import com.jpipeline.javafxclient.ui.util.Wrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -249,11 +249,14 @@ public class ViewWorkflowService {
 
         setUpDragging(nodeWrapper);
 
-        rectangle.setOnMouseClicked(event -> {
+        EventHandler<? super MouseEvent> doubleClickListener = event -> {
             if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
-                InterfaceHelper.showNodeEditMenu(nodeWrapper, ((Node)event.getSource()).getScene().getWindow());
+                InterfaceHelper.showNodeEditMenu(nodeWrapper, ((Node) event.getSource()).getScene().getWindow());
             }
-        });
+        };
+
+        nameLabel.setOnMouseClicked(doubleClickListener);
+        rectangle.setOnMouseClicked(doubleClickListener);
 
         nodeWrappers.put(node, nodeWrapper);
 

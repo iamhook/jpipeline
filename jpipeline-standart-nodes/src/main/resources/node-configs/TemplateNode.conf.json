@@ -1,0 +1,14 @@
+{
+  "category": "Function",
+  "color": "#dff538",
+  "inputs": 1,
+  "outputs": 1,
+  "properties": [
+    {
+      "name": "template",
+      "defaultValue": "Payload: {{payload}}",
+      "type": "STRING",
+      "required": true
+    }
+  ]
+}
