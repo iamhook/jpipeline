@@ -30,14 +30,15 @@ public class NodeSupportService {
 
     private static final ObjectMapper OM = new ObjectMapper();
 
-    @Value("${jpipeline.nodesPackage}")
-    private String nodesPackage;
+    private static final String nodesPackage = "com.jpipeline.entity";
+
+    private static final Reflections reflections = new Reflections(nodesPackage);
+
 
     @Autowired
     private ResourceLoader resourceLoader;
 
     public List<String> getNodeTypes() {
-        Reflections reflections = new Reflections(nodesPackage);
         ArrayList<Class<? extends Node>> nodeClasses = new ArrayList<>(reflections.getSubTypesOf(Node.class));
         return nodeClasses.stream().map(Class::getSimpleName).collect(Collectors.toList());
     }
@@ -77,19 +78,19 @@ public class NodeSupportService {
 
     @SneakyThrows
     public NodeConfig getNodeConfig(String type) {
-        Class<Node> nodeClass = (Class<Node>) Class.forName(nodesPackage+"."+type);
+        Class<? extends Node> nodeClass = findClass(type);
         return getNodeConfig(nodeClass);
     }
 
     @SneakyThrows
     public Resource getNodeFxml(String type) {
-        Class<Node> nodeClass = (Class<Node>) Class.forName(nodesPackage+"."+type);
+        Class<? extends Node> nodeClass = findClass(type);
         return getNodeFxml(nodeClass);
     }
 
     @SneakyThrows
     public NodeDTO createNew(String type) {
-        Class<? extends Node> nodeClass = (Class<? extends Node>) Class.forName(nodesPackage+"."+type);
+        Class<? extends Node> nodeClass = findClass(type);
         NodeConfig nodeConfig = getNodeConfig(nodeClass);
         Constructor<? extends Node> constructor = nodeClass.getConstructor(UUID.class);
         Node node = constructor.newInstance(UUID.randomUUID());
@@ -109,14 +110,18 @@ public class NodeSupportService {
                 .build();
     }
 
+    private Class<? extends Node> findClass(String type) {
+        return reflections.getSubTypesOf(Node.class).stream().filter(aClass -> aClass.getSimpleName().equals(type)).findFirst().orElse(null);
+    }
+
     @SneakyThrows
     public Node fromDTO(NodeDTO nodeDTO) {
         UUID id = UUID.fromString(nodeDTO.getId());
         String type = nodeDTO.getType();
         Boolean active = nodeDTO.getActive();
 
-        Class<Node> nodeClass = (Class<Node>) Class.forName(nodesPackage+"."+type);
-        Constructor<Node> constructor = nodeClass.getConstructor(UUID.class);
+        Class<? extends Node> nodeClass = findClass(type);
+        Constructor<? extends Node> constructor = nodeClass.getConstructor(UUID.class);
         Node node = constructor.newInstance(id);
 
         if (active != null) node.setActive(active);
