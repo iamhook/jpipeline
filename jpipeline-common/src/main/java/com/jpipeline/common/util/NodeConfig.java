@@ -13,6 +13,10 @@ public class NodeConfig {
     private String color;
     private List<PropertyConfig> properties;
 
+    public PropertyConfig getPropertyConfig(String name) {
+        return properties.stream().filter(c -> c.getName().equals(name)).findFirst().orElse(null);
+    }
+
     private int inputs;
     private int outputs;
     private boolean hasButton;

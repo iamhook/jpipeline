@@ -4,10 +4,19 @@ import com.jpipeline.common.dto.NodeDTO;
 
 public abstract class JController {
 
-    private NodeDTO node;
+    protected NodeDTO node;
+    protected NodeConfig nodeConfig;
 
-    public void setNodeDTO(NodeDTO node) {
+    public void setNode(NodeDTO node) {
         this.node = node;
+    }
+
+    public void setNodeConfig(NodeConfig nodeConfig) {
+        this.nodeConfig = nodeConfig;
+    }
+
+    public NodeConfig getNodeConfig() {
+        return nodeConfig;
     }
 
     public CJson getNodeProperties() {

@@ -28,53 +28,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class NodeEditMenuController {
+public class StandartNodeEditController extends JController {
 
     private static final String ID_PREFIX = "property_";
 
-    @FXML
-    private Pane wrapper;
-
     @Setter
-    private Stage stage;
+    private Pane rootPane;
 
-    private NodeWrapper nodeWrapper;
-
-    private NodeDTO node;
-
-    public void init() {
+    @Override
+    public void onInit() {
         CJson nodeProperties = node.getProperties();
         NodeConfig nodeConfig = NodeService.getNodeConfig(node.getType());
         Map<String, PropertyConfig> propertyConfigs = nodeConfig.getProperties().stream().collect(Collectors.toMap(pc -> pc.getName(), pc -> pc));
 
         try {
-            String fxmlPath = NodeService.getNodeFxml(node.getType());
-            String controllerPath = NodeService.getNodeFxmlController(node.getType());
-            JController controller = null;
-
-            GroovyClassLoader gcl = new GroovyClassLoader();
-
-            FXMLLoader loader = new FXMLLoader();
-
-            if (controllerPath != null && !controllerPath.isEmpty()) {
-                Class clazz = gcl.parseClass(new File(controllerPath));
-                controller = (JController) clazz.newInstance();
-                controller.setNodeDTO(node);
-                loader.setController(controller);
-            }
-
-            Pane pane = loader.load(new FileInputStream(fxmlPath));
-
-            if (controller != null)
-                controller.onInit();
-
-            stage.setWidth(pane.getPrefWidth());
-            stage.setHeight(600);
-            stage.centerOnScreen();
-            wrapper.getChildren().add(pane);
-
-
-            Map<String, Node> propertyNodes = findPropertyNodes(pane.getChildren())
+            Map<String, Node> propertyNodes = findPropertyNodes(rootPane.getChildren())
                     .stream().collect(Collectors.toMap(n -> n.getId().replace(ID_PREFIX, ""), n -> n));
 
             for (Map.Entry<String, Node> entry : propertyNodes.entrySet()) {
@@ -144,13 +112,8 @@ public class NodeEditMenuController {
         }
     }
 
-    @FXML
-    public void closeModal() {
-        stage.close();
-    }
+    @Override
+    public void onClose() {
 
-    public void setNodeWrapper(NodeWrapper nodeWrapper) {
-        this.node = nodeWrapper.getNode();
-        this.nodeWrapper = nodeWrapper;
     }
 }

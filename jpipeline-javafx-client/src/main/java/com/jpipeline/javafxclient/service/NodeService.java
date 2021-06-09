@@ -119,9 +119,8 @@ public class NodeService {
                 FileUtils.write(new File(path), EntityUtils.toString(response.getEntity()), Charset.defaultCharset());
                 return path;
             } catch (Exception e) {
-                log.error(e.toString(), e);
+                return null;
             }
-            return null;
         });
     }
 

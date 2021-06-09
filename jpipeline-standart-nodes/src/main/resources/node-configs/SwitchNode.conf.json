@@ -4,10 +4,39 @@
   "inputs": 1,
   "outputs": 1,
   "properties": [
+
     {
-      "name": "message",
+      "name": "property",
       "type": "STRING",
-      "defaultValue": ["hello 1","hello 2","hello 3"],
+      "defaultValue": "payload",
+      "required": true
+    },
+    {
+      "name": "condition",
+      "type": "STRING",
+      "defaultValue": [
+        {
+          "operator": "==",
+          "value": null
+        }
+      ],
+      "nested": [
+        {
+          "name": "operator",
+          "type": "STRING",
+          "variants": {
+            "==": "==", "!=": "!="
+          },
+          "defaultValue": "==",
+          "required": true
+        },
+        {
+          "name": "value",
+          "type": "STRING",
+          "defaultValue": null,
+          "required": true
+        }
+      ],
       "required": true,
       "multiple": true
     }

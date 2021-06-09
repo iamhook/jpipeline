@@ -20,6 +20,10 @@ public class PropertyConfig {
     private List<PropertyConfig> nested;
     private Map<String, String> variants;
 
+    public PropertyConfig getNested(String name) {
+        return nested.stream().filter(c -> c.getName().equals(name)).findFirst().orElse(null);
+    }
+
     @JsonIgnore
     public boolean isComplex() {
         return Type.COMPLEX.equals(type);

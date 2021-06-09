@@ -1,35 +1,73 @@
 package com.jpipeline.javafxclient.ui.util;
 
 import com.jpipeline.common.dto.NodeDTO;
+import com.jpipeline.common.util.JController;
 import com.jpipeline.javafxclient.MainApplication;
 import com.jpipeline.javafxclient.controller.DebugMenuController;
-import com.jpipeline.javafxclient.controller.NodeEditMenuController;
+import com.jpipeline.javafxclient.controller.StandartNodeEditController;
+import com.jpipeline.javafxclient.service.NodeService;
 import com.jpipeline.javafxclient.ui.NodeWrapper;
+import groovy.lang.GroovyClassLoader;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
+import java.io.File;
+import java.io.FileInputStream;
+
 public class InterfaceHelper {
+
+    private static final GroovyClassLoader gcl = new GroovyClassLoader();
 
     public static void showNodeEditMenu(NodeWrapper nodeWrapper, Window window) {
         try {
-            NodeDTO node = nodeWrapper.getNode();
             Stage stage = new Stage();
-            FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("node_edit_menu.fxml"));
-            Parent root = loader.load();
-            stage.setScene(new Scene(root));
+            FXMLLoader loader = new FXMLLoader();
+
+
+            NodeDTO node = nodeWrapper.getNode();
+            String fxmlPath = NodeService.getNodeFxml(node.getType());
+            String controllerPath = NodeService.getNodeFxmlController(node.getType());
+            JController controller = null;
+
+            if (controllerPath != null && !controllerPath.isEmpty()) {
+                Class clazz = gcl.parseClass(new File(controllerPath));
+                controller = (JController) clazz.newInstance();
+            } else {
+                controller = new StandartNodeEditController();
+            }
+
+            controller.setNode(node);
+            controller.setNodeConfig(NodeService.getNodeConfig(node.getType()));
+
+            loader.setController(controller);
+
+            Pane pane = loader.load(new FileInputStream(fxmlPath));
+
+            if (controller instanceof StandartNodeEditController)
+                ((StandartNodeEditController) controller).setRootPane(pane);
+
+            if (controller != null) {
+                controller.onInit();
+                JController finalController = controller;
+                stage.setOnCloseRequest(event -> {
+                    finalController.onClose();
+                });
+            }
+
+            stage.setScene(new Scene(pane));
             stage.setTitle(node.getType() + " edit menu");
             stage.initOwner(window);
             stage.initModality(Modality.WINDOW_MODAL);
             stage.show();
 
-            NodeEditMenuController controller = loader.getController();
-            controller.setStage(stage);
-            controller.setNodeWrapper(nodeWrapper);
-            controller.init();
+            stage.setWidth(pane.getPrefWidth());
+            stage.setHeight(600);
+            stage.centerOnScreen();
         } catch (Exception e) {
             e.printStackTrace();
         }
