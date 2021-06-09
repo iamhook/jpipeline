@@ -34,6 +34,11 @@ public class NodeSupportController {
         return nodeSupportService.getNodeFxml(type);
     }
 
+    @GetMapping("/{type}/controller")
+    public Resource getNodeFxmlController(@PathVariable String type) {
+        return nodeSupportService.getNodeFxmlController(type);
+    }
+
     @GetMapping("/{type}/create")
     public NodeDTO createNew(@PathVariable String type) {
         return nodeSupportService.createNew(type);

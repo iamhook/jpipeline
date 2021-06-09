@@ -1,9 +1,20 @@
+plugins {
+    id 'org.openjfx.javafxplugin' version '0.0.9'
+}
+
+def javaFxVersion = 16
+
 dependencies {
     implementation project(":jpipeline-common")
 
     implementation  'org.codehaus.groovy:groovy-all:3.0.8'
     implementation group: 'com.github.spullara.mustache.java', name: 'compiler', version: '0.9.10'
+    implementation 'org.openjfx:javafx-fxml'
+}
 
+javafx {
+    version = javaFxVersion
+    modules = [ 'javafx.controls', 'javafx.fxml' ]
 }
 
 jar {

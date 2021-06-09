@@ -79,7 +79,17 @@ public class NodeSupportService {
             log.error(e.toString(), e);
             return null;
         }
+    }
 
+    private Resource getNodeFxmlController(Class<? extends Node> nodeClass) {
+        try {
+            final Resource resource = resourceLoader.getResource("classpath:node-controller/" +
+                    nodeClass.getSimpleName() + "Controller.groovy");
+            return resource;
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            return null;
+        }
     }
 
     @SneakyThrows
@@ -92,6 +102,12 @@ public class NodeSupportService {
     public Resource getNodeFxml(String type) {
         Class<? extends Node> nodeClass = findClass(type);
         return getNodeFxml(nodeClass);
+    }
+
+    @SneakyThrows
+    public Resource getNodeFxmlController(String type) {
+        Class<? extends Node> nodeClass = findClass(type);
+        return getNodeFxmlController(nodeClass);
     }
 
     @SneakyThrows

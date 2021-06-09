@@ -1,0 +1,15 @@
+{
+  "category": "Function",
+  "color": "#999999",
+  "inputs": 1,
+  "outputs": 1,
+  "properties": [
+    {
+      "name": "message",
+      "type": "STRING",
+      "defaultValue": ["hello 1","hello 2","hello 3"],
+      "required": true,
+      "multiple": true
+    }
+  ]
+}

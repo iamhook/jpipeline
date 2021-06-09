@@ -2,10 +2,12 @@ package com.jpipeline.javafxclient.controller;
 
 import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.common.util.CJson;
+import com.jpipeline.common.util.JController;
 import com.jpipeline.common.util.NodeConfig;
 import com.jpipeline.common.util.PropertyConfig;
 import com.jpipeline.javafxclient.service.NodeService;
 import com.jpipeline.javafxclient.ui.NodeWrapper;
+import groovy.lang.GroovyClassLoader;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -19,6 +21,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +42,6 @@ public class NodeEditMenuController {
 
     private NodeDTO node;
 
-
     public void init() {
         CJson nodeProperties = node.getProperties();
         NodeConfig nodeConfig = NodeService.getNodeConfig(node.getType());
@@ -47,9 +49,25 @@ public class NodeEditMenuController {
 
         try {
             String fxmlPath = NodeService.getNodeFxml(node.getType());
+            String controllerPath = NodeService.getNodeFxmlController(node.getType());
+            JController controller = null;
+
+            GroovyClassLoader gcl = new GroovyClassLoader();
 
             FXMLLoader loader = new FXMLLoader();
+
+            if (controllerPath != null && !controllerPath.isEmpty()) {
+                Class clazz = gcl.parseClass(new File(controllerPath));
+                controller = (JController) clazz.newInstance();
+                controller.setNodeDTO(node);
+                loader.setController(controller);
+            }
+
             Pane pane = loader.load(new FileInputStream(fxmlPath));
+
+            if (controller != null)
+                controller.onInit();
+
             stage.setWidth(pane.getPrefWidth());
             stage.setHeight(600);
             stage.centerOnScreen();

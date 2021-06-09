@@ -38,6 +38,7 @@ public class NodeService {
 
     private static Map<String, NodeConfig> nodeConfigsCache = new ConcurrentHashMap<>();
     private static Map<String, String> nodeFxmlCache = new ConcurrentHashMap<>();
+    private static Map<String, String> nodeFxmlControllerCache = new ConcurrentHashMap<>();
 
     public static void clearCache() {
         nodeFxmlCache.clear();
@@ -101,6 +102,20 @@ public class NodeService {
             try {
                 HttpResponse response = httpService.get("/proxy/api/nodesupport/" + nodeType + "/fxml");
                 String path = "tmp/" + nodeType + ".fxml";
+                FileUtils.write(new File(path), EntityUtils.toString(response.getEntity()), Charset.defaultCharset());
+                return path;
+            } catch (Exception e) {
+                log.error(e.toString(), e);
+            }
+            return null;
+        });
+    }
+
+    public static String getNodeFxmlController(String nodeType) {
+        return nodeFxmlControllerCache.computeIfAbsent(nodeType, s -> {
+            try {
+                HttpResponse response = httpService.get("/proxy/api/nodesupport/" + nodeType + "/controller");
+                String path = "tmp/" + nodeType + "Controller.groovy";
                 FileUtils.write(new File(path), EntityUtils.toString(response.getEntity()), Charset.defaultCharset());
                 return path;
             } catch (Exception e) {
