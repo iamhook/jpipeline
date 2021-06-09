@@ -19,17 +19,17 @@ public class ModelWorkflowService {
         workflowConfig.addNode(node);
     }
 
-    public void connectNodes(NodeDTO fromNode, NodeDTO toNode) {
-        fromNode.addWire(toNode.getId());
+    public void connectNodes(NodeDTO fromNode, NodeDTO toNode, int output) {
+        fromNode.addWire(toNode.getId(), output);
     }
 
-    public void disconnectNodes(NodeDTO fromNode, NodeDTO toNode) {
-        fromNode.deleteWire(toNode.getId());
+    public void disconnectNodes(NodeDTO fromNode, NodeDTO toNode, int output) {
+        fromNode.deleteWire(toNode.getId(), output);
     }
 
     public void deleteNode(NodeDTO node) {
         workflowConfig.getNodes().remove(node);
-        workflowConfig.getNodes().forEach(nodeDTO -> nodeDTO.deleteWire(node.getId()));
+        workflowConfig.getNodes().forEach(nodeDTO -> nodeDTO.getOutputs().forEach(wires -> wires.remove(node.getId())));
     }
 
     public NodeDTO getNode(String id) {

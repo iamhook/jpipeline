@@ -13,6 +13,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 import reactor.util.concurrent.Queues;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public abstract class Node {
@@ -34,7 +36,8 @@ public abstract class Node {
     @Getter
     private NodeStatus status = null;
 
-    protected final Sinks.Many sink = Sinks.many().multicast().onBackpressureBuffer();
+    @Getter
+    protected final List<Sinks.Many> sinks = new ArrayList<>();
 
     @Getter
     private final Sinks.Many<NodeSignal> signalSink = Sinks.many().multicast().onBackpressureBuffer(Queues.XS_BUFFER_SIZE, false);
@@ -72,6 +75,11 @@ public abstract class Node {
     }
 
     public final void send(JPMessage message) {
+        send(message, 0);
+    }
+
+    public final void send(JPMessage message, int output) {
+        Sinks.Many sink = sinks.get(output);
         if (message != null) {
             if (sink.currentSubscriberCount() > 0) {
                 Sinks.EmitResult result = sink.tryEmitNext(message);
@@ -92,7 +100,11 @@ public abstract class Node {
     }
 
     public void subscribe(Node subscriber) {
-        subscriber.onSubscribe(sink.asFlux());
+        subscribe(subscriber, 0);
+    }
+
+    public void subscribe(Node subscriber, int output) {
+        subscriber.onSubscribe(sinks.get(output).asFlux());
     }
 
     private void onInputHandler(JPMessage message) {

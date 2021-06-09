@@ -7,6 +7,9 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.*;
 import javafx.scene.text.Text;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.jpipeline.javafxclient.Consts.HANDLE_RADIUS;
 import static com.jpipeline.javafxclient.Consts.NODE_BUTTON_SIZE;
 
@@ -58,8 +61,13 @@ public class CanvasHelper {
         return createHandle(rectangle.getTranslateX(), rectangle.getHeight()/2, rectangle);
     }
 
-    public static Circle createOutputHandle(Rectangle rectangle) {
-        return createHandle(rectangle.getWidth(), rectangle.getHeight()/2, rectangle);
+    public static List<Circle> createOutputHandles(Rectangle rectangle, int outputs) {
+        List<Circle> outputHandles = new ArrayList<>();
+        for (int i = 0; i < outputs; i++) {
+            Circle handle = createHandle(rectangle.getWidth(), rectangle.getHeight() / (outputs + 1) * (i+1), rectangle);
+            outputHandles.add(handle);
+        }
+        return outputHandles;
     }
 
     private static Circle createHandle(Double x, Double y, Rectangle rectangle) {

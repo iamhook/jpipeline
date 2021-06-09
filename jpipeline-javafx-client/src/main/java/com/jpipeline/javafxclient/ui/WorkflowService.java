@@ -8,6 +8,8 @@ import com.jpipeline.javafxclient.service.NodeService;
 import javafx.scene.layout.Pane;
 import lombok.Setter;
 
+import java.util.Set;
+
 public class WorkflowService {
 
     private ViewWorkflowService viewService;
@@ -21,13 +23,13 @@ public class WorkflowService {
         viewService.createNode(node, false);
     }
 
-    public void connectNodes(NodeDTO fromNode, NodeDTO toNode) {
-        modelService.connectNodes(fromNode, toNode);
-        viewService.connectNodes(fromNode, toNode);
+    public void connectNodes(NodeDTO fromNode, NodeDTO toNode, int output) {
+        modelService.connectNodes(fromNode, toNode, output);
+        viewService.connectNodes(fromNode, toNode, output);
     }
 
-    public void disconnectNodes(NodeDTO fromNode, NodeDTO toNode) {
-        modelService.disconnectNodes(fromNode, toNode);
+    public void disconnectNodes(NodeDTO fromNode, NodeDTO toNode, int output) {
+        modelService.disconnectNodes(fromNode, toNode, output);
         viewService.disconnectNodes(fromNode, toNode);
     }
 
@@ -40,11 +42,14 @@ public class WorkflowService {
         this.viewService = new ViewWorkflowService(canvasPane, this);
         this.modelService = new ModelWorkflowService(workflowConfig, this);
 
-        workflowConfig.getNodes().forEach(node1 -> viewService.createNode(node1, true));
+        workflowConfig.getNodes().forEach(node -> viewService.createNode(node, true));
         workflowConfig.getNodes().forEach(node -> {
-                    for (String wire : node.getWires()) {
-                        NodeDTO toNode = modelService.getNode(wire);
-                        viewService.connectNodes(node, toNode);
+                    int i = 0;
+                    for (Set<String> wires : node.getOutputs()) {
+                        for (String wire : wires) {
+                            NodeDTO toNode = modelService.getNode(wire);
+                            viewService.connectNodes(node, toNode, i++);
+                        }
                     }
                 });
     }

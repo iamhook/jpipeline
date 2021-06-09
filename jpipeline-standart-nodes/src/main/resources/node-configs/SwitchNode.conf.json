@@ -2,7 +2,7 @@
   "category": "Function",
   "color": "#999999",
   "inputs": 1,
-  "outputs": 1,
+  "outputs": 2,
   "properties": [
 
     {
@@ -17,7 +17,11 @@
       "defaultValue": [
         {
           "operator": "==",
-          "value": null
+          "value": 1
+        },
+        {
+          "operator": "==",
+          "value": 2
         }
       ],
       "nested": [

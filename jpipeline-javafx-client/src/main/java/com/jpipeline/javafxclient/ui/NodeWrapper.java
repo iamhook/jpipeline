@@ -33,13 +33,12 @@ public class NodeWrapper {
     private Text nameLabel;
     private Text statusLabel;
 
-    private Circle outputHandle;
+    private List<List<CubicCurve>> outputs = new ArrayList<>();
+    private List<Circle> outputHandles = new ArrayList<>();
     private Circle inputHandle;
-    private Circle closeHandle;
     private Shape nodeButton;
 
-    private List<CubicCurve> outputs = new ArrayList<>();
-    private List<CubicCurve> inputs = new ArrayList<>();
+    private List<CubicCurve> inputWires = new ArrayList<>();
 
     Disposable statusSubscription;
 
@@ -62,11 +61,16 @@ public class NodeWrapper {
         }
     }
 
-    public void addOutput(CubicCurve curve) {
-        outputs.add(curve);
+    public List<CubicCurve> getOutputWires(int output) {
+        return outputs.get(output);
     }
-    public void addInput(CubicCurve curve) {
-        inputs.add(curve);
+
+    public void addOutputWire(CubicCurve curve, int output) {
+        outputs.get(output).add(curve);
+    }
+
+    public void addInputWire(CubicCurve curve) {
+        inputWires.add(curve);
     }
 
     public void destroy() {
@@ -74,10 +78,16 @@ public class NodeWrapper {
             statusSubscription.dispose();
 
         getOutputs().forEach(path -> parent.getChildren().remove(path));
-        getInputs().forEach(path -> parent.getChildren().remove(path));
-        parent.getChildren().remove(outputHandle);
+        getInputWires().forEach(path -> parent.getChildren().remove(path));
+        for (Circle outputHandle : outputHandles) {
+            parent.getChildren().remove(outputHandle);
+        }
+        for (List<CubicCurve> output : outputs) {
+            for (CubicCurve curve : output) {
+                parent.getChildren().remove(curve);
+            }
+        }
         parent.getChildren().remove(inputHandle);
-        parent.getChildren().remove(closeHandle);
         parent.getChildren().remove(rectangle);
         parent.getChildren().remove(nameLabel);
         parent.getChildren().remove(statusLabel);

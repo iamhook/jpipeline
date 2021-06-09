@@ -18,10 +18,12 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
+import reactor.core.publisher.Sinks;
 
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 public class NodeSupportService {
@@ -122,13 +124,15 @@ public class NodeSupportService {
             Object defaultValue = config.getDefaultValue();
             properties.put(name, defaultValue);
         });
+        List<Set<String>> outputs = new ArrayList<>();
+        IntStream.range(0, nodeConfig.getOutputs()).forEach(value -> outputs.add(new HashSet<>()));
         return NodeDTO.builder()
                 .id(node.getId().toString())
                 .type(node.getType())
                 .active(true)
                 .color(nodeConfig.getColor())
                 .properties(properties)
-                .wires(new HashSet<>())
+                .outputs(outputs)
                 .build();
     }
 
@@ -151,6 +155,10 @@ public class NodeSupportService {
         NodeConfig nodeConfig = getNodeConfig(nodeClass);
 
         setPropertyValues(nodeConfig.getProperties(), fields, propertiesJson, node);
+
+        for (Set<String> output : nodeDTO.getOutputs()) {
+            node.getSinks().add(Sinks.many().multicast().onBackpressureBuffer());
+        }
 
         return node;
     }

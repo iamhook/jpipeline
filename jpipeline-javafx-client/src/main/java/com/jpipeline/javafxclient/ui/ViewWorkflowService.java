@@ -24,9 +24,8 @@ import javafx.scene.text.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.jpipeline.javafxclient.Consts.*;
@@ -69,11 +68,12 @@ public class ViewWorkflowService {
         NodeWrapper toNodeWrapper = nodeWrappers.get(toNode);
 
         CubicCurve curve = fromNodeWrapper.getOutputs().stream()
-                .filter(p -> toNodeWrapper.getInputs().contains(p))
+                .flatMap(Collection::stream)
+                .filter(p -> toNodeWrapper.getInputWires().contains(p))
                 .findFirst().orElse(null);
 
         fromNodeWrapper.getOutputs().remove(curve);
-        toNodeWrapper.getInputs().remove(curve);
+        toNodeWrapper.getInputWires().remove(curve);
         rootPane.getChildren().remove(curve);
     }
 
@@ -83,10 +83,10 @@ public class ViewWorkflowService {
         nodeWrappers.remove(node);
     }
 
-    public void connectNodes(NodeDTO fromNode, NodeDTO toNode) {
+    public void connectNodes(NodeDTO fromNode, NodeDTO toNode, int output) {
         NodeWrapper fromNodeWrapper = nodeWrappers.get(fromNode);
         NodeWrapper toNodeWrapper = nodeWrappers.get(toNode);
-        Circle fromHandle = fromNodeWrapper.getOutputHandle();
+        Circle fromHandle = fromNodeWrapper.getOutputHandles().get(output);
         Circle toHandle = toNodeWrapper.getInputHandle();
 
         double fromX = fromHandle.getCenterX();
@@ -100,12 +100,12 @@ public class ViewWorkflowService {
 
         curve.setOnMouseClicked(event -> {
             if (event.getButton().equals(MouseButton.SECONDARY)) {
-                workflowService.disconnectNodes(fromNode, toNode);
+                workflowService.disconnectNodes(fromNode, toNode, output);
             }
         });
 
-        fromNodeWrapper.addOutput(curve);
-        toNodeWrapper.addInput(curve);
+        fromNodeWrapper.addOutputWire(curve, output);
+        toNodeWrapper.addInputWire(curve);
 
         rootPane.getChildren().add(curve);
 
@@ -154,14 +154,11 @@ public class ViewWorkflowService {
         nodeWrapper.setParent(rootPane);
         nodeWrapper.setRectangle(rectangle);
 
-        Circle closeHandle = CanvasHelper.createCloseHandle(rectangle);
-
         Text nameLabel = CanvasHelper.createNameLabel(node.getType(), rectangle);
         Text statusLabel = CanvasHelper.createStatusLabel(rectangle);
 
-        rootPane.getChildren().addAll(closeHandle, nameLabel, statusLabel);
+        rootPane.getChildren().addAll(nameLabel, statusLabel);
 
-        nodeWrapper.setCloseHandle(closeHandle);
         nodeWrapper.setNameLabel(nameLabel);
         nodeWrapper.setStatusLabel(statusLabel);
 
@@ -196,9 +193,15 @@ public class ViewWorkflowService {
                 if (connectingNode != null && currentConnectionType.equals(ConnectionType.INPUT_TO_OUTPUT)) {
                     double startX = connectingWire.getStartX();
                     double startY = connectingWire.getStartY();
-                    nodeWrappers.values().stream()
-                            .filter(nw -> nw.getOutputHandle() != null && nw.getOutputHandle().contains(startX, startY))
-                            .limit(1).forEach(nw -> workflowService.connectNodes(nw.getNode(), connectingNode));
+                    nodeWrappers.values().forEach(nw -> {
+                        int i = 0;
+                        for (Circle outputHandle : nw.getOutputHandles()) {
+                            if (outputHandle.contains(startX, startY)) {
+                                workflowService.connectNodes(nw.getNode(), connectingNode, i);
+                            }
+                            i++;
+                        }
+                    });
                     resetConnectionMode();
                 }
             });
@@ -211,52 +214,61 @@ public class ViewWorkflowService {
         }
 
         if (nodeConfig.getOutputs() > 0) {
-            Circle outputHandle = CanvasHelper.createOutputHandle(rectangle);
-            nodeWrapper.setOutputHandle(outputHandle);
-            rootPane.getChildren().add(outputHandle);
+            List<Circle> outputHandles = CanvasHelper.createOutputHandles(rectangle, nodeConfig.getOutputs());
+            nodeWrapper.setOutputHandles(outputHandles);
+            rootPane.getChildren().addAll(outputHandles);
+            for (int i = 0; i < nodeConfig.getOutputs(); i++) {
+                nodeWrapper.getOutputs().add(new ArrayList<>());
+            }
 
-            outputHandle.setOnMousePressed(event -> {
-                if (connectingNode == null) {
-                    currentConnectionType = ConnectionType.OUTPUT_TO_INPUT;
-                    connectingNode = node;
-                    connectingWire = CanvasHelper.createConnectionCurve();
-                    updateCurve(outputHandle.getCenterX(), outputHandle.getCenterY(), outputHandle.getCenterX(), outputHandle.getCenterY(), connectingWire);
-                    rootPane.getChildren().add(connectingWire);
-                }
-            });
-            outputHandle.setOnMouseReleased(event -> {
-                if (connectingNode != null && currentConnectionType.equals(ConnectionType.OUTPUT_TO_INPUT)) {
-                    double endX = connectingWire.getEndX();
-                    double endY = connectingWire.getEndY();
-                    nodeWrappers.values().stream()
-                            .filter(nw -> nw.getInputHandle() != null && nw.getInputHandle().contains(endX, endY))
-                            .limit(1).forEach(nw -> workflowService.connectNodes(connectingNode, nw.getNode()));
-                    resetConnectionMode();
-                }
-            });
-            outputHandle.setOnMouseDragged(event -> {
-                if (connectingWire != null) {
-                    updateCurve(connectingWire.getStartX(), connectingWire.getStartY(), event.getX(), event.getY(), connectingWire);
-                    sortChildren();
-                }
-            });
+            AtomicInteger i = new AtomicInteger();
+            for (Circle outputHandle : outputHandles) {
+                outputHandle.setOnMousePressed(event -> {
+                    if (connectingNode == null) {
+                        currentConnectionType = ConnectionType.OUTPUT_TO_INPUT;
+                        connectingNode = node;
+                        connectingWire = CanvasHelper.createConnectionCurve();
+                        updateCurve(outputHandle.getCenterX(), outputHandle.getCenterY(), outputHandle.getCenterX(), outputHandle.getCenterY(), connectingWire);
+                        rootPane.getChildren().add(connectingWire);
+                    }
+                });
+                outputHandle.setOnMouseReleased(event -> {
+                    if (connectingNode != null && currentConnectionType.equals(ConnectionType.OUTPUT_TO_INPUT)) {
+                        double endX = connectingWire.getEndX();
+                        double endY = connectingWire.getEndY();
+                        nodeWrappers.values().stream()
+                                .filter(nw -> nw.getInputHandle() != null && nw.getInputHandle().contains(endX, endY))
+                                .limit(1).forEach(nw -> workflowService.connectNodes(connectingNode, nw.getNode(), i.getAndIncrement()));
+                        resetConnectionMode();
+                    }
+                });
+                outputHandle.setOnMouseDragged(event -> {
+                    if (connectingWire != null) {
+                        updateCurve(connectingWire.getStartX(), connectingWire.getStartY(), event.getX(), event.getY(), connectingWire);
+                        sortChildren();
+                    }
+                });
+            }
+
         }
 
 
-        closeHandle.setOnMouseClicked(event -> {
-            workflowService.deleteNode(node);
+        rectangle.setOnMouseClicked(event -> {
+
         });
 
         setUpDragging(nodeWrapper);
 
-        EventHandler<? super MouseEvent> doubleClickListener = event -> {
+        EventHandler<? super MouseEvent> clickListener = event -> {
             if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
                 InterfaceHelper.showNodeEditMenu(nodeWrapper, ((Node) event.getSource()).getScene().getWindow());
+            } else if (event.getButton().equals(MouseButton.SECONDARY)) {
+                workflowService.deleteNode(node);
             }
         };
 
-        nameLabel.setOnMouseClicked(doubleClickListener);
-        rectangle.setOnMouseClicked(doubleClickListener);
+        nameLabel.setOnMouseClicked(clickListener);
+        rectangle.setOnMouseClicked(clickListener);
 
         nodeWrappers.put(node, nodeWrapper);
 
@@ -294,7 +306,7 @@ public class ViewWorkflowService {
                 node.setX(newX);
                 node.setY(newY);
 
-                for (CubicCurve curve : nodeWrapper.getInputs()) {
+                for (CubicCurve curve : nodeWrapper.getInputWires()) {
                     Circle to = nodeWrapper.getInputHandle();
                     double fromX = curve.getStartX();
                     double fromY = curve.getStartY();
@@ -303,14 +315,17 @@ public class ViewWorkflowService {
 
                     updateCurve(fromX, fromY, toX, toY, curve);
                 }
-                for (CubicCurve curve : nodeWrapper.getOutputs()) {
-                    Circle from = nodeWrapper.getOutputHandle();
-                    double fromX = from.getCenterX();
-                    double fromY = from.getCenterY();
-                    double toX = curve.getEndX();
-                    double toY = curve.getEndY();
 
-                    updateCurve(fromX, fromY, toX, toY, curve);
+                for (int i = 0; i < nodeWrapper.getOutputHandles().size(); i++) {
+                    Circle from = nodeWrapper.getOutputHandles().get(i);
+                    for (CubicCurve curve : nodeWrapper.getOutputWires(i)) {
+                        double fromX = from.getCenterX();
+                        double fromY = from.getCenterY();
+                        double toX = curve.getEndX();
+                        double toY = curve.getEndY();
+
+                        updateCurve(fromX, fromY, toX, toY, curve);
+                    }
                 }
             }
         };
@@ -350,9 +365,8 @@ public class ViewWorkflowService {
 
         for (NodeWrapper wrapper : nodeWrappers.values()) {
             newChildren.add(wrapper.getRectangle());
-            newChildren.add(wrapper.getCloseHandle());
-            if (wrapper.getOutputHandle() != null)
-                newChildren.add(wrapper.getOutputHandle());
+            if (wrapper.getOutputHandles() != null)
+                newChildren.addAll(wrapper.getOutputHandles());
             if (wrapper.getInputHandle() != null)
                 newChildren.add(wrapper.getInputHandle());
             if (wrapper.getNodeButton() != null)

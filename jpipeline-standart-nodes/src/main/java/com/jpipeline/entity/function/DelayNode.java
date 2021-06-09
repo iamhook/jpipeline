@@ -44,7 +44,7 @@ public class DelayNode extends Node {
         } else if ("h".equals(unit)) {
             d *= 3600000;
         }
-        subscriber.onSubscribe(sink.asFlux().delayElements(Duration.ofMillis(d)).doOnNext(o -> setStatus(new NodeStatus((++counter).toString()))));
+        subscriber.onSubscribe(sinks.get(0).asFlux().delayElements(Duration.ofMillis(d)).doOnNext(o -> setStatus(new NodeStatus((++counter).toString()))));
     }
 
     /*@Getter @Setter

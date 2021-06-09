@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpipeline.common.WorkflowConfig;
 import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.common.entity.Node;
-import com.jpipeline.common.util.CJson;
 import com.jpipeline.common.util.exception.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +16,7 @@ import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
@@ -73,11 +73,17 @@ public class WorkflowService {
 
     public void deploy(List<? extends Node> nodes) {
         nodes.forEach(node -> nodeMap.put(node.getId(), node));
-        nodes.forEach(node -> getWires(node.getId()).stream().map(UUID::fromString).forEach(wire -> {
-            if (nodeMap.containsKey(wire)) {
-                node.subscribe(nodeMap.get(wire));
-            }
-        }));
+        nodes.forEach(node -> {
+            AtomicInteger outputCounter = new AtomicInteger();
+            getOutputs(node.getId()).forEach(wires -> {
+                wires.stream().map(UUID::fromString).forEach(wire -> {
+                    if (nodeMap.containsKey(wire)) {
+                        node.subscribe(nodeMap.get(wire), outputCounter.get());
+                    }
+                });
+                outputCounter.getAndIncrement();
+            });
+        });
 
         nodes.forEach(Node::init);
     }
@@ -89,8 +95,8 @@ public class WorkflowService {
             throw new NotFoundException("Node " + uuid + " not found");
     }
 
-    private Set<String> getWires(UUID uuid) {
-        return nodeDTOMap.get(uuid).getWires();
+    private List<Set<String>> getOutputs(UUID uuid) {
+        return nodeDTOMap.get(uuid).getOutputs();
     }
 
     public Node getNode(UUID id) {
