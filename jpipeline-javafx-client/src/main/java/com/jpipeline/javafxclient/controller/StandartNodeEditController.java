@@ -1,28 +1,18 @@
 package com.jpipeline.javafxclient.controller;
 
-import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.common.util.CJson;
 import com.jpipeline.common.util.JController;
 import com.jpipeline.common.util.NodeConfig;
 import com.jpipeline.common.util.PropertyConfig;
 import com.jpipeline.javafxclient.service.NodeService;
-import com.jpipeline.javafxclient.ui.NodeWrapper;
-import groovy.lang.GroovyClassLoader;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.layout.Pane;
-import javafx.stage.Stage;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

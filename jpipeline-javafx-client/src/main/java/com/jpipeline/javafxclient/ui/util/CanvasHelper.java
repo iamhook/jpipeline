@@ -61,13 +61,8 @@ public class CanvasHelper {
         return createHandle(rectangle.getTranslateX(), rectangle.getHeight()/2, rectangle);
     }
 
-    public static List<Circle> createOutputHandles(Rectangle rectangle, int outputs) {
-        List<Circle> outputHandles = new ArrayList<>();
-        for (int i = 0; i < outputs; i++) {
-            Circle handle = createHandle(rectangle.getWidth(), rectangle.getHeight() / (outputs + 1) * (i+1), rectangle);
-            outputHandles.add(handle);
-        }
-        return outputHandles;
+    public static Circle createOutputHandle(Double x, Double y, Rectangle rectangle) {
+        return createHandle(x, y, rectangle);
     }
 
     private static Circle createHandle(Double x, Double y, Rectangle rectangle) {

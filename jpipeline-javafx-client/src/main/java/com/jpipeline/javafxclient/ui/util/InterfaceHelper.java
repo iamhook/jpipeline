@@ -6,7 +6,7 @@ import com.jpipeline.javafxclient.MainApplication;
 import com.jpipeline.javafxclient.controller.DebugMenuController;
 import com.jpipeline.javafxclient.controller.StandartNodeEditController;
 import com.jpipeline.javafxclient.service.NodeService;
-import com.jpipeline.javafxclient.ui.NodeWrapper;
+import com.jpipeline.javafxclient.ui.ViewWorkflowService;
 import groovy.lang.GroovyClassLoader;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -23,7 +23,7 @@ public class InterfaceHelper {
 
     private static final GroovyClassLoader gcl = new GroovyClassLoader();
 
-    public static void showNodeEditMenu(NodeWrapper nodeWrapper, Window window) {
+    public static void showNodeEditMenu(ViewWorkflowService.NodeWrapper nodeWrapper, Window window) {
         try {
             Stage stage = new Stage();
             FXMLLoader loader = new FXMLLoader();
