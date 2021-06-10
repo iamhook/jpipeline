@@ -18,6 +18,7 @@ import javafx.stage.Window;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.HashSet;
 
 public class InterfaceHelper {
 
@@ -41,6 +42,11 @@ public class InterfaceHelper {
                 controller = new StandartNodeEditController();
             }
 
+            controller.setAddOutputCallback(() -> {
+                nodeWrapper.getNode().getOutputs().add(new HashSet<>());
+                nodeWrapper.addOutput();
+                nodeWrapper.fixOutputHandlesPositions();
+            });
             controller.setNode(node);
             controller.setNodeConfig(NodeService.getNodeConfig(node.getType()));
 

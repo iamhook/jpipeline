@@ -111,7 +111,8 @@ class SwitchNodeController extends JController {
 
     @FXML
     void addButtonClick() {
-        addCondition(["operator": operatorConfig.getDefaultValue(), "value": valueConfig.getDefaultValue()]);
+        addCondition(["operator": operatorConfig.getDefaultValue(), "value": valueConfig.getDefaultValue()])
+        addOutput()
     }
 
     private static class ChoiceObject {

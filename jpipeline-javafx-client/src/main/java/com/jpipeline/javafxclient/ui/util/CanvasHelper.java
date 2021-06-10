@@ -53,23 +53,32 @@ public class CanvasHelper {
         return button;
     }
 
-    public static Circle createCloseHandle(Rectangle rectangle) {
-        return createHandle(rectangle.getWidth(), rectangle.getTranslateY(), rectangle);
-    }
-
     public static Circle createInputHandle(Rectangle rectangle) {
         return createHandle(rectangle.getTranslateX(), rectangle.getHeight()/2, rectangle);
     }
 
-    public static Circle createOutputHandle(Double x, Double y, Rectangle rectangle) {
-        return createHandle(x, y, rectangle);
+    public static Circle createOutputHandle() {
+        return createHandle();
+    }
+
+    public static void updateOutputHandlePosition(Circle handle, int outputs, int outputIndex, Rectangle rectangle) {
+        updatePosition(handle, rectangle.getWidth(), rectangle.getHeight() / (outputs + 1) * (outputIndex+1), rectangle);
+    }
+
+    private static void updatePosition(Circle handle, Double x, Double y, Rectangle rectangle) {
+        handle.centerXProperty().bind(rectangle.xProperty().add(x));
+        handle.centerYProperty().bind(rectangle.yProperty().add(y));
+    }
+
+    private static Circle createHandle() {
+        Circle handle = new Circle(HANDLE_RADIUS, Color.WHITE);
+        handle.getStyleClass().add("node-handle");
+        return handle;
     }
 
     private static Circle createHandle(Double x, Double y, Rectangle rectangle) {
-        Circle handle = new Circle(HANDLE_RADIUS, Color.WHITE);
-        handle.centerXProperty().bind(rectangle.xProperty().add(x));
-        handle.centerYProperty().bind(rectangle.yProperty().add(y));
-        handle.getStyleClass().add("node-handle");
+        Circle handle = createHandle();
+        updatePosition(handle, x, y, rectangle);
         return handle;
     }
 

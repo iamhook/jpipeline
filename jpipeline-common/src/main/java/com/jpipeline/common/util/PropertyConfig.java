@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -51,11 +52,20 @@ public class PropertyConfig {
 
     public Object getDefaultValue() {
         if (isComplex()) {
-            CJson defaultValue = new CJson();
-            for (PropertyConfig config : nested) {
-                defaultValue.put(config.getName(), config.getDefaultValue());
+            if (defaultValue == null) {
+                if (multiple) {
+                    return new ArrayList<>();
+                } else {
+                    CJson defaultValue = new CJson();
+                    for (PropertyConfig config : nested) {
+                        defaultValue.put(config.getName(), config.getDefaultValue());
+                    }
+                    return defaultValue;
+                }
+            } else {
+                return defaultValue;
             }
-            return defaultValue;
+
         } else {
             return defaultValue;
         }

@@ -133,6 +133,8 @@ public class NodeSupportService {
                 .color(nodeConfig.getColor())
                 .properties(properties)
                 .outputs(outputs)
+                .hasButton(nodeConfig.hasButton())
+                .hasInput(nodeConfig.getInputs() > 0)
                 .build();
     }
 
@@ -207,8 +209,7 @@ public class NodeSupportService {
             }
 
         } catch (Exception e) {
-            log.error(e.toString());
-            System.exit(1);
+            log.error(e.toString(), e);
         }
     }
 
@@ -227,10 +228,8 @@ public class NodeSupportService {
             return fieldValue;
         } catch (NoSuchMethodException e) {
             log.error("Complex field should have explicit no-args constructor: {}", e.toString());
-            System.exit(1);
         } catch (Exception e) {
-            log.error(e.toString());
-            System.exit(1);
+            log.error(e.toString(), e);
         }
         return null;
     }

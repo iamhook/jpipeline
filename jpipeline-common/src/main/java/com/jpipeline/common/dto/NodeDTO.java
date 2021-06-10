@@ -23,6 +23,16 @@ public class NodeDTO {
     private String color;
     private Double x;
     private Double y;
+    private boolean hasButton;
+    private boolean hasInput;
+
+    public Boolean hasButton() {
+        return hasButton;
+    }
+
+    public Boolean hasInput() {
+        return hasInput;
+    }
 
     public NodeDTO() {}
 

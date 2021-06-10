@@ -141,76 +141,9 @@ public class ViewWorkflowService {
         curve.setEndY(toY);
     }
 
-    public void createNode(NodeDTO node, boolean deployed) {
-
-        NodeConfig nodeConfig = NodeService.getNodeConfig(node.getType());
-
-        if (node.getX() == null)
-            node.setX(DEFAULT_X);
-        if (node.getY() == null)
-            node.setY(DEFAULT_Y);
-
-        Rectangle rectangle = CanvasHelper.createNodeRectangle(Paint.valueOf(node.getColor()));
-
-        rectangle.setWidth(NODE_WIDTH);
-        rectangle.setHeight(NODE_HEIGHT);
-        rectangle.setX(node.getX());
-        rectangle.setY(node.getY());
-
-        NodeWrapper nodeWrapper = new NodeWrapper(node);
-        nodeWrapper.setRectangle(rectangle);
-
-        Text nameLabel = CanvasHelper.createNameLabel(node.getType(), rectangle);
-        Text statusLabel = CanvasHelper.createStatusLabel(rectangle);
-
-        nodeWrapper.setNameLabel(nameLabel);
-        nodeWrapper.setStatusLabel(statusLabel);
-
-        if (!deployed) {
-            rectangle.setOpacity(NOT_DEPLOYED_NODE_OPACITY);
-            rectangle.setStyle("-fx-stroke-width: 1; -fx-stroke: black; -fx-stroke-dash-array: 2 2 2 2;");
-        }
-
-        if (nodeConfig.hasButton()) {
-            Shape nodeButton = CanvasHelper.createNodeButton(rectangle, node.getId());
-            nodeWrapper.setNodeButton(nodeButton);
-            if (!deployed)
-                nodeButton.setDisable(true);
-        }
-
-        if (nodeConfig.getInputs() > 0) {
-            Circle inputHandle = CanvasHelper.createInputHandle(rectangle);
-            nodeWrapper.setInputHandle(inputHandle);
-            initInputHandle(inputHandle, nodeWrapper);
-        }
-
-        int outputs = node.getOutputs().size();
-        if (outputs > 0) {
-            List<Circle> outputHandles = nodeWrapper.getOutputHandles();
-            nodeWrapper.setOutputHandles(outputHandles);
-            for (int i = 0; i < outputs; i++) {
-                Circle outputHandle = CanvasHelper.createOutputHandle(rectangle.getWidth(), rectangle.getHeight() / (outputs + 1) * (i+1), rectangle);
-                outputHandles.add(outputHandle);
-                nodeWrapper.getOutputs().add(new ArrayList<>());
-                initOutputHandle(outputHandle, i, nodeWrapper);
-            }
-        }
-
-        setUpDragging(nodeWrapper);
-
-        EventHandler<? super MouseEvent> clickListener = event -> {
-            if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
-                InterfaceHelper.showNodeEditMenu(nodeWrapper, ((Node) event.getSource()).getScene().getWindow());
-            } else if (event.getButton().equals(MouseButton.SECONDARY)) {
-                workflowService.deleteNode(node);
-            }
-        };
-
-        nameLabel.setOnMouseClicked(clickListener);
-        rectangle.setOnMouseClicked(clickListener);
-
+    public void createNode(NodeDTO node, boolean isDeployed) {
+        NodeWrapper nodeWrapper = new NodeWrapper(node, isDeployed);
         nodeWrappers.put(node, nodeWrapper);
-
         nodeWrapper.init();
         sortChildren();
     }
@@ -401,8 +334,59 @@ public class ViewWorkflowService {
 
         Disposable statusSubscription;
 
-        public NodeWrapper(NodeDTO node) {
+        public NodeWrapper(NodeDTO node, boolean isDeployed) {
             this.node = node;
+
+            if (node.getX() == null)
+                node.setX(DEFAULT_X);
+            if (node.getY() == null)
+                node.setY(DEFAULT_Y);
+
+            rectangle = CanvasHelper.createNodeRectangle(Paint.valueOf(node.getColor()));
+
+            rectangle.setWidth(NODE_WIDTH);
+            rectangle.setHeight(NODE_HEIGHT);
+            rectangle.setX(node.getX());
+            rectangle.setY(node.getY());
+
+            nameLabel = CanvasHelper.createNameLabel(node.getType(), rectangle);
+            statusLabel = CanvasHelper.createStatusLabel(rectangle);
+
+            if (!isDeployed) {
+                rectangle.setOpacity(NOT_DEPLOYED_NODE_OPACITY);
+                rectangle.setStyle("-fx-stroke-width: 1; -fx-stroke: black; -fx-stroke-dash-array: 2 2 2 2;");
+            }
+
+            if (node.hasButton()) {
+                nodeButton = CanvasHelper.createNodeButton(rectangle, node.getId());
+                if (!isDeployed)
+                    nodeButton.setDisable(true);
+            }
+
+            if (node.hasInput()) {
+                addInput();
+            }
+
+            if (node.getOutputs().size() > 0) {
+                for (int i = 0; i < node.getOutputs().size(); i++) {
+                    addOutput();
+                }
+            }
+
+            fixOutputHandlesPositions();
+
+            setUpDragging(this);
+
+            EventHandler<? super MouseEvent> clickListener = event -> {
+                if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
+                    InterfaceHelper.showNodeEditMenu(this, ((Node) event.getSource()).getScene().getWindow());
+                } else if (event.getButton().equals(MouseButton.SECONDARY)) {
+                    workflowService.deleteNode(node);
+                }
+            };
+
+            nameLabel.setOnMouseClicked(clickListener);
+            rectangle.setOnMouseClicked(clickListener);
         }
 
         public void init() {
@@ -417,6 +401,27 @@ public class ViewWorkflowService {
                         .subscribe(nodeStatus -> Platform.runLater(() -> statusLabel.setText(nodeStatus.getStatus())));
             } catch (Exception e) {
                 e.printStackTrace();
+            }
+        }
+
+        private void addInput() {
+            inputHandle = CanvasHelper.createInputHandle(rectangle);
+            initInputHandle(inputHandle, this);
+            rootPane.getChildren().add(inputHandle);
+        }
+
+        public void addOutput() {
+            Circle outputHandle = CanvasHelper.createOutputHandle();
+            outputHandles.add(outputHandle);
+            outputs.add(new ArrayList<>());
+            initOutputHandle(outputHandle, outputHandles.size() - 1, this);
+            rootPane.getChildren().add(outputHandle);
+        }
+
+        public void fixOutputHandlesPositions() {
+            for (int i = 0; i < outputs.size(); i++) {
+                Circle handle = outputHandles.get(i);
+                CanvasHelper.updateOutputHandlePosition(handle, outputs.size(), i, rectangle);
             }
         }
 
