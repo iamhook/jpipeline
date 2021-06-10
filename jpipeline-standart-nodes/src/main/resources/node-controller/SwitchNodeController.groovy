@@ -52,7 +52,7 @@ class SwitchNodeController extends JController {
                 operatorChoiceBox.getSelectionModel().select(co);
         })
 
-        TextField valueField = new TextField(value)
+        TextField valueField = new TextField(value.toString())
         valueField.setFocusTraversable(false)
 
         HBox.setHgrow(valueField, Priority.ALWAYS)

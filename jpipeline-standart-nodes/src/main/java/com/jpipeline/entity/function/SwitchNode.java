@@ -4,6 +4,7 @@ import com.jpipeline.common.entity.Node;
 import com.jpipeline.common.util.JPMessage;
 import com.jpipeline.common.util.annotations.NodeProperty;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
@@ -28,10 +29,23 @@ public class SwitchNode extends Node {
 
     @Override
     public void onInput(JPMessage message) {
-        send(message);
+
+        int i = 0;
+        for (Condition cond : condition) {
+            String operator = cond.getOperator();
+            String value = cond.getValue();
+            if (operator.equals("==") && message.get(property).equals(value)) {
+                send(message, i);
+            }
+            if (operator.equals("!=") && !message.get(property).equals(value)) {
+                send(message, i);
+            }
+
+            i++;
+        }
     }
 
-    @Getter @Setter
+    @Getter @Setter @NoArgsConstructor
     private static class Condition {
         private String operator;
         private String value;

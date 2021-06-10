@@ -208,6 +208,7 @@ public class NodeSupportService {
 
         } catch (Exception e) {
             log.error(e.toString());
+            System.exit(1);
         }
     }
 
@@ -226,8 +227,10 @@ public class NodeSupportService {
             return fieldValue;
         } catch (NoSuchMethodException e) {
             log.error("Complex field should have explicit no-args constructor: {}", e.toString());
+            System.exit(1);
         } catch (Exception e) {
             log.error(e.toString());
+            System.exit(1);
         }
         return null;
     }

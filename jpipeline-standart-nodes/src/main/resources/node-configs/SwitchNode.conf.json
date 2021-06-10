@@ -13,7 +13,7 @@
     },
     {
       "name": "condition",
-      "type": "STRING",
+      "type": "COMPLEX",
       "defaultValue": [
         {
           "operator": "==",
