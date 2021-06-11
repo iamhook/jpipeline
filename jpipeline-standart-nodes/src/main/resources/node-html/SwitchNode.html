@@ -10,13 +10,37 @@
     <main-app></main-app>
 </div>
 <script>
-    console.log("Hi console!! + " + node.type)
+    let operatorPropertyConfig = nodeConfig.properties[1].nested[0];
+    let valuePropertyConfig = nodeConfig.properties[1].nested[1];
+
+    Vue.component('condition-item', {
+        props: {condition: Object},
+        template:
+            '<div>' +
+            '<select v-model="condition.operator">' +
+            '  <option v-for="(key, value) in operators" v-bind:value="key">' +
+            '    {{ value }}' +
+            '  </option>\n' +
+            '</select>' +
+            '<input v-model="condition.value">' +
+            '<button v-on:click="$emit(\'delete\')">Delete</button>' +
+            '</div>',
+        data() {
+            return {
+                operators: operatorPropertyConfig.variants
+            };
+        }
+    });
 
 
     Vue.component('main-app', {
         template:
             '<div>' +
             '<div>Property: <input v-model="property"><br></div>' +
+            '<div>' +
+            '<div v-for="(condition, index) in conditions"><condition-item v-on:delete="deleteCondition(index)" :condition="condition"></condition-item></div>' +
+            '</div>' +
+            '<button v-on:click="addCondition()">Add</button>' +
             '</div>',
         data() {
             return {
@@ -24,16 +48,28 @@
                 conditions: node.properties.condition
             }
         },
+        methods: {
+            addCondition: function () {
+                this.conditions.push({
+                    operator: operatorPropertyConfig.defaultValue,
+                    value: valuePropertyConfig.defaultValue
+                })
+            },
+            deleteCondition: function (index) {
+
+            }
+
+        },
         watch: {
             property: function () {
                 node.properties.property = this.property
+            },
+            conditions: function () {
+                node.properties.condition = this.conditions
             }
         },
 
     })
-
-
-
 
     var app = new Vue({
         el: '#app'

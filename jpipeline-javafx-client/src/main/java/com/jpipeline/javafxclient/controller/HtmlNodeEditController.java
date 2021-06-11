@@ -40,18 +40,6 @@ public class HtmlNodeEditController extends JController {
         //String htmlPath = NodeService.getNodeHtml(node.getType());
         String htmlPath = "tmp/SwitchNode.html";
 
-        /*webView.getEngine().getLoadWorker()
-                .stateProperty()
-                .addListener((obs, old, neww) ->
-                {
-                    if (neww == Worker.State.SUCCEEDED) {
-                        // Let JavaScript make calls to adder object,
-                        //so we need to inject an [Adder] object into the JS code
-
-                    }
-
-                });*/
-        //load the html page
         bridge = (JSObject) webView.getEngine()
                 .executeScript("window");
 
