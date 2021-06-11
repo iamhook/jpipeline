@@ -14,7 +14,7 @@
     let valuePropertyConfig = nodeConfig.properties[1].nested[1];
 
     Vue.component('condition-item', {
-        props: {condition: Object},
+        props: {condition: Object, index: Number},
         template:
             '<div>' +
             '<select v-model="condition.operator">' +
@@ -23,6 +23,7 @@
             '  </option>\n' +
             '</select>' +
             '<input v-model="condition.value">' +
+            ' -> {{index+1}} ' +
             '<button v-on:click="$emit(\'delete\')">Delete</button>' +
             '</div>',
         data() {
@@ -38,7 +39,7 @@
             '<div>' +
             '<div>Property: <input v-model="property"><br></div>' +
             '<div>' +
-            '<div v-for="(condition, index) in conditions"><condition-item v-on:delete="deleteCondition(index)" :condition="condition"></condition-item></div>' +
+            '<div v-for="(condition, index) in conditions"><condition-item v-on:delete="deleteCondition(index)" :condition="condition" :index="index"></condition-item></div>' +
             '</div>' +
             '<button v-on:click="addCondition()">Add</button>' +
             '</div>',
@@ -54,9 +55,11 @@
                     operator: operatorPropertyConfig.defaultValue,
                     value: valuePropertyConfig.defaultValue
                 })
+                outputProcessor.addOutput()
             },
             deleteCondition: function (index) {
-
+                this.conditions.splice(index, 1)
+                outputProcessor.removeOutput(index)
             }
 
         },

@@ -406,7 +406,10 @@ public class ViewWorkflowService {
         }
 
         public void fixOutputHandlesPositions() {
-            outputHandles.forEach(OutputHandle::updatePosition);
+            outputHandles.forEach(outputHandle -> {
+                outputHandle.updatePosition();
+                outputHandle.getWires().forEach(CubicWire::updatePosition);
+            });
         }
 
         public void destroy() {

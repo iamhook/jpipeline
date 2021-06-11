@@ -63,13 +63,11 @@ public class InterfaceHelper {
             controller.setNode(node);
             controller.setNodeConfig(NodeService.getNodeConfig(node.getType()));
 
-            if (controller != null) {
-                controller.onInit();
-                JController finalController = controller;
-                stage.setOnCloseRequest(event -> {
-                    finalController.onClose();
-                });
-            }
+            controller.onInit();
+            JController finalController = controller;
+            stage.setOnCloseRequest(event -> {
+                finalController.onClose();
+            });
 
             stage.setScene(new Scene(pane));
             stage.setTitle(node.getType() + " edit menu");
