@@ -47,6 +47,7 @@ public class InterfaceHelper {
                 nodeWrapper.addOutput();
                 nodeWrapper.fixOutputHandlesPositions();
             });
+            controller.setRemoveOutputCallback(nodeWrapper::removeOutput);
             controller.setNode(node);
             controller.setNodeConfig(NodeService.getNodeConfig(node.getType()));
 

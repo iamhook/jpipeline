@@ -8,11 +8,9 @@ public class ModelWorkflowService {
 
     @Getter
     private WorkflowConfig workflowConfig;
-    private WorkflowService workflowService;
 
-    public ModelWorkflowService(WorkflowConfig config, WorkflowService workflowService) {
+    public ModelWorkflowService(WorkflowConfig config) {
         this.workflowConfig = config;
-        this.workflowService = workflowService;
     }
 
     public void createNode(NodeDTO node) {
@@ -23,7 +21,7 @@ public class ModelWorkflowService {
         fromNode.addWire(toNode.getId(), output);
     }
 
-    public void disconnectNodes(NodeDTO fromNode, NodeDTO toNode, int output) {
+    public void deleteWire(NodeDTO fromNode, NodeDTO toNode, int output) {
         fromNode.deleteWire(toNode.getId(), output);
     }
 

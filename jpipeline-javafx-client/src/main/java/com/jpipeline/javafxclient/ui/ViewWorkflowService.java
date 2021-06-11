@@ -1,12 +1,10 @@
 package com.jpipeline.javafxclient.ui;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jpipeline.common.WorkflowConfig;
 import com.jpipeline.common.dto.NodeDTO;
-import com.jpipeline.common.util.NodeConfig;
 import com.jpipeline.javafxclient.service.NodeService;
-import com.jpipeline.javafxclient.ui.util.CanvasHelper;
-import com.jpipeline.javafxclient.ui.util.InterfaceHelper;
-import com.jpipeline.javafxclient.ui.util.Wrapper;
+import com.jpipeline.javafxclient.ui.util.*;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -31,7 +29,6 @@ import reactor.core.Disposable;
 
 import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.jpipeline.javafxclient.Consts.*;
@@ -47,21 +44,32 @@ public class ViewWorkflowService {
     private final double canvasHeight = 2000;
     private final double canvasWidth = 2000;
 
-    private Map<NodeDTO, NodeWrapper> nodeWrappers = new HashMap<>();
+    private Map<String, NodeWrapper> nodeWrappers = new HashMap<>();
 
-    private NodeDTO connectingNode;
+    private NodeWrapper connectingNode;
     private CubicCurve connectingWire;
     private ConnectionType currentConnectionType;
 
-    private WorkflowService workflowService;
+    private ModelWorkflowService modelService;
 
-    public ViewWorkflowService(Pane rootPane, WorkflowService workflowService) {
+    public ViewWorkflowService(Pane rootPane, WorkflowConfig workflowConfig) {
         this.rootPane = rootPane;
-        this.workflowService = workflowService;
+        this.modelService = new ModelWorkflowService(workflowConfig);
 
         rootPane.setPrefHeight(canvasHeight);
         rootPane.setPrefWidth(canvasWidth);
         setClip();
+
+        nodeWrappers = workflowConfig.getNodes().stream().map(node -> createNode(node, true)).collect(Collectors.toMap(w -> w.getNode().getId(), w -> w));
+        nodeWrappers.forEach((id, wrapper) -> {
+            int i = 0;
+            for (Set<String> wires : wrapper.getNode().getOutputs()) {
+                for (String wire : wires) {
+                    connectNodes(wrapper, nodeWrappers.get(wire), i);
+                }
+                i++;
+            }
+        });
     }
 
     private void setClip() {
@@ -71,51 +79,44 @@ public class ViewWorkflowService {
         rootPane.setClip(clip);
     }
 
-    public void disconnectNodes(NodeDTO fromNode, NodeDTO toNode) {
-        NodeWrapper fromNodeWrapper = nodeWrappers.get(fromNode);
-        NodeWrapper toNodeWrapper = nodeWrappers.get(toNode);
-
-        CubicCurve curve = fromNodeWrapper.getOutputs().stream()
-                .flatMap(Collection::stream)
-                .filter(p -> toNodeWrapper.getInputWires().contains(p))
-                .findFirst().orElse(null);
-
-        fromNodeWrapper.getOutputs().remove(curve);
-        toNodeWrapper.getInputWires().remove(curve);
-        rootPane.getChildren().remove(curve);
+    public void deleteWire(CubicWire wire) {
+        OutputHandle fromHandle = wire.getFromHandle();
+        InputHandle toHandle = wire.getToHandle();
+        ViewWorkflowService.NodeWrapper fromWrapper = fromHandle.getNodeWrapper();
+        ViewWorkflowService.NodeWrapper toWrapper = toHandle.getNodeWrapper();
+        NodeDTO fromNode = fromWrapper.getNode();
+        NodeDTO toNode = toWrapper.getNode();
+        int output = fromWrapper.getOutputHandles().indexOf(fromHandle);
+        modelService.deleteWire(fromNode, toNode, output);
+        wire.destroy();
+        rootPane.getChildren().remove(wire);
     }
 
-    public void deleteNode(NodeDTO node) {
-        NodeWrapper nodeWrapper = nodeWrappers.get(node);
-        nodeWrapper.destroy();
-        nodeWrappers.remove(node);
+    public void deleteNode(NodeWrapper wrapper) {
+        modelService.deleteNode(wrapper.node);
+        wrapper.destroy();
+        nodeWrappers.remove(wrapper.node.getId());
     }
 
-    public void connectNodes(NodeDTO fromNode, NodeDTO toNode, int output) {
-        NodeWrapper fromNodeWrapper = nodeWrappers.get(fromNode);
-        NodeWrapper toNodeWrapper = nodeWrappers.get(toNode);
-        Circle fromHandle = fromNodeWrapper.getOutputHandles().get(output);
-        Circle toHandle = toNodeWrapper.getInputHandle();
+    public void connectNodes(NodeWrapper fromNode, NodeWrapper toNode, int output) {
+        modelService.connectNodes(fromNode.getNode(), toNode.getNode(), output);
 
-        double fromX = fromHandle.getCenterX();
-        double fromY = fromHandle.getCenterY();
-        double toX = toHandle.getCenterX();
-        double toY = toHandle.getCenterY();
+        OutputHandle fromHandle = fromNode.getOutputHandles().get(output);
+        InputHandle toHandle = toNode.getInputHandle();
 
-        CubicCurve curve = CanvasHelper.createConnectionCurve();
+        CubicWire wire = new CubicWire(fromHandle, toHandle);
 
-        updateCurve(fromX, fromY, toX, toY, curve);
-
-        curve.setOnMouseClicked(event -> {
+        wire.setOnMouseClicked(event -> {
             if (event.getButton().equals(MouseButton.SECONDARY)) {
-                workflowService.disconnectNodes(fromNode, toNode, output);
+                deleteWire(wire);
             }
         });
 
-        fromNodeWrapper.addOutputWire(curve, output);
-        toNodeWrapper.addInputWire(curve);
+        fromHandle.getWires().add(wire);
+        toHandle.getWires().add(wire);
 
-        rootPane.getChildren().add(curve);
+
+        rootPane.getChildren().add(wire);
 
         sortChildren();
 
@@ -123,39 +124,25 @@ public class ViewWorkflowService {
         currentConnectionType = null;
     }
 
-    private void updateCurve(double fromX, double fromY, double toX,
-                             double toY, CubicCurve curve) {
-        double yControlOffset = toY > fromY ? NODE_HEIGHT / 2f: NODE_HEIGHT / -2f;
-        double xControlOffset = NODE_WIDTH * 1.5;
-
-        double sqrt = Math.sqrt(Math.pow(Math.abs(toX - fromX), 2) + Math.pow(Math.abs(toY - fromY), 2));
-        xControlOffset = Math.min(sqrt, xControlOffset);
-
-        curve.setStartX(fromX);
-        curve.setStartY(fromY);
-        curve.setControlX1(fromX + xControlOffset);
-        curve.setControlY1(fromY + yControlOffset);
-        curve.setControlX2(toX - xControlOffset);
-        curve.setControlY2(toY - yControlOffset);
-        curve.setEndX(toX);
-        curve.setEndY(toY);
-    }
-
-    public void createNode(NodeDTO node, boolean isDeployed) {
+    public NodeWrapper createNode(NodeDTO node, boolean isDeployed) {
         NodeWrapper nodeWrapper = new NodeWrapper(node, isDeployed);
-        nodeWrappers.put(node, nodeWrapper);
+        nodeWrappers.put(node.getId(), nodeWrapper);
         nodeWrapper.init();
         sortChildren();
+        if (!isDeployed)
+            modelService.createNode(node);
+        return nodeWrapper;
     }
 
     public void initInputHandle(Circle inputHandle, NodeWrapper nodeWrapper) {
         inputHandle.setOnMousePressed(event -> {
             if (connectingNode == null) {
                 currentConnectionType = ViewWorkflowService.ConnectionType.INPUT_TO_OUTPUT;
-                connectingNode = nodeWrapper.getNode();
-                connectingWire = CanvasHelper.createConnectionCurve();
+                connectingNode = nodeWrapper;
+                connectingWire = new CubicCurve();
+                connectingWire.getStyleClass().add("curve");
                 rootPane.getChildren().add(connectingWire);
-                updateCurve(inputHandle.getCenterX(), inputHandle.getCenterY(), inputHandle.getCenterX(), inputHandle.getCenterY(), connectingWire);
+                CubicWire.updatePosition(inputHandle.getCenterX(), inputHandle.getCenterY(), inputHandle.getCenterX(), inputHandle.getCenterY(), connectingWire);
             }
         });
         inputHandle.setOnMouseReleased(event -> {
@@ -166,7 +153,7 @@ public class ViewWorkflowService {
                     int i = 0;
                     for (Circle outputHandle : nw.getOutputHandles()) {
                         if (outputHandle.contains(startX, startY)) {
-                            workflowService.connectNodes(nw.getNode(), connectingNode, i);
+                            connectNodes(nw, connectingNode, i);
                         }
                         i++;
                     }
@@ -176,7 +163,7 @@ public class ViewWorkflowService {
         });
         inputHandle.setOnMouseDragged(event -> {
             if (connectingWire != null) {
-                updateCurve(event.getX(), event.getY(), connectingWire.getEndX(), connectingWire.getEndY(), connectingWire);
+                CubicWire.updatePosition(event.getX(), event.getY(), connectingWire.getEndX(), connectingWire.getEndY(), connectingWire);
                 sortChildren();
             }
         });
@@ -186,10 +173,11 @@ public class ViewWorkflowService {
         outputHandle.setOnMousePressed(event -> {
             if (connectingNode == null) {
                 currentConnectionType = ConnectionType.OUTPUT_TO_INPUT;
-                connectingNode = nodeWrapper.getNode();
-                connectingWire = CanvasHelper.createConnectionCurve();
+                connectingNode = nodeWrapper;
+                connectingWire = new CubicCurve();
+                connectingWire.getStyleClass().add("curve");
                 rootPane.getChildren().add(connectingWire);
-                updateCurve(outputHandle.getCenterX(), outputHandle.getCenterY(), outputHandle.getCenterX(), outputHandle.getCenterY(), connectingWire);
+                CubicWire.updatePosition(outputHandle.getCenterX(), outputHandle.getCenterY(), outputHandle.getCenterX(), outputHandle.getCenterY(), connectingWire);
             }
         });
         outputHandle.setOnMouseReleased(event -> {
@@ -198,13 +186,15 @@ public class ViewWorkflowService {
                 double endY = connectingWire.getEndY();
                 nodeWrappers.values().stream()
                         .filter(nw -> nw.getInputHandle() != null && nw.getInputHandle().contains(endX, endY))
-                        .limit(1).forEach(nw -> workflowService.connectNodes(connectingNode, nw.getNode(), outputIndex));
+                        .limit(1).forEach(nw -> {
+                    connectNodes(connectingNode, nw, outputIndex);
+                });
                 resetConnectionMode();
             }
         });
         outputHandle.setOnMouseDragged(event -> {
             if (connectingWire != null) {
-                updateCurve(connectingWire.getStartX(), connectingWire.getStartY(), event.getX(), event.getY(), connectingWire);
+                CubicWire.updatePosition(connectingWire.getStartX(), connectingWire.getStartY(), event.getX(), event.getY(), connectingWire);
                 sortChildren();
             }
         });
@@ -241,25 +231,15 @@ public class ViewWorkflowService {
                 node.setX(newX);
                 node.setY(newY);
 
-                for (CubicCurve curve : nodeWrapper.getInputWires()) {
-                    Circle to = nodeWrapper.getInputHandle();
-                    double fromX = curve.getStartX();
-                    double fromY = curve.getStartY();
-                    double toX = to.getCenterX();
-                    double toY = to.getCenterY();
-
-                    updateCurve(fromX, fromY, toX, toY, curve);
+                if (nodeWrapper.getInputHandle() != null) {
+                    for (CubicWire wire : nodeWrapper.getInputHandle().getWires()) {
+                        wire.updatePosition();
+                    }
                 }
 
-                for (int i = 0; i < nodeWrapper.getOutputHandles().size(); i++) {
-                    Circle from = nodeWrapper.getOutputHandles().get(i);
-                    for (CubicCurve curve : nodeWrapper.getOutputWires(i)) {
-                        double fromX = from.getCenterX();
-                        double fromY = from.getCenterY();
-                        double toX = curve.getEndX();
-                        double toY = curve.getEndY();
-
-                        updateCurve(fromX, fromY, toX, toY, curve);
+                for (OutputHandle outputHandle : nodeWrapper.getOutputHandles()) {
+                    for (CubicWire wire : outputHandle.getWires()) {
+                        wire.updatePosition();
                     }
                 }
             }
@@ -325,12 +305,9 @@ public class ViewWorkflowService {
         private Text nameLabel;
         private Text statusLabel;
 
-        private List<List<CubicCurve>> outputs = new ArrayList<>();
-        private List<Circle> outputHandles = new ArrayList<>();
-        private Circle inputHandle;
+        private List<OutputHandle> outputHandles = new ArrayList<>();
+        private InputHandle inputHandle;
         private Shape nodeButton;
-
-        private List<CubicCurve> inputWires = new ArrayList<>();
 
         Disposable statusSubscription;
 
@@ -381,7 +358,7 @@ public class ViewWorkflowService {
                 if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
                     InterfaceHelper.showNodeEditMenu(this, ((Node) event.getSource()).getScene().getWindow());
                 } else if (event.getButton().equals(MouseButton.SECONDARY)) {
-                    workflowService.deleteNode(node);
+                    deleteNode(this);
                 }
             };
 
@@ -405,57 +382,50 @@ public class ViewWorkflowService {
         }
 
         private void addInput() {
-            inputHandle = CanvasHelper.createInputHandle(rectangle);
+            inputHandle = new InputHandle(this);
             initInputHandle(inputHandle, this);
             rootPane.getChildren().add(inputHandle);
         }
 
         public void addOutput() {
-            Circle outputHandle = CanvasHelper.createOutputHandle();
+            OutputHandle outputHandle = new OutputHandle(this);
             outputHandles.add(outputHandle);
-            outputs.add(new ArrayList<>());
             initOutputHandle(outputHandle, outputHandles.size() - 1, this);
             rootPane.getChildren().add(outputHandle);
         }
 
-        public void fixOutputHandlesPositions() {
-            for (int i = 0; i < outputs.size(); i++) {
-                Circle handle = outputHandles.get(i);
-                CanvasHelper.updateOutputHandlePosition(handle, outputs.size(), i, rectangle);
+        public void removeOutput(int idx) {
+            for (CubicWire wire : getOutputHandles().get(idx).getWires()) {
+                deleteWire(wire);
             }
+
+            node.getOutputs().remove(idx);
+            rootPane.getChildren().remove(outputHandles.remove(idx));
+            fixOutputHandlesPositions();
+
         }
 
-        public List<CubicCurve> getOutputWires(int output) {
-            return outputs.get(output);
-        }
-
-        public void addOutputWire(CubicCurve curve, int output) {
-            outputs.get(output).add(curve);
-        }
-
-        public void addInputWire(CubicCurve curve) {
-            inputWires.add(curve);
+        public void fixOutputHandlesPositions() {
+            outputHandles.forEach(OutputHandle::updatePosition);
         }
 
         public void destroy() {
+            ObservableList<Node> children = rootPane.getChildren();
             if (statusSubscription != null && !statusSubscription.isDisposed())
                 statusSubscription.dispose();
 
-            getOutputs().forEach(path -> rootPane.getChildren().remove(path));
-            getInputWires().forEach(path -> rootPane.getChildren().remove(path));
-            for (Circle outputHandle : outputHandles) {
+            for (OutputHandle outputHandle : outputHandles) {
+                outputHandle.getWires().forEach(children::remove);
                 rootPane.getChildren().remove(outputHandle);
             }
-            for (List<CubicCurve> output : outputs) {
-                for (CubicCurve curve : output) {
-                    rootPane.getChildren().remove(curve);
-                }
+            if (inputHandle != null) {
+                inputHandle.getWires().forEach(children::remove);
+                children.remove(inputHandle);
             }
-            rootPane.getChildren().remove(inputHandle);
-            rootPane.getChildren().remove(rectangle);
-            rootPane.getChildren().remove(nameLabel);
-            rootPane.getChildren().remove(statusLabel);
-            rootPane.getChildren().remove(nodeButton);
+            children.remove(rectangle);
+            children.remove(nameLabel);
+            children.remove(statusLabel);
+            children.remove(nodeButton);
         }
 
     }

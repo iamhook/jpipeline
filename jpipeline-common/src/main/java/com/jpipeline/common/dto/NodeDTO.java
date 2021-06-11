@@ -36,13 +36,6 @@ public class NodeDTO {
 
     public NodeDTO() {}
 
-    /*public void addWire(String wire) {
-        addWire(wire, 0);
-    }
-    public void deleteWire(String wire) {
-        deleteWire(wire, 0);
-    }*/
-
     public void addWire(String wire, int output) {
         outputs.get(output).add(wire);
     }

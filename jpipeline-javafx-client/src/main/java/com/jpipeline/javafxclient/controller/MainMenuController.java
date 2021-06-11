@@ -1,25 +1,24 @@
 package com.jpipeline.javafxclient.controller;
 
 import com.jpipeline.common.WorkflowConfig;
+import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.common.util.NodeConfig;
 import com.jpipeline.javafxclient.MainApplication;
 import com.jpipeline.javafxclient.service.ManagerService;
 import com.jpipeline.javafxclient.service.NodeService;
-import com.jpipeline.javafxclient.ui.WorkflowService;
+import com.jpipeline.javafxclient.ui.ViewWorkflowService;
 import com.jpipeline.javafxclient.ui.util.CanvasHelper;
 import com.jpipeline.javafxclient.ui.util.InterfaceHelper;
 import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -74,7 +73,8 @@ public class MainMenuController {
 
     private ProgressIndicator progressIndicator;
 
-    private WorkflowService workflowService;
+    private ViewWorkflowService workflowService;
+    private WorkflowConfig workflowConfig;
 
     private Stage loginStage;
 
@@ -83,12 +83,6 @@ public class MainMenuController {
     private boolean lastExecutorStatus = false;
 
     ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-
-    public void onDeploy() {
-        lastExecutorStatus = false;
-        showProgressIndicator();
-        executorStatusIndicator.setFill(Color.RED);
-    }
 
     public void init() {
         showConnectionMenu();
@@ -148,10 +142,10 @@ public class MainMenuController {
             workflowService.destroy();
         }
 
-        WorkflowConfig workflowConfig = NodeService.getConfig();
+        workflowConfig = NodeService.getConfig();
 
-        workflowService = new WorkflowService(workflowConfig, canvasPane);
-        workflowService.setController(this);
+
+        workflowService = new ViewWorkflowService(canvasPane, workflowConfig);
 
         double offset = 10;
         double margin = 10;
@@ -181,8 +175,8 @@ public class MainMenuController {
                 rectangle.setY(offset + i * (NODE_HEIGHT + margin));
                 Text nameLabel = CanvasHelper.createNameLabel(config.getName(), rectangle);
                 nameLabel.setCursor(Cursor.HAND);
-                rectangle.setOnMouseClicked(event -> workflowService.createNode(config.getName()));
-                nameLabel.setOnMouseClicked(event -> workflowService.createNode(config.getName()));
+                rectangle.setOnMouseClicked(event -> createNode(config.getName()));
+                nameLabel.setOnMouseClicked(event -> createNode(config.getName()));
                 categoryPane.getChildren().add(rectangle);
                 categoryPane.getChildren().add(nameLabel);
                 i++;
@@ -192,6 +186,11 @@ public class MainMenuController {
         }
 
 
+    }
+
+    private void createNode(String nodeType) {
+        NodeDTO node = NodeService.createNewNode(nodeType);
+        workflowService.createNode(node, false);
     }
 
     public void createProgressIndicator() {
@@ -287,7 +286,10 @@ public class MainMenuController {
 
     @FXML
     public void deploy() {
-        workflowService.deploy();
+        ManagerService.deploy(workflowConfig);
+        lastExecutorStatus = false;
+        showProgressIndicator();
+        executorStatusIndicator.setFill(Color.RED);
     }
 
     public void setMain(MainApplication main) {

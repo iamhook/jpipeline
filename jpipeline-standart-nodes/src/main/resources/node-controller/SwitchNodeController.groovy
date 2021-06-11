@@ -59,16 +59,17 @@ class SwitchNodeController extends JController {
 
         def toOutputLabel = new Text(createToOutputLabel(conditionsContainer.getChildren().size() + 1))
 
-        def button = new Button("X")
+        def deleteButton = new Button("X")
         box.getChildren().add(operatorChoiceBox)
         box.getChildren().add(valueField)
         box.getChildren().add(toOutputLabel)
-        box.getChildren().add(button)
+        box.getChildren().add(deleteButton)
         conditionsContainer.getChildren().add(box)
 
-        button.setOnAction({ event ->
-            conditionsContainer.getChildren().remove(box);
-            updateToOutputLabels();
+        deleteButton.setOnAction({ event ->
+            conditionsContainer.getChildren().remove(box)
+            updateToOutputLabels()
+            removeOutput(conditionsContainer.getChildren().size())
         })
     }
 
