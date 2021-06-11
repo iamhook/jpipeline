@@ -37,9 +37,15 @@ repositories {
     mavenCentral()
 }
 
+run {
+    applicationDefaultJvmArgs = ['--add-exports=javafx.web/com.sun.javafx.webkit=ALL-UNNAMED']
+
+    jvmArgs = ['--add-exports=javafx.web/com.sun.javafx.webkit=ALL-UNNAMED']
+}
+
 javafx {
     version = javaFxVersion
-    modules = [ 'javafx.controls', 'javafx.fxml' ]
+    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.web' ]
 }
 
 jar {

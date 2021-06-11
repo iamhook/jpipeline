@@ -25,6 +25,7 @@ public class NodeDTO {
     private Double y;
     private boolean hasButton;
     private boolean hasInput;
+    private boolean htmlMode;
 
     public Boolean hasButton() {
         return hasButton;

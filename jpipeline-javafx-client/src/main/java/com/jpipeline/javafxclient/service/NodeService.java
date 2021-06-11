@@ -111,11 +111,11 @@ public class NodeService {
         });
     }
 
-    public static String getNodeFxmlController(String nodeType) {
+    public static String getNodeHtml(String nodeType) {
         return nodeFxmlControllerCache.computeIfAbsent(nodeType, s -> {
             try {
-                HttpResponse response = httpService.get("/proxy/api/nodesupport/" + nodeType + "/controller");
-                String path = "tmp/" + nodeType + "Controller.groovy";
+                HttpResponse response = httpService.get("/proxy/api/nodesupport/" + nodeType + "/html");
+                String path = "tmp/" + nodeType + ".html";
                 FileUtils.write(new File(path), EntityUtils.toString(response.getEntity()), Charset.defaultCharset());
                 return path;
             } catch (Exception e) {

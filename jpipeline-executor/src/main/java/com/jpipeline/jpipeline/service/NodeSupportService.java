@@ -83,10 +83,10 @@ public class NodeSupportService {
         }
     }
 
-    private Resource getNodeFxmlController(Class<? extends Node> nodeClass) {
+    private Resource getNodeHtml(Class<? extends Node> nodeClass) {
         try {
-            final Resource resource = resourceLoader.getResource("classpath:node-controller/" +
-                    nodeClass.getSimpleName() + "Controller.groovy");
+            final Resource resource = resourceLoader.getResource("classpath:node-html/" +
+                    nodeClass.getSimpleName() + ".html");
             return resource;
         } catch (Exception e) {
             log.error(e.toString(), e);
@@ -107,9 +107,9 @@ public class NodeSupportService {
     }
 
     @SneakyThrows
-    public Resource getNodeFxmlController(String type) {
+    public Resource getNodeHtml(String type) {
         Class<? extends Node> nodeClass = findClass(type);
-        return getNodeFxmlController(nodeClass);
+        return getNodeHtml(nodeClass);
     }
 
     @SneakyThrows
@@ -135,6 +135,7 @@ public class NodeSupportService {
                 .outputs(outputs)
                 .hasButton(nodeConfig.hasButton())
                 .hasInput(nodeConfig.getInputs() > 0)
+                .htmlMode(nodeConfig.getEditMode().equals(NodeConfig.EditMode.HTML_JAVASCRIPT))
                 .build();
     }
 

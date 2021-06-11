@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TODO supply a title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+</head>
+<body>
+<div id="app">
+    <main-app></main-app>
+</div>
+<script>
+    console.log("Hi console!! + " + node.type)
+
+
+    Vue.component('main-app', {
+        template:
+            '<div>' +
+            '<div>Property: <input v-model="property"><br></div>' +
+            '</div>',
+        data() {
+            return {
+                property: node.properties.property,
+                conditions: node.properties.condition
+            }
+        },
+        watch: {
+            property: function () {
+                node.properties.property = this.property
+            }
+        },
+
+    })
+
+
+
+
+    var app = new Vue({
+        el: '#app'
+    })
+</script>
+</body>
+</html>

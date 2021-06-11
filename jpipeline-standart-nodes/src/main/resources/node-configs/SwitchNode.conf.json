@@ -1,6 +1,7 @@
 {
   "category": "Function",
   "color": "#999999",
+  "editMode": "HTML_JAVASCRIPT",
   "inputs": 1,
   "outputs": 2,
   "properties": [

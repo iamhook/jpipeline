@@ -4,6 +4,7 @@ import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.common.util.JController;
 import com.jpipeline.javafxclient.MainApplication;
 import com.jpipeline.javafxclient.controller.DebugMenuController;
+import com.jpipeline.javafxclient.controller.HtmlNodeEditController;
 import com.jpipeline.javafxclient.controller.StandartNodeEditController;
 import com.jpipeline.javafxclient.service.NodeService;
 import com.jpipeline.javafxclient.ui.ViewWorkflowService;
@@ -27,19 +28,30 @@ public class InterfaceHelper {
     public static void showNodeEditMenu(ViewWorkflowService.NodeWrapper nodeWrapper, Window window) {
         try {
             Stage stage = new Stage();
-            FXMLLoader loader = new FXMLLoader();
 
 
             NodeDTO node = nodeWrapper.getNode();
-            String fxmlPath = NodeService.getNodeFxml(node.getType());
-            String controllerPath = NodeService.getNodeFxmlController(node.getType());
-            JController controller = null;
 
-            if (controllerPath != null && !controllerPath.isEmpty()) {
-                Class clazz = gcl.parseClass(new File(controllerPath));
-                controller = (JController) clazz.newInstance();
+            JController controller;
+            Pane pane;
+
+            if (node.isHtmlMode()) {
+                FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("html_node_menu.fxml"));
+                pane = loader.load();
+
+                controller = loader.getController();
+                ((HtmlNodeEditController) controller).setRootPane(pane);
+
             } else {
+                String fxmlPath = NodeService.getNodeFxml(node.getType());
+                FXMLLoader loader = new FXMLLoader();
                 controller = new StandartNodeEditController();
+
+
+                loader.setController(controller);
+                pane = loader.load(new FileInputStream(fxmlPath));
+
+                ((StandartNodeEditController) controller).setRootPane(pane);
             }
 
             controller.setAddOutputCallback(() -> {
@@ -50,13 +62,6 @@ public class InterfaceHelper {
             controller.setRemoveOutputCallback(nodeWrapper::removeOutput);
             controller.setNode(node);
             controller.setNodeConfig(NodeService.getNodeConfig(node.getType()));
-
-            loader.setController(controller);
-
-            Pane pane = loader.load(new FileInputStream(fxmlPath));
-
-            if (controller instanceof StandartNodeEditController)
-                ((StandartNodeEditController) controller).setRootPane(pane);
 
             if (controller != null) {
                 controller.onInit();

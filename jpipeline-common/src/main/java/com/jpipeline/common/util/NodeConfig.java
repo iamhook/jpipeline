@@ -12,6 +12,7 @@ public class NodeConfig {
     private String category = "Other";
     private String color;
     private List<PropertyConfig> properties;
+    private EditMode editMode = EditMode.SIMPLE;
 
     public PropertyConfig getPropertyConfig(String name) {
         return properties.stream().filter(c -> c.getName().equals(name)).findFirst().orElse(null);
@@ -23,5 +24,9 @@ public class NodeConfig {
 
     public boolean hasButton() {
         return hasButton;
+    }
+
+    public enum EditMode {
+        SIMPLE, HTML_JAVASCRIPT
     }
 }
