@@ -1,10 +1,9 @@
-package com.jpipeline.javafxclient.ui;
+package com.jpipeline.javafxclient.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpipeline.common.WorkflowConfig;
 import com.jpipeline.common.dto.NodeDTO;
-import com.jpipeline.javafxclient.service.NodeService;
-import com.jpipeline.javafxclient.ui.util.*;
+import com.jpipeline.javafxclient.util.*;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -65,7 +64,7 @@ public class ViewWorkflowService {
             int i = 0;
             for (Set<String> wires : wrapper.getNode().getOutputs()) {
                 for (String wire : wires) {
-                    connectNodes(wrapper, nodeWrappers.get(wire), i);
+                    createConnectionWire(wrapper, nodeWrappers.get(wire), i);
                 }
                 i++;
             }
@@ -100,6 +99,10 @@ public class ViewWorkflowService {
 
     public void connectNodes(NodeWrapper fromNode, NodeWrapper toNode, int output) {
         modelService.connectNodes(fromNode.getNode(), toNode.getNode(), output);
+        createConnectionWire(fromNode, toNode, output);
+    }
+
+    public void createConnectionWire(NodeWrapper fromNode, NodeWrapper toNode, int output) {
 
         OutputHandle fromHandle = fromNode.getOutputHandles().get(output);
         InputHandle toHandle = toNode.getInputHandle();
@@ -321,8 +324,8 @@ public class ViewWorkflowService {
 
             rectangle = CanvasHelper.createNodeRectangle(Paint.valueOf(node.getColor()));
 
-            rectangle.setWidth(NODE_WIDTH);
-            rectangle.setHeight(NODE_HEIGHT);
+            rectangle.setWidth(NODE_BASE_WIDTH);
+            rectangle.setHeight(NODE_BASE_HEIGHT);
             rectangle.setX(node.getX());
             rectangle.setY(node.getY());
 
@@ -410,6 +413,7 @@ public class ViewWorkflowService {
                 outputHandle.updatePosition();
                 outputHandle.getWires().forEach(CubicWire::updatePosition);
             });
+            rectangle.setHeight(NODE_BASE_HEIGHT + HANDLE_RADIUS * 2 * (outputHandles.size() - 1));
         }
 
         public void destroy() {

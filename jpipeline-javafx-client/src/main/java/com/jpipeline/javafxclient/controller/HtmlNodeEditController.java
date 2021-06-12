@@ -3,6 +3,7 @@ package com.jpipeline.javafxclient.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpipeline.common.util.CJson;
 import com.jpipeline.common.util.JController;
+import com.jpipeline.javafxclient.JContext;
 import com.jpipeline.javafxclient.service.NodeService;
 import com.sun.javafx.webkit.WebConsoleListener;
 import javafx.concurrent.Worker;
@@ -13,11 +14,15 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import netscape.javascript.JSObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.function.Consumer;
 
 public class HtmlNodeEditController extends JController {
+
+    private static final Logger log = LoggerFactory.getLogger(HtmlNodeEditController.class);
 
     private static final ObjectMapper OM = new ObjectMapper();
 
@@ -43,7 +48,8 @@ public class HtmlNodeEditController extends JController {
         CJson nodeJson = OM.convertValue(node, CJson.class);
         CJson nodeConfigJson = OM.convertValue(nodeConfig, CJson.class);
 
-        String htmlPath = NodeService.getNodeHtml(node.getType());
+        //String htmlPath = NodeService.getNodeHtml(node.getType());
+        String htmlPath = JContext.getExtResourcesFolder() + node.getType() + ".html";
 
         bridge = (JSObject) webView.getEngine()
                 .executeScript("window");
@@ -76,9 +82,13 @@ public class HtmlNodeEditController extends JController {
 
     @Override
     public void onClose() {
-        CJson nodeJson = CJson.fromJson((String)webView.getEngine().executeScript("JSON.stringify(node)"));
+        try {
+            CJson nodeJson = CJson.fromJson((String)webView.getEngine().executeScript("JSON.stringify(node)"));
 
-        node.setProperties(nodeJson.getJson("properties"));
+            node.setProperties(nodeJson.getJson("properties"));
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+        }
 
         return;
     }

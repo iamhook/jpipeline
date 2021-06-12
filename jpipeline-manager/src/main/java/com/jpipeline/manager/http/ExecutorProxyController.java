@@ -1,5 +1,6 @@
 package com.jpipeline.manager.http;
 
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @RestController
 @RequestMapping("/proxy")
@@ -29,7 +31,7 @@ public class ExecutorProxyController {
     private Integer executorPort;
 
     @RequestMapping("/**")
-    public ResponseEntity proxy(ServerWebExchange exchange, HttpMethod method) throws IOException {
+    public ResponseEntity proxy(ServerWebExchange exchange, HttpMethod method) {
         try {
             ServerHttpRequest request = exchange.getRequest();
             String path = request.getPath().subPath(2).toString();
@@ -43,7 +45,8 @@ public class ExecutorProxyController {
 
             return ResponseEntity
                     .status(response.getStatusLine().getStatusCode())
-                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders -> Arrays.stream(response.getAllHeaders())
+                            .forEach(header -> httpHeaders.add(header.getName(), header.getValue())))
                     .body(EntityUtils.toString(response.getEntity()));
         } catch (Exception e) {
             return ResponseEntity

@@ -1,10 +1,7 @@
-package com.jpipeline.javafxclient.ui.util;
+package com.jpipeline.javafxclient.util;
 
-import com.jpipeline.javafxclient.ui.ViewWorkflowService;
+import com.jpipeline.javafxclient.service.ViewWorkflowService;
 import javafx.scene.shape.Rectangle;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class OutputHandle extends Handle {
 
@@ -18,7 +15,7 @@ public class OutputHandle extends Handle {
         Rectangle rectangle = nodeWrapper.getRectangle();
         int outputs = nodeWrapper.getOutputHandles().size();
         int outputIndex = nodeWrapper.getOutputHandles().indexOf(this);
-        updatePosition(rectangle.getWidth(), rectangle.getHeight() / (outputs + 1) * (outputIndex+1));
+        updatePosition(rectangle.widthProperty(), rectangle.heightProperty().divide(outputs + 1).multiply((outputIndex+1)));
     }
 
 }

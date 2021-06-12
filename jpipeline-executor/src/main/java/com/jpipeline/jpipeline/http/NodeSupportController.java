@@ -5,11 +5,14 @@ import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.jpipeline.service.NodeSupportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @RestController
@@ -30,13 +33,27 @@ public class NodeSupportController {
     }
 
     @GetMapping("/{type}/fxml")
-    public Resource getNodeFxml(@PathVariable String type) {
-        return nodeSupportService.getNodeFxml(type);
+    public ResponseEntity getNodeFxml(@PathVariable String type) {
+        return getNodeResource(nodeSupportService.getNodeFxml(type));
     }
 
     @GetMapping("/{type}/html")
-    public Resource getNodeHtml(@PathVariable String type) {
-        return nodeSupportService.getNodeHtml(type);
+    public ResponseEntity getNodeHtml(@PathVariable String type) {
+        return getNodeResource(nodeSupportService.getNodeHtml(type));
+    }
+
+    @GetMapping("/{type}/controller")
+    public ResponseEntity getNodeGroovyController(@PathVariable String type) {
+        return getNodeResource(nodeSupportService.getNodeGroovyController(type));
+    }
+
+    private ResponseEntity getNodeResource(Resource resource) {
+        ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
+                .filename(resource.getFilename(), StandardCharsets.UTF_8)
+                .build();
+        return ResponseEntity.ok()
+                .header("Content-Disposition", contentDisposition.toString())
+                .body(resource);
     }
 
     @GetMapping("/{type}/create")

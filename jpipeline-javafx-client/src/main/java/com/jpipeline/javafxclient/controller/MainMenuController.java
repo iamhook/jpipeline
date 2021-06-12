@@ -6,11 +6,10 @@ import com.jpipeline.common.util.NodeConfig;
 import com.jpipeline.javafxclient.MainApplication;
 import com.jpipeline.javafxclient.service.ManagerService;
 import com.jpipeline.javafxclient.service.NodeService;
-import com.jpipeline.javafxclient.ui.ViewWorkflowService;
-import com.jpipeline.javafxclient.ui.util.CanvasHelper;
-import com.jpipeline.javafxclient.ui.util.InterfaceHelper;
+import com.jpipeline.javafxclient.service.ViewWorkflowService;
+import com.jpipeline.javafxclient.util.CanvasHelper;
+import com.jpipeline.javafxclient.util.InterfaceHelper;
 import javafx.application.Platform;
-import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Cursor;
@@ -35,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -82,12 +82,21 @@ public class MainMenuController {
 
     private boolean lastExecutorStatus = false;
 
+    private ScheduledFuture<?> statusesTaskFuture;
+
     ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
     public void init() {
         showConnectionMenu();
         InterfaceHelper.createDebugMenu(rootPane.getScene().getWindow());
-        executor.scheduleAtFixedRate(this::updateServiceStatuses, 0, 500, TimeUnit.MILLISECONDS);
+    }
+
+    private void startCheckStatusesTask() {
+        statusesTaskFuture = executor.scheduleAtFixedRate(this::updateServiceStatuses, 0, 500, TimeUnit.MILLISECONDS);
+    }
+
+    private void stopCheckStatusesTask() {
+        statusesTaskFuture.cancel(true);
     }
 
     public void showConnectionMenu() {
@@ -101,7 +110,10 @@ public class MainMenuController {
             loginStage.setScene(new Scene(root));
             loginStage.setTitle("Connection menu");
             loginStage.initOwner(rootPane.getScene().getWindow());
-            loginStage.setOnCloseRequest(Event::consume);
+            loginStage.setOnCloseRequest(windowEvent -> {
+                if (!ManagerService.checkIsAlive())
+                    windowEvent.consume();
+            });
             loginStage.setResizable(false);
             loginStage.show();
             ConnectionMenuController controller = loader.getController();
@@ -115,6 +127,7 @@ public class MainMenuController {
     public void hideConnectionMenu() {
         loginStage.close();
         loginStage = null;
+        startCheckStatusesTask();
         unBlur();
     }
 
@@ -132,11 +145,6 @@ public class MainMenuController {
 
     @FXML
     public void resetWorkflow() {
-
-        /*// TODO should I reset workflow?
-
-        if (workflowService != null)
-            return;*/
 
         if (workflowService != null) {
             workflowService.destroy();
@@ -168,11 +176,11 @@ public class MainMenuController {
 
             for (NodeConfig config : nodeConfigs) {
                 Rectangle rectangle = CanvasHelper.createNodeRectangle(Paint.valueOf(config.getColor()));
-                rectangle.setWidth(NODE_WIDTH);
+                rectangle.setWidth(NODE_BASE_WIDTH);
                 rectangle.setCursor(Cursor.HAND);
-                rectangle.setHeight(NODE_HEIGHT);
-                rectangle.setX((nodesMenu.getParent().getLayoutBounds().getWidth() - NODE_WIDTH) / 2);
-                rectangle.setY(offset + i * (NODE_HEIGHT + margin));
+                rectangle.setHeight(NODE_BASE_HEIGHT);
+                rectangle.setX((nodesMenu.getParent().getLayoutBounds().getWidth() - NODE_BASE_WIDTH) / 2);
+                rectangle.setY(offset + i * (NODE_BASE_HEIGHT + margin));
                 Text nameLabel = CanvasHelper.createNameLabel(config.getName(), rectangle);
                 nameLabel.setCursor(Cursor.HAND);
                 rectangle.setOnMouseClicked(event -> createNode(config.getName()));
@@ -269,11 +277,17 @@ public class MainMenuController {
                 });
             }
 
-            if (ManagerService.checkIsAlive()) {
-                Platform.runLater(() -> managerStatusIndicator.setFill(Color.GREEN));
-            } else {
-                Platform.runLater(() -> managerStatusIndicator.setFill(Color.RED));
-            }
+            Platform.runLater(() -> {
+                if (ManagerService.checkIsAlive()) {
+                    managerStatusIndicator.setFill(Color.GREEN);
+                } else {
+                    managerStatusIndicator.setFill(Color.RED);
+                    if (loginStage == null || !loginStage.isShowing()) {
+                        stopCheckStatusesTask();
+                        showConnectionMenu();
+                    }
+                }
+            });
         } catch (Exception e) {
             log.error(e.toString(), e);
         }

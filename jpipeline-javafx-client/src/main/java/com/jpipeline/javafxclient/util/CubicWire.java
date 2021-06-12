@@ -1,10 +1,10 @@
-package com.jpipeline.javafxclient.ui.util;
+package com.jpipeline.javafxclient.util;
 
 import javafx.scene.shape.CubicCurve;
 import lombok.Getter;
 
-import static com.jpipeline.javafxclient.Consts.NODE_HEIGHT;
-import static com.jpipeline.javafxclient.Consts.NODE_WIDTH;
+import static com.jpipeline.javafxclient.Consts.NODE_BASE_HEIGHT;
+import static com.jpipeline.javafxclient.Consts.NODE_BASE_WIDTH;
 
 public class CubicWire extends CubicCurve {
 
@@ -33,8 +33,8 @@ public class CubicWire extends CubicCurve {
 
     public static void updatePosition(double fromX, double fromY, double toX,
                                       double toY, CubicCurve curve) {
-        double yControlOffset = toY > fromY ? NODE_HEIGHT / 2f: NODE_HEIGHT / -2f;
-        double xControlOffset = NODE_WIDTH * 1.5;
+        double yControlOffset = toY > fromY ? NODE_BASE_HEIGHT / 2f: NODE_BASE_HEIGHT / -2f;
+        double xControlOffset = NODE_BASE_WIDTH * 1.5;
 
         double sqrt = Math.sqrt(Math.pow(Math.abs(toX - fromX), 2) + Math.pow(Math.abs(toY - fromY), 2));
         xControlOffset = Math.min(sqrt, xControlOffset);

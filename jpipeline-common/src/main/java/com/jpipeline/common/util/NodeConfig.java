@@ -27,6 +27,6 @@ public class NodeConfig {
     }
 
     public enum EditMode {
-        SIMPLE, HTML_JAVASCRIPT
+        SIMPLE, HTML_JAVASCRIPT, FXML_GROOVY
     }
 }

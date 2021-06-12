@@ -1,4 +1,4 @@
-package com.jpipeline.javafxclient.ui.util;
+package com.jpipeline.javafxclient.util;
 
 import lombok.Getter;
 import lombok.Setter;

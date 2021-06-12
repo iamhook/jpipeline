@@ -74,7 +74,7 @@ class SwitchNodeController extends JController {
     }
 
     private String createToOutputLabel(int idx) {
-        return "  → " + idx + "  ";
+        return "  -> " + idx + "  ";
     }
 
     private void updateToOutputLabels() {

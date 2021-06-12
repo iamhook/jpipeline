@@ -1,6 +1,6 @@
-package com.jpipeline.javafxclient.ui.util;
+package com.jpipeline.javafxclient.util;
 
-import com.jpipeline.javafxclient.ui.ViewWorkflowService;
+import com.jpipeline.javafxclient.service.ViewWorkflowService;
 import javafx.scene.shape.Rectangle;
 
 public class InputHandle extends Handle {
@@ -12,6 +12,6 @@ public class InputHandle extends Handle {
     @Override
     protected void updatePosition() {
         Rectangle rectangle = nodeWrapper.getRectangle();
-        updatePosition(rectangle.getTranslateX(), rectangle.getHeight()/2);
+        updatePosition(rectangle.translateXProperty(), rectangle.heightProperty().divide(2));
     }
 }

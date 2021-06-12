@@ -1,8 +1,8 @@
-package com.jpipeline.javafxclient.ui.util;
+package com.jpipeline.javafxclient.util;
 
-import com.jpipeline.javafxclient.ui.ViewWorkflowService;
+import com.jpipeline.javafxclient.service.ViewWorkflowService;
+import javafx.beans.value.ObservableDoubleValue;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import lombok.Getter;
@@ -43,7 +43,7 @@ public abstract class Handle extends Circle {
 
     protected abstract void updatePosition();
 
-    protected void updatePosition(Double x, Double y) {
+    protected void updatePosition(ObservableDoubleValue x, ObservableDoubleValue y) {
         centerXProperty().bind(nodeWrapper.getRectangle().xProperty().add(x));
         centerYProperty().bind(nodeWrapper.getRectangle().yProperty().add(y));
     }

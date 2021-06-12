@@ -13,7 +13,6 @@ import org.reflections8.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
@@ -72,10 +71,9 @@ public class NodeSupportService {
 
     }
 
-    private Resource getNodeFxml(Class<? extends Node> nodeClass) {
+    private Resource getNodeResource(String location) {
         try {
-            final Resource resource = resourceLoader.getResource("classpath:node-fxml/" +
-                    nodeClass.getSimpleName() + ".fxml");
+            final Resource resource = resourceLoader.getResource(location);
             return resource;
         } catch (Exception e) {
             log.error(e.toString(), e);
@@ -83,15 +81,19 @@ public class NodeSupportService {
         }
     }
 
+    private Resource getNodeFxml(Class<? extends Node> nodeClass) {
+        return getNodeResource("classpath:node-fxml/" +
+                nodeClass.getSimpleName() + ".fxml");
+    }
+
     private Resource getNodeHtml(Class<? extends Node> nodeClass) {
-        try {
-            final Resource resource = resourceLoader.getResource("classpath:node-html/" +
-                    nodeClass.getSimpleName() + ".html");
-            return resource;
-        } catch (Exception e) {
-            log.error(e.toString(), e);
-            return null;
-        }
+        return getNodeResource("classpath:node-html/" +
+                nodeClass.getSimpleName() + ".html");
+    }
+
+    private Resource getNodeGroovyController(Class<? extends Node> nodeClass) {
+        return getNodeResource("classpath:node-controller/" +
+                nodeClass.getSimpleName() + "Controller.groovy");
     }
 
     @SneakyThrows
@@ -110,6 +112,12 @@ public class NodeSupportService {
     public Resource getNodeHtml(String type) {
         Class<? extends Node> nodeClass = findClass(type);
         return getNodeHtml(nodeClass);
+    }
+
+    @SneakyThrows
+    public Resource getNodeGroovyController(String type) {
+        Class<? extends Node> nodeClass = findClass(type);
+        return getNodeGroovyController(nodeClass);
     }
 
     @SneakyThrows
@@ -135,7 +143,6 @@ public class NodeSupportService {
                 .outputs(outputs)
                 .hasButton(nodeConfig.hasButton())
                 .hasInput(nodeConfig.getInputs() > 0)
-                .htmlMode(nodeConfig.getEditMode().equals(NodeConfig.EditMode.HTML_JAVASCRIPT))
                 .build();
     }
 

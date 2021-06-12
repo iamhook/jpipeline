@@ -10,6 +10,7 @@ import com.jpipeline.common.service.RSocketService;
 import com.jpipeline.common.util.ErrorMessage;
 import com.jpipeline.common.util.NodeConfig;
 import com.jpipeline.common.util.exception.CustomException;
+import com.jpipeline.javafxclient.JContext;
 import lombok.Setter;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpResponse;
@@ -38,6 +39,7 @@ public class NodeService {
 
     private static Map<String, NodeConfig> nodeConfigsCache = new ConcurrentHashMap<>();
     private static Map<String, String> nodeFxmlCache = new ConcurrentHashMap<>();
+    private static Map<String, String> nodeHtmlCache = new ConcurrentHashMap<>();
     private static Map<String, String> nodeFxmlControllerCache = new ConcurrentHashMap<>();
 
     public static void clearCache() {
@@ -98,24 +100,24 @@ public class NodeService {
     }
 
     public static String getNodeFxml(String nodeType) {
-        return nodeFxmlCache.computeIfAbsent(nodeType, s -> {
-            try {
-                HttpResponse response = httpService.get("/proxy/api/nodesupport/" + nodeType + "/fxml");
-                String path = "tmp/" + nodeType + ".fxml";
-                FileUtils.write(new File(path), EntityUtils.toString(response.getEntity()), Charset.defaultCharset());
-                return path;
-            } catch (Exception e) {
-                log.error(e.toString(), e);
-            }
-            return null;
-        });
+        return getNodeResource("fxml", nodeType, nodeFxmlCache);
     }
 
     public static String getNodeHtml(String nodeType) {
-        return nodeFxmlControllerCache.computeIfAbsent(nodeType, s -> {
+        return getNodeResource("html", nodeType, nodeHtmlCache);
+    }
+
+    public static String getNodeGroovyController(String nodeType) {
+        return getNodeResource("controller", nodeType, nodeFxmlControllerCache);
+    }
+
+    public static String getNodeResource(String resourceType, String nodeType, Map<String, String> cache) {
+        return cache.computeIfAbsent(nodeType, s -> {
             try {
-                HttpResponse response = httpService.get("/proxy/api/nodesupport/" + nodeType + "/html");
-                String path = "tmp/" + nodeType + ".html";
+                HttpResponse response = httpService.get("/proxy/api/nodesupport/" + nodeType + "/" + resourceType);
+                String disposition = response.getFirstHeader("Content-Disposition").getValue();
+                String fileName = disposition.replaceFirst(".*filename\\*=.*''([\\w.]*)$", "$1");
+                String path = JContext.getExtResourcesFolder() + fileName;
                 FileUtils.write(new File(path), EntityUtils.toString(response.getEntity()), Charset.defaultCharset());
                 return path;
             } catch (Exception e) {

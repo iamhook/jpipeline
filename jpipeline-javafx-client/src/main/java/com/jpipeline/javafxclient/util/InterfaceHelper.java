@@ -1,13 +1,14 @@
-package com.jpipeline.javafxclient.ui.util;
+package com.jpipeline.javafxclient.util;
 
 import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.common.util.JController;
+import com.jpipeline.common.util.NodeConfig;
 import com.jpipeline.javafxclient.MainApplication;
 import com.jpipeline.javafxclient.controller.DebugMenuController;
 import com.jpipeline.javafxclient.controller.HtmlNodeEditController;
 import com.jpipeline.javafxclient.controller.StandartNodeEditController;
 import com.jpipeline.javafxclient.service.NodeService;
-import com.jpipeline.javafxclient.ui.ViewWorkflowService;
+import com.jpipeline.javafxclient.service.ViewWorkflowService;
 import groovy.lang.GroovyClassLoader;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -31,11 +32,13 @@ public class InterfaceHelper {
 
 
             NodeDTO node = nodeWrapper.getNode();
+            NodeConfig nodeConfig = NodeService.getNodeConfig(node.getType());
+
 
             JController controller;
             Pane pane;
 
-            if (node.isHtmlMode()) {
+            if (nodeConfig.getEditMode().equals(NodeConfig.EditMode.HTML_JAVASCRIPT)) {
                 FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("html_node_menu.fxml"));
                 pane = loader.load();
 
@@ -44,14 +47,21 @@ public class InterfaceHelper {
 
             } else {
                 String fxmlPath = NodeService.getNodeFxml(node.getType());
-                FXMLLoader loader = new FXMLLoader();
-                controller = new StandartNodeEditController();
 
+                if (nodeConfig.getEditMode().equals(NodeConfig.EditMode.FXML_GROOVY)) {
+                    String controllerPath = NodeService.getNodeGroovyController(node.getType());
+                    Class clazz = gcl.parseClass(new File(controllerPath));
+                    controller = (JController) clazz.newInstance();
+                } else {
+                    controller = new StandartNodeEditController();
+                }
+                FXMLLoader loader = new FXMLLoader();
 
                 loader.setController(controller);
                 pane = loader.load(new FileInputStream(fxmlPath));
 
-                ((StandartNodeEditController) controller).setRootPane(pane);
+                if (controller instanceof StandartNodeEditController)
+                    ((StandartNodeEditController) controller).setRootPane(pane);
             }
 
             controller.setAddOutputCallback(() -> {
