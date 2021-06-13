@@ -160,7 +160,7 @@ public class MainMenuController {
         nodesMenu.getChildren().clear();
 
         List<Map.Entry<String, List<NodeConfig>>> categories =
-                NodeService.getNodeTypes().stream().map(NodeService::getNodeConfig)
+                NodeService.getNodeTypes().stream().sorted().map(NodeService::getNodeConfig)
                 .collect(Collectors.groupingBy(NodeConfig::getCategory)).entrySet().stream()
                         .sorted((o1, o2) -> {
                             int i1 = categoriesOrder.indexOf(o1.getKey());

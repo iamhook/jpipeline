@@ -59,7 +59,11 @@ public class ViewWorkflowService {
         rootPane.setPrefWidth(canvasWidth);
         setClip();
 
-        nodeWrappers = workflowConfig.getNodes().stream().map(node -> createNode(node, true)).collect(Collectors.toMap(w -> w.getNode().getId(), w -> w));
+        nodeWrappers = workflowConfig.getNodes().stream().map(node -> drawNode(node, true)).collect(Collectors.toMap(w -> w.getNode().getId(), w -> w));
+        updateWires();
+    }
+
+    private void updateWires() {
         nodeWrappers.forEach((id, wrapper) -> {
             int i = 0;
             for (Set<String> wires : wrapper.getNode().getOutputs()) {
@@ -128,12 +132,17 @@ public class ViewWorkflowService {
     }
 
     public NodeWrapper createNode(NodeDTO node, boolean isDeployed) {
+        NodeWrapper nodeWrapper = drawNode(node, isDeployed);
+        if (!isDeployed)
+            modelService.createNode(node);
+        return nodeWrapper;
+    }
+
+    public NodeWrapper drawNode(NodeDTO node, boolean isDeployed) {
         NodeWrapper nodeWrapper = new NodeWrapper(node, isDeployed);
         nodeWrappers.put(node.getId(), nodeWrapper);
         nodeWrapper.init();
         sortChildren();
-        if (!isDeployed)
-            modelService.createNode(node);
         return nodeWrapper;
     }
 
@@ -314,7 +323,10 @@ public class ViewWorkflowService {
 
         Disposable statusSubscription;
 
+        private boolean isDeployed;
+
         public NodeWrapper(NodeDTO node, boolean isDeployed) {
+            this.isDeployed = isDeployed;
             this.node = node;
 
             this.node.setModelChangedCallback(this::syncWithModel);
@@ -346,16 +358,10 @@ public class ViewWorkflowService {
             }
 
             if (node.hasInput()) {
-                addInput();
+                createInputHandle();
             }
 
-            if (node.getOutputs().size() > 0) {
-                for (int i = 0; i < node.getOutputs().size(); i++) {
-                    addOutput();
-                }
-            }
-
-            fixOutputHandlesPositions();
+            updateOutputHandles();
 
             setUpDragging(this);
 
@@ -369,6 +375,15 @@ public class ViewWorkflowService {
 
             nameLabel.setOnMouseClicked(clickListener);
             rectangle.setOnMouseClicked(clickListener);
+        }
+
+        private void updateOutputHandles() {
+            if (node.getOutputs().size() > 0) {
+                for (int i = 0; i < node.getOutputs().size(); i++) {
+                    createOutputHandle();
+                }
+            }
+            fixOutputHandlesPositions();
         }
 
         public void init() {
@@ -386,13 +401,13 @@ public class ViewWorkflowService {
             }
         }
 
-        private void addInput() {
+        private void createInputHandle() {
             inputHandle = new InputHandle(this);
             initInputHandle(inputHandle, this);
             rootPane.getChildren().add(inputHandle);
         }
 
-        public void addOutput() {
+        public void createOutputHandle() {
             OutputHandle outputHandle = new OutputHandle(this);
             outputHandles.add(outputHandle);
             initOutputHandle(outputHandle, outputHandles.size() - 1, this);
@@ -407,7 +422,6 @@ public class ViewWorkflowService {
             node.getOutputs().remove(idx);
             rootPane.getChildren().remove(outputHandles.remove(idx));
             fixOutputHandlesPositions();
-
         }
 
         public void fixOutputHandlesPositions() {
@@ -419,7 +433,10 @@ public class ViewWorkflowService {
         }
 
         public void syncWithModel() {
-
+            this.destroy();
+            nodeWrappers.remove(node.getId());
+            drawNode(this.node, isDeployed);
+            updateWires();
         }
 
         public void destroy() {

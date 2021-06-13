@@ -1,5 +1,6 @@
 package com.jpipeline.common.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jpipeline.common.util.CJson;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,6 +27,7 @@ public class NodeDTO {
     private boolean hasButton;
     private boolean hasInput;
 
+    @JsonIgnore
     private Runnable modelChangedCallback;
 
     public Boolean hasButton() {

@@ -1,6 +1,7 @@
 package com.jpipeline.javafxclient.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.jpipeline.common.util.CJson;
 import com.jpipeline.common.util.JController;
 import com.jpipeline.javafxclient.JContext;
@@ -65,7 +66,10 @@ public class HtmlNodeEditController extends JController {
         try {
             CJson nodeJson = CJson.fromJson((String)webView.getEngine().executeScript("JSON.stringify(node)"));
 
-            node.setProperties(nodeJson.getJson("properties"));
+            ObjectReader objectReader = OM.readerForUpdating(node);
+            objectReader.readValue(nodeJson.toJson());
+
+            node.modelChanged();
         } catch (Exception e) {
             log.error(e.toString(), e);
         }
