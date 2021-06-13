@@ -1,1 +1,138 @@
-{"nodes":[{"id":"1534e3e4-da3e-4af6-9de7-19c28f39d13a","type":"SwitchNode","active":true,"properties":{"property":"payloaggdfgdfd","condition":[{"operator":"==","value":1},{"operator":"!=","value":2}]},"outputs":[[],[]],"color":"#999999","x":200.0,"y":200.0,"hasButton":false,"hasInput":true,"htmlMode":true}]}
+{
+  "nodes": [
+    {
+      "id": "8fdd58f8-6066-419d-999c-892413fa4ba6",
+      "type": "DebugNode",
+      "active": true,
+      "properties": {},
+      "outputs": [],
+      "color": "#0c690a",
+      "x": 580.0,
+      "y": 230.0,
+      "hasButton": false,
+      "hasInput": true
+    },
+    {
+      "id": "1534e3e4-da3e-4af6-9de7-19c28f39d13a",
+      "type": "SwitchNode",
+      "active": true,
+      "properties": {
+        "property": "payloaggdfgdfd",
+        "condition": [
+          {
+            "operator": "==",
+            "value": "5"
+          },
+          {
+            "operator": "==",
+            "value": "8"
+          },
+          {
+            "operator": "==",
+            "value": "8"
+          },
+          {
+            "operator": "==",
+            "value": "9"
+          },
+          {
+            "operator": "==",
+            "value": "0"
+          },
+          {
+            "operator": "==",
+            "value": null
+          },
+          {
+            "operator": "==",
+            "value": null
+          },
+          {
+            "operator": "==",
+            "value": null
+          },
+          {
+            "operator": "==",
+            "value": null
+          },
+          {
+            "operator": "==",
+            "value": null
+          },
+          {
+            "operator": "==",
+            "value": null
+          },
+          {
+            "operator": "==",
+            "value": null
+          },
+          {
+            "operator": "==",
+            "value": null
+          },
+          {
+            "operator": "==",
+            "value": null
+          },
+          {
+            "operator": "==",
+            "value": null
+          },
+          {
+            "operator": "==",
+            "value": null
+          },
+          {
+            "operator": "==",
+            "value": null
+          },
+          {
+            "operator": "==",
+            "value": null
+          }
+        ]
+      },
+      "outputs": [
+        [
+          "8fdd58f8-6066-419d-999c-892413fa4ba6"
+        ],
+        [
+          "8fdd58f8-6066-419d-999c-892413fa4ba6"
+        ],
+        [
+          "8fdd58f8-6066-419d-999c-892413fa4ba6"
+        ],
+        [
+          "8fdd58f8-6066-419d-999c-892413fa4ba6"
+        ],
+        [
+          "8fdd58f8-6066-419d-999c-892413fa4ba6"
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [
+          "8fdd58f8-6066-419d-999c-892413fa4ba6"
+        ],
+        [],
+        [],
+        [],
+        [
+          "8fdd58f8-6066-419d-999c-892413fa4ba6"
+        ]
+      ],
+      "color": "#999999",
+      "x": 320.0,
+      "y": 90.0,
+      "hasButton": false,
+      "hasInput": true
+    }
+  ]
+}

@@ -317,6 +317,8 @@ public class ViewWorkflowService {
         public NodeWrapper(NodeDTO node, boolean isDeployed) {
             this.node = node;
 
+            this.node.setModelChangedCallback(this::syncWithModel);
+
             if (node.getX() == null)
                 node.setX(DEFAULT_X);
             if (node.getY() == null)
@@ -414,6 +416,10 @@ public class ViewWorkflowService {
                 outputHandle.getWires().forEach(CubicWire::updatePosition);
             });
             rectangle.setHeight(NODE_BASE_HEIGHT + HANDLE_RADIUS * 2 * (outputHandles.size() - 1));
+        }
+
+        public void syncWithModel() {
+
         }
 
         public void destroy() {

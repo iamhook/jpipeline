@@ -26,6 +26,8 @@ public class NodeDTO {
     private boolean hasButton;
     private boolean hasInput;
 
+    private Runnable modelChangedCallback;
+
     public Boolean hasButton() {
         return hasButton;
     }
@@ -41,5 +43,10 @@ public class NodeDTO {
     }
     public void deleteWire(String wire, int output) {
         outputs.get(output).remove(wire);
+    }
+
+    public void modelChanged() {
+        if (modelChangedCallback != null)
+            modelChangedCallback.run();
     }
 }

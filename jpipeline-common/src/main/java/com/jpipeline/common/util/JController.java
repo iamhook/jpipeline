@@ -8,10 +8,6 @@ import java.util.function.Consumer;
 public abstract class JController {
 
     @Setter
-    protected Runnable addOutputCallback;
-    @Setter
-    protected Consumer<Integer> removeOutputCallback;
-    @Setter
     protected NodeDTO node;
     @Setter
     protected NodeConfig nodeConfig;
@@ -23,12 +19,5 @@ public abstract class JController {
     public abstract void onInit();
 
     public abstract void onClose();
-
-    public void addOutput() {
-        addOutputCallback.run();
-    }
-    public void removeOutput(Integer idx) {
-        removeOutputCallback.accept(idx);
-    }
 
 }

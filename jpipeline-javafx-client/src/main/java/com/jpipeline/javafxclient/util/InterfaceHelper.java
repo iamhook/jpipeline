@@ -64,12 +64,6 @@ public class InterfaceHelper {
                     ((StandartNodeEditController) controller).setRootPane(pane);
             }
 
-            controller.setAddOutputCallback(() -> {
-                nodeWrapper.getNode().getOutputs().add(new HashSet<>());
-                nodeWrapper.addOutput();
-                nodeWrapper.fixOutputHandlesPositions();
-            });
-            controller.setRemoveOutputCallback(nodeWrapper::removeOutput);
             controller.setNode(node);
             controller.setNodeConfig(NodeService.getNodeConfig(node.getType()));
 
