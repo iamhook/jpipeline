@@ -46,7 +46,8 @@
         data() {
             return {
                 property: node.properties.property,
-                conditions: node.properties.condition
+                conditions: node.properties.condition,
+                outputs: node.outputs
             }
         },
         methods: {
@@ -55,11 +56,11 @@
                     operator: operatorPropertyConfig.defaultValue,
                     value: valuePropertyConfig.defaultValue
                 })
-                outputProcessor.addOutput()
+                this.outputs.push([])
             },
             deleteCondition: function (index) {
                 this.conditions.splice(index, 1)
-                outputProcessor.removeOutput(index)
+                this.outputs.splice(index, 1)
             }
 
         },
