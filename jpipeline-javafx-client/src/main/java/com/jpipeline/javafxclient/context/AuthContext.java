@@ -1,5 +1,6 @@
-package com.jpipeline.javafxclient.service;
+package com.jpipeline.javafxclient.context;
 
+import com.jpipeline.javafxclient.service.JConnection;
 import lombok.Getter;
 import lombok.Setter;
 

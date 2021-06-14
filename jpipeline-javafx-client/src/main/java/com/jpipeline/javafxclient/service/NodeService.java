@@ -7,10 +7,8 @@ import com.jpipeline.common.WorkflowConfig;
 import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.common.entity.Node;
 import com.jpipeline.common.service.RSocketService;
-import com.jpipeline.common.util.ErrorMessage;
-import com.jpipeline.common.util.NodeConfig;
-import com.jpipeline.common.util.exception.CustomException;
-import com.jpipeline.javafxclient.JContext;
+import com.jpipeline.common.util.NodeTypeConfig;
+import com.jpipeline.javafxclient.context.JContext;
 import lombok.Setter;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpResponse;
@@ -37,7 +35,7 @@ public class NodeService {
     @Setter
     private static HttpService httpService;
 
-    private static Map<String, NodeConfig> nodeConfigsCache = new ConcurrentHashMap<>();
+    private static Map<String, NodeTypeConfig> nodeConfigsCache = new ConcurrentHashMap<>();
     private static Map<String, String> nodeFxmlCache = new ConcurrentHashMap<>();
     private static Map<String, String> nodeHtmlCache = new ConcurrentHashMap<>();
     private static Map<String, String> nodeFxmlControllerCache = new ConcurrentHashMap<>();
@@ -87,7 +85,7 @@ public class NodeService {
         }
     }
 
-    public static NodeConfig getNodeConfig(String nodeType) {
+    public static NodeTypeConfig getNodeConfig(String nodeType) {
         return nodeConfigsCache.computeIfAbsent(nodeType, s -> {
             try {
                 String response = EntityUtils.toString(httpService.get("/proxy/api/nodesupport/" + nodeType + "/config").getEntity());

@@ -21,6 +21,4 @@ public class WorkflowConfig {
         nodes.add(node);
     }
 
-
-
 }

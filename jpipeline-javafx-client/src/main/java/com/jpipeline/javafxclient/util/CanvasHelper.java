@@ -1,17 +1,12 @@
 package com.jpipeline.javafxclient.util;
 
 import com.jpipeline.javafxclient.service.NodeService;
-import javafx.scene.Cursor;
-import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import javafx.scene.shape.*;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.jpipeline.javafxclient.Consts.HANDLE_RADIUS;
-import static com.jpipeline.javafxclient.Consts.NODE_BUTTON_SIZE;
+import static com.jpipeline.javafxclient.util.Consts.NODE_BUTTON_SIZE;
 
 public class CanvasHelper {
 

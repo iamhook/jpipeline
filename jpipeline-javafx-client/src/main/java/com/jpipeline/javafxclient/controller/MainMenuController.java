@@ -2,7 +2,7 @@ package com.jpipeline.javafxclient.controller;
 
 import com.jpipeline.common.WorkflowConfig;
 import com.jpipeline.common.dto.NodeDTO;
-import com.jpipeline.common.util.NodeConfig;
+import com.jpipeline.common.util.NodeTypeConfig;
 import com.jpipeline.javafxclient.MainApplication;
 import com.jpipeline.javafxclient.service.ManagerService;
 import com.jpipeline.javafxclient.service.NodeService;
@@ -38,7 +38,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.jpipeline.javafxclient.Consts.*;
+import static com.jpipeline.javafxclient.util.Consts.*;
 
 public class MainMenuController {
 
@@ -159,22 +159,22 @@ public class MainMenuController {
         double margin = 10;
         nodesMenu.getChildren().clear();
 
-        List<Map.Entry<String, List<NodeConfig>>> categories =
+        List<Map.Entry<String, List<NodeTypeConfig>>> categories =
                 NodeService.getNodeTypes().stream().sorted().map(NodeService::getNodeConfig)
-                .collect(Collectors.groupingBy(NodeConfig::getCategory)).entrySet().stream()
+                .collect(Collectors.groupingBy(NodeTypeConfig::getCategory)).entrySet().stream()
                         .sorted((o1, o2) -> {
                             int i1 = categoriesOrder.indexOf(o1.getKey());
                             int i2 = categoriesOrder.indexOf(o2.getKey());
                             return Integer.compare(i2, i1);
                         }).collect(Collectors.toList());
 
-        for (Map.Entry<String, List<NodeConfig>> entry : categories) {
+        for (Map.Entry<String, List<NodeTypeConfig>> entry : categories) {
             AnchorPane categoryPane = new AnchorPane();
             String categoryName = entry.getKey();
             int i = 0;
-            List<NodeConfig> nodeConfigs = entry.getValue();
+            List<NodeTypeConfig> nodeTypeConfigs = entry.getValue();
 
-            for (NodeConfig config : nodeConfigs) {
+            for (NodeTypeConfig config : nodeTypeConfigs) {
                 Rectangle rectangle = CanvasHelper.createNodeRectangle(Paint.valueOf(config.getColor()));
                 rectangle.setWidth(NODE_BASE_WIDTH);
                 rectangle.setCursor(Cursor.HAND);

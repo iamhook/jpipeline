@@ -10,7 +10,7 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.jpipeline.javafxclient.Consts.HANDLE_RADIUS;
+import static com.jpipeline.javafxclient.util.Consts.HANDLE_RADIUS;
 
 public abstract class Handle extends Circle {
 

@@ -1,7 +1,7 @@
 package com.jpipeline.jpipeline.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jpipeline.common.util.NodeConfig;
+import com.jpipeline.common.util.NodeTypeConfig;
 import com.jpipeline.common.util.PropertyConfig;
 import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.common.entity.Node;
@@ -56,14 +56,14 @@ public class NodeSupportService {
                 .collect(Collectors.toMap(Field::getName, f -> f));
     }
 
-    private NodeConfig getNodeConfig(Class<? extends Node> nodeClass) {
+    private NodeTypeConfig getNodeConfig(Class<? extends Node> nodeClass) {
         try {
             final Resource resource = resourceLoader.getResource("classpath:node-configs/" +
                     nodeClass.getSimpleName() + ".conf.json");
             byte[] configBinaryData = FileCopyUtils.copyToByteArray(resource.getInputStream());
-            NodeConfig nodeConfig = OM.readValue(configBinaryData, NodeConfig.class);
-            nodeConfig.setName(nodeClass.getSimpleName());
-            return nodeConfig;
+            NodeTypeConfig nodeTypeConfig = OM.readValue(configBinaryData, NodeTypeConfig.class);
+            nodeTypeConfig.setName(nodeClass.getSimpleName());
+            return nodeTypeConfig;
         } catch (Exception e) {
             log.error(e.toString(), e);
             return null;
@@ -97,7 +97,7 @@ public class NodeSupportService {
     }
 
     @SneakyThrows
-    public NodeConfig getNodeConfig(String type) {
+    public NodeTypeConfig getNodeConfig(String type) {
         Class<? extends Node> nodeClass = findClass(type);
         return getNodeConfig(nodeClass);
     }
@@ -123,26 +123,26 @@ public class NodeSupportService {
     @SneakyThrows
     public NodeDTO createNew(String type) {
         Class<? extends Node> nodeClass = findClass(type);
-        NodeConfig nodeConfig = getNodeConfig(nodeClass);
+        NodeTypeConfig nodeTypeConfig = getNodeConfig(nodeClass);
         Constructor<? extends Node> constructor = nodeClass.getConstructor(UUID.class);
         Node node = constructor.newInstance(UUID.randomUUID());
         CJson properties = new CJson();
-        nodeConfig.getProperties().forEach(config -> {
+        nodeTypeConfig.getProperties().forEach(config -> {
             String name = config.getName();
             Object defaultValue = config.getDefaultValue();
             properties.put(name, defaultValue);
         });
         List<Set<String>> outputs = new ArrayList<>();
-        IntStream.range(0, nodeConfig.getOutputs()).forEach(value -> outputs.add(new HashSet<>()));
+        IntStream.range(0, nodeTypeConfig.getOutputs()).forEach(value -> outputs.add(new HashSet<>()));
         return NodeDTO.builder()
                 .id(node.getId().toString())
                 .type(node.getType())
                 .active(true)
-                .color(nodeConfig.getColor())
+                .color(nodeTypeConfig.getColor())
                 .properties(properties)
                 .outputs(outputs)
-                .hasButton(nodeConfig.hasButton())
-                .hasInput(nodeConfig.getInputs() > 0)
+                .hasButton(nodeTypeConfig.hasButton())
+                .hasInput(nodeTypeConfig.getInputs() > 0)
                 .build();
     }
 
@@ -162,9 +162,9 @@ public class NodeSupportService {
 
         Map<String, Field> fields = getNodePropertyFields(nodeClass);
 
-        NodeConfig nodeConfig = getNodeConfig(nodeClass);
+        NodeTypeConfig nodeTypeConfig = getNodeConfig(nodeClass);
 
-        setPropertyValues(nodeConfig.getProperties(), fields, propertiesJson, node);
+        setPropertyValues(nodeTypeConfig.getProperties(), fields, propertiesJson, node);
 
         for (Set<String> output : nodeDTO.getOutputs()) {
             node.getSinks().add(Sinks.many().multicast().onBackpressureBuffer());

@@ -4,22 +4,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.jpipeline.common.util.CJson;
 import com.jpipeline.common.util.JController;
-import com.jpipeline.javafxclient.JContext;
 import com.jpipeline.javafxclient.service.NodeService;
-import com.sun.javafx.webkit.WebConsoleListener;
-import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
 import javafx.scene.layout.Pane;
 import javafx.scene.web.WebView;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.Setter;
 import netscape.javascript.JSObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.function.Consumer;
 
 public class HtmlNodeEditController extends JController {
 
@@ -44,10 +38,10 @@ public class HtmlNodeEditController extends JController {
     @Override
     public void onInit() {
         CJson nodeJson = OM.convertValue(node, CJson.class);
-        CJson nodeConfigJson = OM.convertValue(nodeConfig, CJson.class);
+        CJson nodeConfigJson = OM.convertValue(nodeTypeConfig, CJson.class);
 
-        //String htmlPath = NodeService.getNodeHtml(node.getType());
-        String htmlPath = JContext.getExtResourcesFolder() + node.getType() + ".html";
+        String htmlPath = NodeService.getNodeHtml(node.getType());
+        //String htmlPath = JContext.getExtResourcesFolder() + node.getType() + ".html";
 
         bridge = (JSObject) webView.getEngine()
                 .executeScript("window");

@@ -2,21 +2,17 @@ package com.jpipeline.javafxclient.controller;
 
 import com.jpipeline.common.util.CJson;
 import com.jpipeline.common.util.JController;
-import com.jpipeline.common.util.NodeConfig;
+import com.jpipeline.common.util.NodeTypeConfig;
 import com.jpipeline.common.util.PropertyConfig;
 import com.jpipeline.javafxclient.service.NodeService;
-import javafx.concurrent.Worker;
 import javafx.scene.Node;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.layout.Pane;
-import javafx.scene.web.WebView;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import netscape.javascript.JSObject;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,8 +28,8 @@ public class StandartNodeEditController extends JController {
     @Override
     public void onInit() {
         CJson nodeProperties = node.getProperties();
-        NodeConfig nodeConfig = NodeService.getNodeConfig(node.getType());
-        Map<String, PropertyConfig> propertyConfigs = nodeConfig.getProperties().stream().collect(Collectors.toMap(PropertyConfig::getName, pc -> pc));
+        NodeTypeConfig nodeTypeConfig = NodeService.getNodeConfig(node.getType());
+        Map<String, PropertyConfig> propertyConfigs = nodeTypeConfig.getProperties().stream().collect(Collectors.toMap(PropertyConfig::getName, pc -> pc));
 
         try {
             Map<String, Node> propertyNodes = findPropertyNodes(rootPane.getChildren())

@@ -3,8 +3,8 @@ package com.jpipeline.javafxclient.util;
 import javafx.scene.shape.CubicCurve;
 import lombok.Getter;
 
-import static com.jpipeline.javafxclient.Consts.NODE_BASE_HEIGHT;
-import static com.jpipeline.javafxclient.Consts.NODE_BASE_WIDTH;
+import static com.jpipeline.javafxclient.util.Consts.NODE_BASE_HEIGHT;
+import static com.jpipeline.javafxclient.util.Consts.NODE_BASE_WIDTH;
 
 public class CubicWire extends CubicCurve {
 

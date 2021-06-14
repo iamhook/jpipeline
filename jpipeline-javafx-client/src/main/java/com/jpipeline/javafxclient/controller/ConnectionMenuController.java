@@ -1,7 +1,7 @@
 package com.jpipeline.javafxclient.controller;
 
-import com.jpipeline.javafxclient.PropertiesStore;
-import com.jpipeline.javafxclient.service.AuthContext;
+import com.jpipeline.javafxclient.context.PropertiesStore;
+import com.jpipeline.javafxclient.context.AuthContext;
 import com.jpipeline.javafxclient.service.JConnection;
 import com.jpipeline.javafxclient.service.ManagerService;
 import javafx.fxml.FXML;

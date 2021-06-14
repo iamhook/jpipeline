@@ -2,7 +2,7 @@ package com.jpipeline.javafxclient.util;
 
 import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.common.util.JController;
-import com.jpipeline.common.util.NodeConfig;
+import com.jpipeline.common.util.NodeTypeConfig;
 import com.jpipeline.javafxclient.MainApplication;
 import com.jpipeline.javafxclient.controller.DebugMenuController;
 import com.jpipeline.javafxclient.controller.HtmlNodeEditController;
@@ -20,7 +20,6 @@ import javafx.stage.Window;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.HashSet;
 
 public class InterfaceHelper {
 
@@ -32,13 +31,13 @@ public class InterfaceHelper {
 
 
             NodeDTO node = nodeWrapper.getNode();
-            NodeConfig nodeConfig = NodeService.getNodeConfig(node.getType());
+            NodeTypeConfig nodeTypeConfig = NodeService.getNodeConfig(node.getType());
 
 
             JController controller;
             Pane pane;
 
-            if (nodeConfig.getEditMode().equals(NodeConfig.EditMode.HTML_JAVASCRIPT)) {
+            if (nodeTypeConfig.getEditMode().equals(NodeTypeConfig.EditMode.HTML_JAVASCRIPT)) {
                 FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("html_node_menu.fxml"));
                 pane = loader.load();
 
@@ -48,7 +47,7 @@ public class InterfaceHelper {
             } else {
                 String fxmlPath = NodeService.getNodeFxml(node.getType());
 
-                if (nodeConfig.getEditMode().equals(NodeConfig.EditMode.FXML_GROOVY)) {
+                if (nodeTypeConfig.getEditMode().equals(NodeTypeConfig.EditMode.FXML_GROOVY)) {
                     String controllerPath = NodeService.getNodeGroovyController(node.getType());
                     Class clazz = gcl.parseClass(new File(controllerPath));
                     controller = (JController) clazz.newInstance();
@@ -65,7 +64,7 @@ public class InterfaceHelper {
             }
 
             controller.setNode(node);
-            controller.setNodeConfig(NodeService.getNodeConfig(node.getType()));
+            controller.setNodeTypeConfig(NodeService.getNodeConfig(node.getType()));
 
             controller.onInit();
             JController finalController = controller;

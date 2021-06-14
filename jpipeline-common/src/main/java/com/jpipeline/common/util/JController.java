@@ -3,14 +3,12 @@ package com.jpipeline.common.util;
 import com.jpipeline.common.dto.NodeDTO;
 import lombok.Setter;
 
-import java.util.function.Consumer;
-
 public abstract class JController {
 
     @Setter
     protected NodeDTO node;
     @Setter
-    protected NodeConfig nodeConfig;
+    protected NodeTypeConfig nodeTypeConfig;
 
     public CJson getNodeProperties() {
         return node.getProperties();

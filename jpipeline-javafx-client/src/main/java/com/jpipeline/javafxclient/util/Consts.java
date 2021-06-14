@@ -1,4 +1,4 @@
-package com.jpipeline.javafxclient;
+package com.jpipeline.javafxclient.util;
 
 public class Consts {
     public static final double HANDLE_RADIUS = 5.0f;

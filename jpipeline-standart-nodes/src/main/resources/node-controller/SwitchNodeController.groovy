@@ -25,8 +25,8 @@ class SwitchNodeController extends JController {
     void onInit() {
         def properties = getNodeProperties()
 
-        operatorConfig = nodeConfig.getPropertyConfig("condition").getNested("operator")
-        valueConfig = nodeConfig.getPropertyConfig("condition").getNested("value")
+        operatorConfig = nodeTypeConfig.getPropertyConfig("condition").getNested("operator")
+        valueConfig = nodeTypeConfig.getPropertyConfig("condition").getNested("value")
         operatorVariants = operatorConfig.getVariants();
 
         propertyField.setText(properties.getString("property"));

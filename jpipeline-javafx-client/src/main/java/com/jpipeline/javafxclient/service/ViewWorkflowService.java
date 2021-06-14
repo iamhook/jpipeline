@@ -30,7 +30,7 @@ import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.jpipeline.javafxclient.Consts.*;
+import static com.jpipeline.javafxclient.util.Consts.*;
 
 public class ViewWorkflowService {
 
@@ -382,8 +382,8 @@ public class ViewWorkflowService {
                 for (int i = 0; i < node.getOutputs().size(); i++) {
                     createOutputHandle();
                 }
+                fixOutputHandlesPositions();
             }
-            fixOutputHandlesPositions();
         }
 
         public void init() {

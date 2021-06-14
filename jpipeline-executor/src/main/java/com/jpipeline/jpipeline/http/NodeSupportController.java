@@ -1,6 +1,6 @@
 package com.jpipeline.jpipeline.http;
 
-import com.jpipeline.common.util.NodeConfig;
+import com.jpipeline.common.util.NodeTypeConfig;
 import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.jpipeline.service.NodeSupportService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ public class NodeSupportController {
     }
 
     @GetMapping("/{type}/config")
-    public NodeConfig getNodeConfig(@PathVariable String type) {
+    public NodeTypeConfig getNodeConfig(@PathVariable String type) {
         return nodeSupportService.getNodeConfig(type);
     }
 
