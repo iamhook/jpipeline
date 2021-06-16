@@ -5,14 +5,8 @@
   "outputs": 1,
   "properties": [
     {
-      "name": "args",
-      "defaultValue": null,
-      "type": "STRING",
-      "multiple": true
-    },
-    {
-      "name": "command",
-      "defaultValue": null,
+      "name": "commandTemplate",
+      "defaultValue": "echo {{payload}}",
       "type": "STRING",
       "required": true
     }

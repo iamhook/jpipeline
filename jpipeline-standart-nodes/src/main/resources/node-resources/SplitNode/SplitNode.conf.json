@@ -6,7 +6,7 @@
   "properties": [
     {
       "name": "stringDelimiter",
-      "defaultValue": "\n",
+      "defaultValue": ";",
       "type": "STRING",
       "required": true
     },
@@ -18,7 +18,7 @@
     },
     {
       "name": "copyKeyInto",
-      "defaultValue": null,
+      "defaultValue": "key",
       "type": "STRING",
       "required": false
     }

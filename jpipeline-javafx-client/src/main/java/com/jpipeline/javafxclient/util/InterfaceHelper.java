@@ -13,26 +13,35 @@ import groovy.lang.GroovyClassLoader;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
 
 public class InterfaceHelper {
 
+    private static final Logger log = LoggerFactory.getLogger(InterfaceHelper.class);
     private static final GroovyClassLoader gcl = new GroovyClassLoader();
+
+    public static void showError(String error) {
+        log.error(error);
+        Alert alert = new Alert(Alert.AlertType.ERROR, error, ButtonType.OK);
+        alert.showAndWait();
+    }
 
     public static void showNodeEditMenu(ViewWorkflowService.NodeWrapper nodeWrapper, Window window) {
         try {
             Stage stage = new Stage();
 
-
             NodeDTO node = nodeWrapper.getNode();
             NodeTypeConfig nodeTypeConfig = NodeService.getNodeConfig(node.getType());
-
 
             JController controller;
             Pane pane;
@@ -47,6 +56,8 @@ public class InterfaceHelper {
             } else {
                 String fxmlPath = NodeService.getNodeFxml(node.getType());
 
+                log.info("fxmlPath = " + fxmlPath);
+
                 if (nodeTypeConfig.getEditMode().equals(NodeTypeConfig.EditMode.FXML_GROOVY)) {
                     String controllerPath = NodeService.getNodeGroovyController(node.getType());
                     Class clazz = gcl.parseClass(new File(controllerPath));
@@ -57,6 +68,12 @@ public class InterfaceHelper {
                 FXMLLoader loader = new FXMLLoader();
 
                 loader.setController(controller);
+
+                if (fxmlPath == null || fxmlPath.isEmpty()) {
+                    showError("FXML file not found");
+                    return;
+                }
+
                 pane = loader.load(new FileInputStream(fxmlPath));
 
                 if (controller instanceof StandartNodeEditController)

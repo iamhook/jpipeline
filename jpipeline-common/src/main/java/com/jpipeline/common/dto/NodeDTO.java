@@ -2,10 +2,7 @@ package com.jpipeline.common.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jpipeline.common.util.CJson;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 import java.util.Set;
@@ -14,6 +11,7 @@ import java.util.Set;
 @Getter
 @Setter
 @AllArgsConstructor
+@EqualsAndHashCode
 public class NodeDTO {
 
     private String id;
@@ -21,13 +19,20 @@ public class NodeDTO {
     private Boolean active;
     private CJson properties;
     private List<Set<String>> outputs;
+
+    @EqualsAndHashCode.Exclude
     private String color;
+
+    @EqualsAndHashCode.Exclude
     private Double x;
+
+    @EqualsAndHashCode.Exclude
     private Double y;
+
     private boolean hasButton;
     private boolean hasInput;
 
-    @JsonIgnore
+    @JsonIgnore @EqualsAndHashCode.Exclude
     private Runnable modelChangedCallback;
 
     public Boolean hasButton() {

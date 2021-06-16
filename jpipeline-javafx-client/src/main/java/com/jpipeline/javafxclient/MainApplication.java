@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
 
@@ -48,9 +49,8 @@ public class MainApplication extends Application {
 
     public static void main(String[] args) {
         try {
-            URL resource = Main.class.getClassLoader().getResource("client.properties");
             Properties properties = new Properties();
-            properties.load(new FileInputStream(resource.getFile()));
+            properties.load(Main.class.getClassLoader().getResourceAsStream("client.properties"));
             JContext.setProperties(properties);
         } catch (IOException e) {
             log.error(e.toString(), e);

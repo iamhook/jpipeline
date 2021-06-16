@@ -1,6 +1,5 @@
 package com.jpipeline.manager.http;
 
-import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 
-import java.io.IOException;
 import java.util.Arrays;
 
 @RestController

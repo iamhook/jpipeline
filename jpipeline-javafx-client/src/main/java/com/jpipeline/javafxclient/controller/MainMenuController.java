@@ -150,8 +150,18 @@ public class MainMenuController {
             workflowService.destroy();
         }
 
-        workflowConfig = NodeService.getConfig();
+        WorkflowConfig newWorkflowConfig = NodeService.getConfig();
 
+        if (workflowConfig != null && !workflowConfig.equals(newWorkflowConfig)) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Workflow configuration has changed, update local configuration?", ButtonType.YES, ButtonType.NO);
+            alert.showAndWait();
+
+            if (alert.getResult() == ButtonType.YES) {
+                workflowConfig = newWorkflowConfig;
+            }
+        } else {
+            workflowConfig = newWorkflowConfig;
+        }
 
         workflowService = new ViewWorkflowService(canvasPane, workflowConfig);
 

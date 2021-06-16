@@ -64,6 +64,12 @@ jar {
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
+
+    copy {
+        from 'src/main/resources/vue-dev.js'
+        from 'src/main/resources/vue-prod.js'
+        into "ext-resources"
+    }
 }
 
 test {

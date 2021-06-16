@@ -26,8 +26,8 @@ public class WorkflowService {
 
     private static final ObjectMapper OM = new ObjectMapper();
 
-    private Map<UUID, Node> nodeMap = new HashMap<>();
-    private Map<UUID, NodeDTO> nodeDTOMap = new HashMap<>();
+    private Map<UUID, Node> nodeMap = new LinkedHashMap<>();
+    private Map<UUID, NodeDTO> nodeDTOMap = new LinkedHashMap<>();
 
     @Autowired
     private NodeSupportService nodeSupportService;

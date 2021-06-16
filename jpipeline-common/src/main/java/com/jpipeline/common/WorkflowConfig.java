@@ -1,18 +1,15 @@
 package com.jpipeline.common;
 
 import com.jpipeline.common.dto.NodeDTO;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Collection;
-import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 public class WorkflowConfig {
 
     private Collection<NodeDTO> nodes;

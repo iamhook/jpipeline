@@ -1,11 +1,13 @@
 package com.jpipeline.entity.function;
 
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.Mustache;
+import com.github.mustachejava.MustacheFactory;
 import com.jpipeline.common.entity.Node;
 import com.jpipeline.common.util.JPMessage;
 import com.jpipeline.common.util.annotations.NodeProperty;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.Executors;
@@ -15,10 +17,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ExecNode extends Node {
 
     @NodeProperty
-    private String command;
+    private String commandTemplate;
 
-    @NodeProperty
-    private Collection<String> args;
+    private Mustache mustache;
 
     public ExecNode(UUID id) {
         super(id);
@@ -26,14 +27,15 @@ public class ExecNode extends Node {
 
     @Override
     public void onInit() {
-
+        MustacheFactory mf = new DefaultMustacheFactory();
+        mustache = mf.compile(new StringReader(commandTemplate), "command");
     }
 
     @Override
     public void onInput(JPMessage message) {
         try {
             Runtime run = Runtime.getRuntime();
-            Process pr = run.exec(command);
+            Process pr = run.exec(mustache(message));
             pr.waitFor();
             BufferedReader buf = new BufferedReader(new InputStreamReader(pr.getInputStream()));
             StringBuilder output = new StringBuilder();
@@ -46,6 +48,11 @@ public class ExecNode extends Node {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
+    }
+
+    private String mustache(JPMessage message) {
+        Writer writer = mustache.execute(new StringWriter(), message);
+        return writer.toString();
     }
 
 }

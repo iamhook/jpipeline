@@ -56,10 +56,19 @@ public class NodeSupportService {
                 .collect(Collectors.toMap(Field::getName, f -> f));
     }
 
+    private Resource getNodeResource(String location) {
+        try {
+            final Resource resource = resourceLoader.getResource("classpath:node-resources/" + location);
+            return resource;
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            return null;
+        }
+    }
+
     private NodeTypeConfig getNodeConfig(Class<? extends Node> nodeClass) {
         try {
-            final Resource resource = resourceLoader.getResource("classpath:node-configs/" +
-                    nodeClass.getSimpleName() + ".conf.json");
+            final Resource resource = getNodeResource(nodeClass.getSimpleName() + "/" + nodeClass.getSimpleName() + ".conf.json");
             byte[] configBinaryData = FileCopyUtils.copyToByteArray(resource.getInputStream());
             NodeTypeConfig nodeTypeConfig = OM.readValue(configBinaryData, NodeTypeConfig.class);
             nodeTypeConfig.setName(nodeClass.getSimpleName());
@@ -71,28 +80,18 @@ public class NodeSupportService {
 
     }
 
-    private Resource getNodeResource(String location) {
-        try {
-            final Resource resource = resourceLoader.getResource(location);
-            return resource;
-        } catch (Exception e) {
-            log.error(e.toString(), e);
-            return null;
-        }
-    }
-
     private Resource getNodeFxml(Class<? extends Node> nodeClass) {
-        return getNodeResource("classpath:node-fxml/" +
+        return getNodeResource(nodeClass.getSimpleName() + "/" +
                 nodeClass.getSimpleName() + ".fxml");
     }
 
     private Resource getNodeHtml(Class<? extends Node> nodeClass) {
-        return getNodeResource("classpath:node-html/" +
+        return getNodeResource(nodeClass.getSimpleName() + "/" +
                 nodeClass.getSimpleName() + ".html");
     }
 
     private Resource getNodeGroovyController(Class<? extends Node> nodeClass) {
-        return getNodeResource("classpath:node-controller/" +
+        return getNodeResource(nodeClass.getSimpleName() + "/" +
                 nodeClass.getSimpleName() + "Controller.groovy");
     }
 

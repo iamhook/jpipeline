@@ -43,7 +43,7 @@ public class ViewWorkflowService {
     private final double canvasHeight = 2000;
     private final double canvasWidth = 2000;
 
-    private Map<String, NodeWrapper> nodeWrappers = new HashMap<>();
+    private Map<String, NodeWrapper> nodeWrappers = new LinkedHashMap<>();
 
     private NodeWrapper connectingNode;
     private CubicCurve connectingWire;
@@ -59,7 +59,7 @@ public class ViewWorkflowService {
         rootPane.setPrefWidth(canvasWidth);
         setClip();
 
-        nodeWrappers = workflowConfig.getNodes().stream().map(node -> drawNode(node, true)).collect(Collectors.toMap(w -> w.getNode().getId(), w -> w));
+        workflowConfig.getNodes().stream().map(node -> drawNode(node, true)).forEach(nodeWrapper -> nodeWrappers.put(nodeWrapper.getNode().getId(), nodeWrapper));
         updateWires();
     }
 

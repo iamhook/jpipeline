@@ -27,7 +27,7 @@ public class TemplateNode extends Node {
     @Override
     public void onInit() {
         MustacheFactory mf = new DefaultMustacheFactory();
-        mustache = mf.compile(new StringReader(template), "example");
+        mustache = mf.compile(new StringReader(template), "templte");
     }
 
     @Override

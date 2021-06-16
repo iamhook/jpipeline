@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="68.0" prefWidth="473.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <GridPane prefHeight="30.0" prefWidth="442.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="11.0" AnchorPane.topAnchor="20.0">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="231.0" minWidth="10.0" prefWidth="109.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="426.0" minWidth="10.0" prefWidth="304.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Command template" />
+            <TextField fx:id="property_commandTemplate" GridPane.columnIndex="1" />
+         </children>
+      </GridPane>
+   </children>
+</AnchorPane>
