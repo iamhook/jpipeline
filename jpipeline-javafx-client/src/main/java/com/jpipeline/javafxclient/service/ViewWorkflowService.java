@@ -392,9 +392,6 @@ public class ViewWorkflowService {
                         .filter(nodeSignal -> nodeSignal.getNodeId().toString().equals(node.getId()))
                         .filter(nodeSignal -> nodeSignal.getType().equals(com.jpipeline.common.entity.Node.SignalType.STATUS))
                         .map(nodeSignal -> OM.convertValue(nodeSignal.getBody(), com.jpipeline.common.entity.Node.NodeStatus.class))
-                        .onBackpressureDrop()
-                        .limitRate(1)
-                        .delayElements(Duration.ofMillis(100))
                         .subscribe(nodeStatus -> Platform.runLater(() -> statusLabel.setText(nodeStatus.getStatus())));
             } catch (Exception e) {
                 e.printStackTrace();

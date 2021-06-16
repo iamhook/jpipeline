@@ -38,7 +38,6 @@ public class ExecutorProxyController {
                     .setUri("http://localhost:" + executorPort + path)
                     .build();
 
-
             HttpResponse response = httpClient.execute(req);
 
             return ResponseEntity

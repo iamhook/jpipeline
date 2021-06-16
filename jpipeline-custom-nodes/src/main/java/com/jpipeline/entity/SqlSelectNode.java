@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class JDBCSelectNode extends Node {
+public class SqlSelectNode extends Node {
 
     @NodeProperty
     private String url;
@@ -22,7 +22,7 @@ public class JDBCSelectNode extends Node {
 
     private Connection connection;
 
-    public JDBCSelectNode(UUID id) {
+    public SqlSelectNode(UUID id) {
         super(id);
     }
 

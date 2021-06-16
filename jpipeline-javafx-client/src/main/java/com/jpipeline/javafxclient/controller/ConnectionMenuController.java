@@ -1,20 +1,25 @@
 package com.jpipeline.javafxclient.controller;
 
+import com.jpipeline.javafxclient.context.ExecutorsContext;
 import com.jpipeline.javafxclient.context.PropertiesStore;
 import com.jpipeline.javafxclient.context.AuthContext;
 import com.jpipeline.javafxclient.service.JConnection;
 import com.jpipeline.javafxclient.service.ManagerService;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ConnectionMenuController {
 
@@ -47,11 +52,26 @@ public class ConnectionMenuController {
     @FXML
     public Text errorText;
 
+    @Setter
+    private Stage stage;
+
+    private ExecutorService executor = ExecutorsContext.newSingleTheadExecutor();
+
     public void init() {
         Set<JConnection> connections = PropertiesStore.getConnections();
         for (JConnection connection : connections) {
             connectionsList.getItems().add(connection);
         }
+        stage.setOnCloseRequest(windowEvent -> {
+            executor.execute(() -> {
+                if (!mainMenuController.getLastManagerStatus()) {
+                    errorText.setText("You are not connected");
+                } else {
+                    mainMenuController.hideConnectionMenu();
+                }
+            });
+            windowEvent.consume();
+        });
     }
 
     public void openConnection() {
@@ -70,56 +90,61 @@ public class ConnectionMenuController {
     }
 
     public void login() {
-        errorText.setText("");
+        executor.execute(() -> {
+            errorText.setText("");
 
-        JConnection connection = new JConnection();
+            JConnection connection = new JConnection();
 
-        String hostname = hostnameField.getText();
-        String port = portField.getText();
-        String username = usernameField.getText();
-        String password = passwordField.getText();
+            String hostname = hostnameField.getText();
+            String port = portField.getText();
+            String username = usernameField.getText();
+            String password = passwordField.getText();
 
-        String host = hostname + (port == null? "" : ":" + port);
+            String host = hostname + (port == null? "" : ":" + port);
 
-        if (hostname != null && !hostname.isEmpty()) {
+            if (hostname != null && !hostname.isEmpty()) {
 
-            boolean managerIsAlive = ManagerService.checkIsAlive(host);
+                boolean managerIsAlive = ManagerService.checkIsAlive(host);
 
-            if (!managerIsAlive) {
-                errorText.setText("Manager " + host + " is not reachable");
+                if (!managerIsAlive) {
+                    errorText.setText("Manager " + host + " is not reachable");
+                    return;
+                }
+
+            } else {
+                errorText.setText("Hostname shouldn't be empty");
                 return;
             }
 
-        } else {
-            errorText.setText("Hostname shouldn't be empty");
-            return;
-        }
+            connection.setHostname(hostname);
 
-        connection.setHostname(hostname);
+            if (port != null && !port.isEmpty())
+                connection.setPort(Integer.parseInt(port));
 
-        if (port != null && !port.isEmpty())
-            connection.setPort(Integer.parseInt(port));
-
-        if (username != null && !username.isEmpty()) {
-            connection.setUsername(username);
-        }
-
-        if (password != null && !password.isEmpty()) {
-            connection.setPassword(password);
-        }
-
-        AuthContext.setConnection(connection);
-        ManagerService.createHttpService();
-
-        try {
-            if (ManagerService.login()) {
-                mainMenuController.connectionSuccessCallback();
-                if (saveConnectionBox.isSelected())
-                    PropertiesStore.saveConnection(connection);
+            if (username != null && !username.isEmpty()) {
+                connection.setUsername(username);
             }
-        } catch (Exception e) {
-            errorText.setText(e.getMessage());
-        }
+
+            if (password != null && !password.isEmpty()) {
+                connection.setPassword(password);
+            }
+
+            AuthContext.setConnection(connection);
+            ManagerService.createHttpService();
+
+            try {
+                if (ManagerService.login()) {
+                    Platform.runLater(() -> {
+                        mainMenuController.connectionSuccessCallback();
+                    });
+
+                    if (saveConnectionBox.isSelected())
+                        PropertiesStore.saveConnection(connection);
+                }
+            } catch (Exception e) {
+                errorText.setText(e.getMessage());
+            }
+        });
 
     }
 

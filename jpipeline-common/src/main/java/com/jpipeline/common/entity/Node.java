@@ -62,7 +62,7 @@ public abstract class Node {
             if (signalSink.currentSubscriberCount() > 0) {
                 Sinks.EmitResult result = signalSink.tryEmitNext(signal);
                 if (result.isFailure()) {
-                    log.error("Emission failed! signal {}, node {}", signal, this.id);
+                    log.error("Signal emission failed! signal {}, node {}", signal, this.id);
                 }
             } else {
                 log.debug("Ignore signal because of no subscribers");
@@ -82,7 +82,7 @@ public abstract class Node {
             if (sink.currentSubscriberCount() > 0) {
                 Sinks.EmitResult result = sink.tryEmitNext(message);
                 if (result.isFailure()) {
-                    log.error("Emission failed! message {}, node {}", message, this.id);
+                    log.error("Message emission failed! message {}, node {}", message, this.id);
                 }
             } else {
                 log.debug("Ignore signal because of no subscribers. message {}, node {}", message, this.id);

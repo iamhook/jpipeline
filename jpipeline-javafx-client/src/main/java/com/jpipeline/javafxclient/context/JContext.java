@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class JContext {
 
@@ -13,5 +15,7 @@ public class JContext {
     public static String getExtResourcesFolder() {
         return properties.getProperty("jpipeline.client.externalResourcesFolder");
     }
+
+
 
 }

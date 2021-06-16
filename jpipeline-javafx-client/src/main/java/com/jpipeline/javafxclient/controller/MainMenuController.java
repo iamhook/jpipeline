@@ -4,6 +4,7 @@ import com.jpipeline.common.WorkflowConfig;
 import com.jpipeline.common.dto.NodeDTO;
 import com.jpipeline.common.util.NodeTypeConfig;
 import com.jpipeline.javafxclient.MainApplication;
+import com.jpipeline.javafxclient.context.ExecutorsContext;
 import com.jpipeline.javafxclient.service.ManagerService;
 import com.jpipeline.javafxclient.service.NodeService;
 import com.jpipeline.javafxclient.service.ViewWorkflowService;
@@ -25,6 +26,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,9 +84,11 @@ public class MainMenuController {
 
     private boolean lastExecutorStatus = false;
 
+    private boolean lastManagerStatus = false;
+
     private ScheduledFuture<?> statusesTaskFuture;
 
-    ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledExecutorService executor = ExecutorsContext.newSingleThreadScheduledExecutor();
 
     public void init() {
         showConnectionMenu();
@@ -95,7 +99,7 @@ public class MainMenuController {
         statusesTaskFuture = executor.scheduleAtFixedRate(this::updateServiceStatuses, 0, 500, TimeUnit.MILLISECONDS);
     }
 
-    private void stopCheckStatusesTask() {
+    public void stopCheckStatusesTask() {
         statusesTaskFuture.cancel(true);
     }
 
@@ -110,14 +114,12 @@ public class MainMenuController {
             loginStage.setScene(new Scene(root));
             loginStage.setTitle("Connection menu");
             loginStage.initOwner(rootPane.getScene().getWindow());
-            loginStage.setOnCloseRequest(windowEvent -> {
-                if (!ManagerService.checkIsAlive())
-                    windowEvent.consume();
-            });
+
             loginStage.setResizable(false);
             loginStage.show();
             ConnectionMenuController controller = loader.getController();
             controller.setMainMenuController(this);
+            controller.setStage(loginStage);
             controller.init();
         } catch (IOException e) {
             e.printStackTrace();
@@ -125,10 +127,12 @@ public class MainMenuController {
     }
 
     public void hideConnectionMenu() {
-        loginStage.close();
-        loginStage = null;
-        startCheckStatusesTask();
-        unBlur();
+        Platform.runLater(() -> {
+            loginStage.close();
+            loginStage = null;
+            startCheckStatusesTask();
+            unBlur();
+        });
     }
 
     public void connectionSuccessCallback() {
@@ -266,6 +270,24 @@ public class MainMenuController {
 
     private void updateServiceStatuses() {
         try {
+            if (ManagerService.checkIsAlive()) {
+                lastManagerStatus = true;
+                Platform.runLater(() -> {
+                    managerStatusIndicator.setFill(Color.GREEN);
+                });
+            } else {
+                lastManagerStatus = false;
+                lastExecutorStatus = false;
+                Platform.runLater(() -> {
+                    managerStatusIndicator.setFill(Color.RED);
+                    if (loginStage == null || !loginStage.isShowing()) {
+                        stopCheckStatusesTask();
+                        showConnectionMenu();
+                    }
+                });
+                return;
+            }
+
             if (NodeService.checkIsAlive()) {
                 if (!lastExecutorStatus) {
                     lastExecutorStatus = true;
@@ -286,18 +308,6 @@ public class MainMenuController {
                     executorStatusIndicator.setFill(Color.RED);
                 });
             }
-
-            Platform.runLater(() -> {
-                if (ManagerService.checkIsAlive()) {
-                    managerStatusIndicator.setFill(Color.GREEN);
-                } else {
-                    managerStatusIndicator.setFill(Color.RED);
-                    if (loginStage == null || !loginStage.isShowing()) {
-                        stopCheckStatusesTask();
-                        showConnectionMenu();
-                    }
-                }
-            });
         } catch (Exception e) {
             log.error(e.toString(), e);
         }
@@ -318,5 +328,9 @@ public class MainMenuController {
 
     public void setMain(MainApplication main) {
         this.main = main;
+    }
+
+    public boolean getLastManagerStatus() {
+        return lastManagerStatus;
     }
 }

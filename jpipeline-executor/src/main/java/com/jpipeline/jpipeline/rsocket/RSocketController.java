@@ -9,6 +9,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 
+import java.time.Duration;
 import java.util.Collection;
 
 @Controller
@@ -26,7 +27,9 @@ public class RSocketController {
         return Flux.fromIterable(nodes)
                 .filter(node -> node.getStatus() != null)
                 .map(node -> new Node.NodeSignal(Node.SignalType.STATUS, node.getStatus(), node.getId()))
-                .concatWith(Flux.fromIterable(nodes).flatMap(node -> node.getSignalSink().asFlux()));
+                .concatWith(Flux.fromIterable(nodes).flatMap(node -> node.getSignalSink().asFlux()).onBackpressureDrop()
+                        .limitRate(1)
+                        .delayElements(Duration.ofMillis(100)));
     }
 
     @MessageMapping("/errors")

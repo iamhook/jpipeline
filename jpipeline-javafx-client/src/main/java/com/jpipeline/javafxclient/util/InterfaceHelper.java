@@ -56,8 +56,6 @@ public class InterfaceHelper {
             } else {
                 String fxmlPath = NodeService.getNodeFxml(node.getType());
 
-                log.info("fxmlPath = " + fxmlPath);
-
                 if (nodeTypeConfig.getEditMode().equals(NodeTypeConfig.EditMode.FXML_GROOVY)) {
                     String controllerPath = NodeService.getNodeGroovyController(node.getType());
                     Class clazz = gcl.parseClass(new File(controllerPath));
