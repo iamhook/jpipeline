@@ -7,13 +7,13 @@
     {
       "name": "url",
       "type": "STRING",
-      "defaultValue": null,
+      "defaultValue": "jdbc:postgresql://localhost:5432/postgres",
       "required": true
     },
     {
       "name": "username",
       "type": "STRING",
-      "defaultValue": null,
+      "defaultValue": "postgres",
       "required": true
     },
     {
@@ -26,6 +26,15 @@
       "name": "query",
       "type": "STRING",
       "defaultValue": null,
+      "required": true
+    },
+    {
+      "name": "mode",
+      "type": "STRING",
+      "variants": {
+        "oneRecordOneMessage": "One record one message", "singleMessage": "All records in single message"
+      },
+      "defaultValue": "oneRecordOneMessage",
       "required": true
     }
   ]

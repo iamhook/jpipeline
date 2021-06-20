@@ -65,7 +65,7 @@ public abstract class Node {
                     log.error("Signal emission failed! signal {}, node {}", signal, this.id);
                 }
             } else {
-                log.debug("Ignore signal because of no subscribers");
+                log.debug(false,"Ignore signal because of no subscribers");
             }
         } else {
             log.error("Signal is null, node {}", this.id);
@@ -85,7 +85,7 @@ public abstract class Node {
                     log.error("Message emission failed! message {}, node {}", message, this.id);
                 }
             } else {
-                log.debug("Ignore signal because of no subscribers. message {}, node {}", message, this.id);
+                log.debug(false, "Ignore signal because of no subscribers. message {}, node {}", message, this.id);
             }
         } else {
             log.error("Message is null, node {}", this.id);
@@ -106,7 +106,11 @@ public abstract class Node {
     }
 
     private void onInputHandler(JPMessage message) {
-        onInput(new JPMessage(message));
+        try {
+            onInput(new JPMessage(message));
+        } catch (Exception e) {
+           log.error(e.toString(), e);
+        }
     }
 
     public abstract void onInput(JPMessage message);

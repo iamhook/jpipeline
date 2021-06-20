@@ -10,8 +10,6 @@ import java.util.UUID;
 
 public class DelayNode extends Node {
 
-    //private DelayProperty delay;
-
     @NodeProperty
     private int delay;
 
@@ -46,12 +44,5 @@ public class DelayNode extends Node {
         }
         subscriber.onSubscribe(sinks.get(0).asFlux().delayElements(Duration.ofMillis(d)).doOnNext(o -> setStatus(new NodeStatus((++counter).toString()))));
     }
-
-    /*@Getter @Setter
-    private static class DelayProperty {
-        private int delay;
-        private String unit;
-        public DelayProperty() {}
-    }*/
 
 }

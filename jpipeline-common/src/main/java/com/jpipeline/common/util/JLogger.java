@@ -19,10 +19,15 @@ public class JLogger {
         sendDebugSignal(msg);
     }
 
-    public void debug(String format, Object... arguments) {
+    public void debug(boolean sendToClient, Object msg) {
+        logger.debug(msg.toString());
+        if (sendToClient) sendDebugSignal(msg);
+    }
+
+    public void debug(boolean sendToClient, String format, Object... arguments) {
         logger.debug(format, arguments);
         String msg = String.format(format.replaceAll("\\{}", "%s"), arguments);
-        sendDebugSignal(msg);
+        if (sendToClient) sendDebugSignal(msg);
     }
 
     public void info(Object msg) {

@@ -60,7 +60,6 @@ public class DebugMenuController {
                             msg.setFill(Color.RED);
                         }
                         Platform.runLater(() -> nodeDebugListView.getItems().add(msg));
-
                     });
         } catch (JsonProcessingException e) {
             log.error(e.toString(), e);

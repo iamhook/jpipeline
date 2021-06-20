@@ -1,14 +1,19 @@
 package com.jpipeline.javafxclient.util;
 
+import com.jpipeline.javafxclient.context.ExecutorsContext;
 import com.jpipeline.javafxclient.service.NodeService;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 
+import java.util.concurrent.ExecutorService;
+
 import static com.jpipeline.javafxclient.util.Consts.NODE_BUTTON_SIZE;
 
 public class CanvasHelper {
+
+    private static ExecutorService executor = ExecutorsContext.newSingleTheadExecutor();
 
     public static Rectangle createNodeRectangle(Paint fill) {
         Rectangle rectangle = new Rectangle();
@@ -38,7 +43,7 @@ public class CanvasHelper {
         button.xProperty().bind(rectangle.xProperty().subtract(3));
         button.yProperty().bind(rectangle.yProperty().add(rectangle.heightProperty()).subtract(button.getHeight() - 3));
         button.getStyleClass().add("node-button");
-        button.setOnMouseClicked(event -> NodeService.pressButton(nodeId));
+        button.setOnMouseClicked(event -> executor.execute(() -> NodeService.pressButton(nodeId)));
         return button;
     }
 

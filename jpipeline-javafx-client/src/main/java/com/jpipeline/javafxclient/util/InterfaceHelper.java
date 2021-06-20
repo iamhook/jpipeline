@@ -38,10 +38,11 @@ public class InterfaceHelper {
 
     public static void showNodeEditMenu(ViewWorkflowService.NodeWrapper nodeWrapper, Window window) {
         try {
-            Stage stage = new Stage();
-
             NodeDTO node = nodeWrapper.getNode();
             NodeTypeConfig nodeTypeConfig = NodeService.getNodeConfig(node.getType());
+
+            if (nodeTypeConfig.getEditMode().equals(NodeTypeConfig.EditMode.NONE))
+                return;
 
             JController controller;
             Pane pane;
@@ -83,6 +84,8 @@ public class InterfaceHelper {
 
             controller.onInit();
             JController finalController = controller;
+            Stage stage = new Stage();
+
             stage.setOnCloseRequest(event -> {
                 finalController.onClose();
             });
@@ -91,10 +94,12 @@ public class InterfaceHelper {
             stage.setTitle(node.getType() + " edit menu");
             stage.initOwner(window);
             stage.initModality(Modality.WINDOW_MODAL);
+            //stage.setHeight(pane.getPrefHeight());
+            //stage.setWidth(pane.getPrefWidth());
             stage.show();
 
-            stage.setWidth(pane.getPrefWidth());
-            stage.setHeight(600);
+            stage.setMinHeight(stage.getHeight());
+            stage.setMinWidth(stage.getWidth());
             stage.centerOnScreen();
         } catch (Exception e) {
             e.printStackTrace();
