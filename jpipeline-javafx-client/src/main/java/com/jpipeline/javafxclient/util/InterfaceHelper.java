@@ -119,6 +119,7 @@ public class InterfaceHelper {
             debugStage.initOwner(window);
             debugStage.setHeight(700);
             debugStage.setWidth(700);
+            debugStage.setTitle("Debug");
 
             debugMenuController = loader.getController();
             debugMenuController.setStage(debugStage);

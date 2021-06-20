@@ -5,8 +5,10 @@ import com.jpipeline.common.entity.Node;
 import com.jpipeline.common.util.CJson;
 import com.jpipeline.javafxclient.service.NodeService;
 import javafx.application.Platform;
+import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -24,14 +26,10 @@ public class DebugMenuController {
     @FXML
     private ListView nodeDebugListView;
 
-    @FXML
-    private ListView executorLogsListView;
-
     @Setter
     private Stage stage;
 
     private Disposable signalSubscribe;
-
 
     public void init() {
 
@@ -59,7 +57,10 @@ public class DebugMenuController {
                         if (nodeSignal.getType().equals(Node.SignalType.ERROR)) {
                             msg.setFill(Color.RED);
                         }
-                        Platform.runLater(() -> nodeDebugListView.getItems().add(msg));
+                        Platform.runLater(() -> {
+                            nodeDebugListView.getItems().add(msg);
+                            nodeDebugListView.scrollTo(msg);
+                        });
                     });
         } catch (JsonProcessingException e) {
             log.error(e.toString(), e);

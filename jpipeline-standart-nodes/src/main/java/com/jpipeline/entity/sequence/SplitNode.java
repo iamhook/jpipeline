@@ -49,7 +49,13 @@ public class SplitNode extends Node {
             int size = list.size();
             int parts = (int) Math.ceil((double)size/subListSize);
             IntStream.range(0, parts)
-                            .mapToObj(i -> list.subList(i * subListSize, Math.min((i + 1) * subListSize, list.size())))
+                            .mapToObj(i -> {
+                                if (subListSize == 1) {
+                                    return list.get(i);
+                                } else {
+                                    return list.subList(i * subListSize, Math.min((i + 1) * subListSize, list.size()));
+                                }
+                            })
                     .forEach(l -> send(new JPMessage(l)));
         } else if (payload instanceof Map) {
             Map<Object, Object> map = (Map) payload;
