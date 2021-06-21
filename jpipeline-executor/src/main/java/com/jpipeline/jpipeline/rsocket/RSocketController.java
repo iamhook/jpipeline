@@ -20,16 +20,30 @@ public class RSocketController {
     @Autowired
     private WorkflowService workflowService;
 
-    @MessageMapping("/node")
+    @MessageMapping("/status")
     public Flux<Node.NodeSignal> status() {
         Collection<Node> nodes = workflowService.getNodes();
 
         return Flux.fromIterable(nodes)
                 .filter(node -> node.getStatus() != null)
                 .map(node -> new Node.NodeSignal(Node.SignalType.STATUS, node.getStatus(), node.getId()))
-                .concatWith(Flux.fromIterable(nodes).flatMap(node -> node.getSignalSink().asFlux()).onBackpressureDrop()
+                .concatWith(Flux.fromIterable(nodes)
+                        .flatMap(node -> node.getSignalSink().asFlux())
+                        .filter(nodeSignal -> nodeSignal.getType().equals(Node.SignalType.STATUS))
+                        .onBackpressureDrop()
                         .limitRate(1)
                         .delayElements(Duration.ofMillis(100)));
+    }
+    @MessageMapping("/debug")
+    public Flux<Node.NodeSignal> debug() {
+        Collection<Node> nodes = workflowService.getNodes();
+
+        return Flux.fromIterable(nodes)
+                .flatMap(node -> node.getSignalSink().asFlux())
+                .filter(nodeSignal -> nodeSignal.getType().equals(Node.SignalType.DEBUG))
+                .onBackpressureDrop()
+                .limitRate(1)
+                .delayElements(Duration.ofMillis(50));
     }
 
     @MessageMapping("/errors")
@@ -38,7 +52,10 @@ public class RSocketController {
 
         return Flux.fromIterable(nodes)
                 .flatMap(node -> node.getSignalSink().asFlux())
-                .filter(nodeSignal -> nodeSignal.getType().equals(Node.SignalType.ERROR));
+                .filter(nodeSignal -> nodeSignal.getType().equals(Node.SignalType.ERROR))
+                .onBackpressureDrop()
+                .limitRate(1)
+                .delayElements(Duration.ofMillis(50));
     }
 
 }

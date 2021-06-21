@@ -22,9 +22,17 @@ public class RSocketController {
         rSocketService = new RSocketService("ws://localhost:" + executorRSocketPort);
     }
 
-    @MessageMapping("/node")
+    @MessageMapping("/status")
     public Flux<Node.NodeSignal> status() {
-        return rSocketService.requestStream("", "/node", Node.NodeSignal.class);
+        return rSocketService.requestStream("", "/status", Node.NodeSignal.class);
+    }
+    @MessageMapping("/debug")
+    public Flux<Node.NodeSignal> debug() {
+        return rSocketService.requestStream("", "/debug", Node.NodeSignal.class);
+    }
+    @MessageMapping("/errors")
+    public Flux<Node.NodeSignal> error() {
+        return rSocketService.requestStream("", "/errors", Node.NodeSignal.class);
     }
 
 }

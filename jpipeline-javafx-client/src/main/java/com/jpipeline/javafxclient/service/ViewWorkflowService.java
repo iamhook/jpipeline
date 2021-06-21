@@ -388,7 +388,7 @@ public class ViewWorkflowService {
 
         public void init() {
             try {
-                statusSubscription = NodeService.getSignalStream()
+                statusSubscription = NodeService.getStatusStream()
                         .filter(nodeSignal -> nodeSignal.getNodeId().toString().equals(node.getId()))
                         .filter(nodeSignal -> nodeSignal.getType().equals(com.jpipeline.common.entity.Node.SignalType.STATUS))
                         .map(nodeSignal -> OM.convertValue(nodeSignal.getBody(), com.jpipeline.common.entity.Node.NodeStatus.class))

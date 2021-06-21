@@ -26,7 +26,6 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +33,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -291,7 +289,7 @@ public class MainMenuController {
             if (NodeService.checkIsAlive()) {
                 if (!lastExecutorStatus) {
                     lastExecutorStatus = true;
-                    NodeService.flushSignalFlux();
+                    NodeService.clearRSocketStreams();
                     InterfaceHelper.resetDebugSignalSubscription();
                     Platform.runLater(this::resetWorkflow);
                 }

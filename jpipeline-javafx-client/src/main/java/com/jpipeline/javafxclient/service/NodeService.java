@@ -1,6 +1,5 @@
 package com.jpipeline.javafxclient.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpipeline.common.WorkflowConfig;
@@ -125,18 +124,40 @@ public class NodeService {
         });
     }
 
-    private static Flux<Node.NodeSignal> signalFlux;
+    private static Flux<Node.NodeSignal> statusStream;
+    private static Flux<Node.NodeSignal> debugStream;
+    private static Flux<Node.NodeSignal> errorsStream;
 
-    public static void flushSignalFlux() {
-        signalFlux = null;
+    public static void clearRSocketStreams() {
+        statusStream = null;
+        debugStream = null;
+        errorsStream = null;
     }
 
-    public static Flux<Node.NodeSignal> getSignalStream() throws JsonProcessingException {
-        if (signalFlux == null) {
-            signalFlux = rSocketService.requestStream("", "/node", Node.NodeSignal.class)
-                    .onErrorContinue((throwable, o) -> {});
+    private static Flux<Node.NodeSignal> getSignalStream(String route) {
+        return rSocketService.requestStream("", route, Node.NodeSignal.class)
+                .onErrorContinue((throwable, o) -> {});
+    }
+
+    public static Flux<Node.NodeSignal> getStatusStream() {
+        if (statusStream == null) {
+            statusStream = getSignalStream("/status");
         }
-        return signalFlux;
+        return statusStream;
+    }
+
+    public static Flux<Node.NodeSignal> getDebugStream() {
+        if (debugStream == null) {
+            debugStream = getSignalStream("/debug");
+        }
+        return debugStream;
+    }
+
+    public static Flux<Node.NodeSignal> getErrorsStream() {
+        if (errorsStream == null) {
+            errorsStream = getSignalStream("/errors");
+        }
+        return errorsStream;
     }
 
     public static boolean checkIsAlive() {
