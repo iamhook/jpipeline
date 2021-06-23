@@ -24,7 +24,7 @@ public class AuthController {
     private AuthService authService;
 
     @Value("${jpipeline.jwt-cookie-name}")
-    private String JWT_COOKIE;
+    private String JWT_COOKIE_NAME;
 
     @GetMapping("/login")
     private boolean login(@RequestParam String username, @RequestParam String password, ServerWebExchange exchange) {
@@ -36,7 +36,7 @@ public class AuthController {
 
         ServerHttpResponse response = exchange.getResponse();
         response.addCookie(ResponseCookie
-                .from(JWT_COOKIE, token)
+                .from(JWT_COOKIE_NAME, token)
                 .path("/")
                 .build());
 

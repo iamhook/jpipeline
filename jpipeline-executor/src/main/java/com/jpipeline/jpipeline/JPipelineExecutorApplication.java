@@ -1,5 +1,6 @@
 package com.jpipeline.jpipeline;
 
+import com.jpipeline.jpipeline.rsocket.RSocketController;
 import com.jpipeline.security.AuthFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,13 +32,18 @@ public class JPipelineExecutorApplication {
     private AuthFilter authFilter;
 
     @Autowired
+    private RSocketController rSocketController;
+
+    @Autowired
     private ApplicationArguments applicationArguments;
 
     @PostConstruct
     private void init() {
         Set<String> optionNames = applicationArguments.getOptionNames();
         if (optionNames.contains("jwtSecret")) {
-            authFilter.setJwtSecret(applicationArguments.getOptionValues("jwtSecret").get(0));
+            String jwtSecret = applicationArguments.getOptionValues("jwtSecret").get(0);
+            authFilter.setJwtSecret(jwtSecret);
+            rSocketController.setJwtSecret(jwtSecret);
         }
     }
 

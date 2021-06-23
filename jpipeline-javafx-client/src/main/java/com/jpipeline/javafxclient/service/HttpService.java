@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpipeline.common.util.ErrorMessage;
 import com.jpipeline.common.util.exception.CustomException;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -22,7 +24,8 @@ public class HttpService {
 
     private static Logger log = LoggerFactory.getLogger(HttpService.class);
 
-    private HttpClient httpClient = HttpClientBuilder.create().setDefaultCookieStore(new BasicCookieStore()).build();
+    CookieStore cookieStore = new BasicCookieStore();
+    private HttpClient httpClient = HttpClientBuilder.create().setDefaultCookieStore(cookieStore).build();
 
     private String host;
 
@@ -57,6 +60,10 @@ public class HttpService {
             ErrorMessage errorMessage = OM.readValue(EntityUtils.toString(response.getEntity()), ErrorMessage.class);
             throw new CustomException(errorMessage.getMessage());
         }
+    }
+
+    public String getCookie(String name) {
+        return cookieStore.getCookies().stream().filter(cookie -> cookie.getName().equals(name)).map(Cookie::getValue).findFirst().orElse(null);
     }
 
 }

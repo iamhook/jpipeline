@@ -23,16 +23,16 @@ public class RSocketController {
     }
 
     @MessageMapping("/status")
-    public Flux<Node.NodeSignal> status() {
-        return rSocketService.requestStream("", "/status", Node.NodeSignal.class);
+    public Flux<Node.NodeSignal> status(String authToken) {
+        return rSocketService.requestStream(authToken, "/status", Node.NodeSignal.class);
     }
     @MessageMapping("/debug")
-    public Flux<Node.NodeSignal> debug() {
-        return rSocketService.requestStream("", "/debug", Node.NodeSignal.class);
+    public Flux<Node.NodeSignal> debug(String authToken) {
+        return rSocketService.requestStream(authToken, "/debug", Node.NodeSignal.class);
     }
     @MessageMapping("/errors")
-    public Flux<Node.NodeSignal> error() {
-        return rSocketService.requestStream("", "/errors", Node.NodeSignal.class);
+    public Flux<Node.NodeSignal> error(String authToken) {
+        return rSocketService.requestStream(authToken, "/errors", Node.NodeSignal.class);
     }
 
 }

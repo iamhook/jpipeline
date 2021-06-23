@@ -134,9 +134,7 @@ public class ConnectionMenuController {
 
             try {
                 if (ManagerService.login()) {
-                    Platform.runLater(() -> {
-                        mainMenuController.connectionSuccessCallback();
-                    });
+                    Platform.runLater(() -> mainMenuController.connectionSuccessCallback());
 
                     if (saveConnectionBox.isSelected())
                         PropertiesStore.saveConnection(connection);

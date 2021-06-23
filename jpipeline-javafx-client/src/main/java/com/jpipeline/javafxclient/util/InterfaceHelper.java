@@ -94,8 +94,6 @@ public class InterfaceHelper {
             stage.setTitle(node.getType() + " edit menu");
             stage.initOwner(window);
             stage.initModality(Modality.WINDOW_MODAL);
-            //stage.setHeight(pane.getPrefHeight());
-            //stage.setWidth(pane.getPrefWidth());
             stage.show();
 
             stage.setMinHeight(stage.getHeight());

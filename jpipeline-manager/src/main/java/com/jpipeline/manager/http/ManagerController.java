@@ -47,6 +47,9 @@ public class ManagerController {
     @Value("${jpipeline.executor.port}")
     private Integer executorPort;
 
+    @Value("${jpipeline.jwt-cookie-name}")
+    private String JWT_COOKIE_NAME;
+
     @PostConstruct
     private void init() throws Exception {
         startExecutor();
@@ -120,6 +123,7 @@ public class ManagerController {
     @GetMapping("/meta")
     public ManagerMeta meta() {
         return ManagerMeta.builder()
+                .jwtCookieName(JWT_COOKIE_NAME)
                 .rsocketPort(rsocketPort)
                 .build();
     }

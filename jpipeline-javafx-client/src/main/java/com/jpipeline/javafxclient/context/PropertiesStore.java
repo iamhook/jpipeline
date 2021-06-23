@@ -1,9 +1,6 @@
 package com.jpipeline.javafxclient.context;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jpipeline.common.util.CJson;
 import com.jpipeline.javafxclient.service.JConnection;
 import lombok.Getter;
 import lombok.Setter;

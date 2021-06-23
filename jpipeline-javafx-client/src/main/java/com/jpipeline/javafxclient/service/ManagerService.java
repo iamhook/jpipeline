@@ -53,6 +53,7 @@ public class ManagerService {
         try {
             JConnection connection = AuthContext.getConnection();
             httpService.get("/api/auth/login?username=" + connection.getUsername() + "&password=" + connection.getPassword());
+            NodeService.setAuthToken(httpService.getCookie(meta.getJwtCookieName()));
             return true;
         } catch (IOException e) {
             throw new CustomException(e);

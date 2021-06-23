@@ -39,6 +39,9 @@ public class NodeService {
     private static Map<String, String> nodeHtmlCache = new ConcurrentHashMap<>();
     private static Map<String, String> nodeFxmlControllerCache = new ConcurrentHashMap<>();
 
+    @Setter
+    private static String authToken;
+
     public static void clearCache() {
         nodeFxmlCache.clear();
         nodeConfigsCache.clear();
@@ -135,7 +138,7 @@ public class NodeService {
     }
 
     private static Flux<Node.NodeSignal> getSignalStream(String route) {
-        return rSocketService.requestStream("", route, Node.NodeSignal.class)
+        return rSocketService.requestStream(authToken, route, Node.NodeSignal.class)
                 .onErrorContinue((throwable, o) -> {});
     }
 
