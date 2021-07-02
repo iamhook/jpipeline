@@ -5,15 +5,20 @@ import com.jpipeline.security.AuthFilter;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.Arrays;
 import java.util.UUID;
 
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 
 @Service
 public class AuthService {
+
+    @Autowired
+    private Environment env;
 
     @Autowired
     private AuthFilter authFilter;
@@ -23,6 +28,10 @@ public class AuthService {
 
     @PostConstruct
     private void init() {
+        if (Arrays.asList(env.getActiveProfiles()).contains("dev")) {
+            jwtSecret = "TEST_TOKEN";
+        }
+
         authFilter.setJwtSecret(jwtSecret);
     }
 

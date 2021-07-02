@@ -13,6 +13,9 @@ dependencies {
 
 bootRun {
     dependsOn(':jpipeline-executor:bootJar')
+
+    systemProperty "spring.profiles.active", 'dev'
+
 }
 
 jar {
