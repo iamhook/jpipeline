@@ -150,6 +150,14 @@ jdbc-драйвер для нужной СУБД в папку с расшире
 
 ## Запуск
 
+### Серверная часть
+```bash
+docker run -p 9543:9543 -p 7000:7000 -v ~/.jpipeline/libs:/home/jpipeline/libs iamhook/jpipeline
+```
+### Клиентская часть
+```bash
+java -jar jpipeline-javafx-client.jar
+```
 
 ## Разработка пользовательских узлов
 Разработчикам доступна возможность создавать собственные узлы. 
@@ -160,6 +168,153 @@ jdbc-драйвер для нужной СУБД в папку с расшире
 Этот проект содержит реализацию узла `HelloWorldNode`, на основе которой можно начать разработку своих узлов.
 
 После разработки необходимо выполнить `./gradlew jar`. В папке `build/libs` появится jar-файл, 
-который необходимо положить в папку с расширениями на сервере (при использовании docker-compose это ~/.jpipeline/libs на хостовой системе).
+который необходимо положить в папку с расширениями на сервере (при использовании для запуска команды выше это ~/.jpipeline/libs на хостовой системе).
 
+### Конфигурация типа узла
+
+Конфигурация типа узла представляет собой json-файл, имеющий следующие пары ключ-значение:
+* category - категория узла, используется для отображения типа узла в палитре
+* color - цвет узла
+* editMode - тип реализации меню (NONE, SIMPLE, HTML_JAVASCRIPT, FXML_GROOVY)
+* inputs - количество входов, может принимать значения от 0 до 1
+* outputs - количество выходов, может принимать значения от 0 до бесконечности
+* properties - свойства узла
+
+Конфигурация свойств, в свою очередь, может иметь следующие ключи:
+* name - имя свойства
+* type - тип свойства (NUMBER, STRING, BOOLEAN, COMPLEX)
+* hasButton - наличие кнопки (false, true)
+* defaultValue - значение по-умолчанию
+* variants - возможные значения в формате "значение:полное имя"
+* nested - вложенные свойства (имеют ту же структуру, гипотетически доступна бесконечная вложенность)
+* required - флаг обязательности (в данный момент не используется)
+* multiple - флаг множественности
+
+#### Пример конфигурации
+```javascript
+{
+  "category": "Function",
+  "color": "#999999",
+  "editMode": "HTML_JAVASCRIPT",
+  "inputs": 1,
+  "outputs": 2,
+  "properties": [
+    {
+      "name": "property",
+      "type": "STRING",
+      "defaultValue": "payload",
+      "required": true
+    },
+    {
+      "name": "condition",
+      "type": "COMPLEX",
+      "defaultValue": [
+        {
+          "operator": "==",
+          "value": 1
+        },
+        {
+          "operator": "==",
+          "value": 2
+        }
+      ],
+      "nested": [
+        {
+          "name": "operator",
+          "type": "STRING",
+          "variants": {
+            "==": "==", "!=": "!="
+          },
+          "defaultValue": "==",
+          "required": true
+        },
+        {
+          "name": "value",
+          "type": "STRING",
+          "defaultValue": null,
+          "required": true
+        }
+      ],
+      "required": true,
+      "multiple": true
+    }
+  ]
+}
+```
+
+### Программный код узла
+
+При создании узла необходимо унаследоваться от класса `com.jpipeline.common.entity.Node` (модуль jpipeline-common).
+Также нужно переопределить методы `onInit()` и `onInput(JPMessage message)`.
+При наличии у узла кнопки нужно переопределить метод `pressButton()`.
+
+Для отправки сообщения используется метод `send(JPMessage message)` или `send(JPMessage message, int output)`.
+Для установки статуса используется метод `setStatus(NodeStatus status)`.
+Для логирования можно использовать `log` - член класса `Node`, который отправляет все debug и error в меню отладке в клиентском приложении.
+
+Также можно переопределить метод `subscribe(Node subscriber)` или  `subscribe(Node subscriber, int output)`. 
+С помощью него  можно получить доступ к flux. Это используется, например, в `DelayNode`.
+
+Каждое свойство узла должно помечаться аннотацией `@NodeProperty`.
+Если свойство множественное, оно должно иметь тип `java.util.List`.
+Для комплексного (type=COMPLEX) свойства необходимо создать класс, описывающий это свойство (пример ниже, класс свойства `Condition`).
+
+#### Пример
+
+```java
+package com.jpipeline.entity.function;
+
+import com.jpipeline.common.entity.Node;
+import com.jpipeline.common.util.JPMessage;
+import com.jpipeline.common.util.annotations.NodeProperty;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.List;
+import java.util.UUID;
+
+public class SwitchNode extends Node {
+
+    @NodeProperty
+    private List<Condition> condition;
+
+    @NodeProperty
+    private String property;
+
+    public SwitchNode(UUID id) {
+        super(id);
+    }
+
+    @Override
+    public void onInit() {
+
+    }
+
+    @Override
+    public void onInput(JPMessage message) {
+
+        int i = 0;
+        for (Condition cond : condition) {
+            String operator = cond.getOperator();
+            String value = cond.getValue();
+            if (operator.equals("==") && message.get(property).equals(value)) {
+                send(message, i);
+            }
+            if (operator.equals("!=") && !message.get(property).equals(value)) {
+                send(message, i);
+            }
+
+            i++;
+        }
+    }
+
+    @Getter @Setter @NoArgsConstructor
+    private static class Condition {
+        private String operator;
+        private String value;
+    }
+
+}
+```
 
