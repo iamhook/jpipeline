@@ -11,6 +11,7 @@ dependencies {
     implementation group: 'com.github.spullara.mustache.java', name: 'compiler', version: '0.9.10'
     implementation 'org.openjfx:javafx-fxml'
     implementation group: 'org.sql2o', name: 'sql2o', version: '1.6.0'
+    implementation group: 'io.projectreactor.kafka', name: 'reactor-kafka', version: '1.2.5.RELEASE'
 }
 
 javafx {

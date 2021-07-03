@@ -1,0 +1,20 @@
+{
+  "color": "#aa430a",
+  "category": "Pub/sub",
+  "inputs": 1,
+  "outputs": 0,
+  "properties": [
+    {
+      "name": "servers",
+      "type": "STRING",
+      "defaultValue": "localhost:9092",
+      "required": true
+    },
+    {
+      "name": "topic",
+      "type": "STRING",
+      "defaultValue": "test",
+      "required": true
+    }
+  ]
+}

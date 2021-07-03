@@ -1,0 +1,27 @@
+{
+  "color": "#aa430a",
+  "category": "Pub/sub",
+  "inputs": 0,
+  "outputs": 1,
+  "properties": [
+    {
+      "name": "servers",
+      "type": "STRING",
+      "defaultValue": "localhost:9092",
+      "required": true
+    },
+    {
+      "name": "topic",
+      "type": "STRING",
+      "defaultValue": "test",
+      "required": true
+    },
+    {
+      "name": "offset",
+      "type": "STRING",
+      "defaultValue": "latest",
+      "variants": {"earliest":"Earliest", "latest":"Latest"},
+      "required": true
+    }
+  ]
+}

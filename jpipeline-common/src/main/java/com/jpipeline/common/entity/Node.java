@@ -50,7 +50,7 @@ public abstract class Node {
         onInit();
     }
 
-    public abstract void onInit();
+    public void onInit() {};
 
     protected final void setStatus(NodeStatus status) {
         this.status = status;
@@ -113,7 +113,7 @@ public abstract class Node {
         }
     }
 
-    public abstract void onInput(JPMessage message);
+    public void onInput(JPMessage message) {};
 
     public void pressButton() {};
 
