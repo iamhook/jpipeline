@@ -1,1 +1,69 @@
-{"nodes":[{"id":"2c6b10a5-6add-4180-8008-4b7db94e549e","type":"DebugNode","active":true,"properties":{},"outputs":[],"color":"#0c690a","x":700.0,"y":400.0,"hasButton":false,"hasInput":true},{"id":"d442afa0-6c89-47bb-baf6-d085ac6dd3d7","type":"KafkaConsumerNode","active":true,"properties":{"servers":"kafka1.test.local:9092","topic":"test","offset":"latest"},"outputs":[["2c6b10a5-6add-4180-8008-4b7db94e549e"]],"color":"#aa430a","x":200.0,"y":200.0,"hasButton":false,"hasInput":false},{"id":"1a5ae64a-a2e4-4c5f-9057-c5a8d33c287f","type":"KafkaProducerNode","active":true,"properties":{"servers":"kafka1.test.local:9092","topic":"test"},"outputs":[],"color":"#aa430a","x":220.0,"y":400.0,"hasButton":false,"hasInput":true},{"id":"b506dc84-3056-4f31-8bd0-d668f9dc71ea","type":"InjectNode","active":true,"properties":{"payload":"hello, world!"},"outputs":[["1a5ae64a-a2e4-4c5f-9057-c5a8d33c287f"]],"color":"#0ac6ff","x":30.0,"y":360.0,"hasButton":true,"hasInput":false}]}
+{
+  "nodes": [
+    {
+      "id": "2c6b10a5-6add-4180-8008-4b7db94e549e",
+      "type": "DebugNode",
+      "active": true,
+      "properties": {},
+      "outputs": [],
+      "color": "#0c690a",
+      "x": 700.0,
+      "y": 400.0,
+      "hasButton": false,
+      "hasInput": true
+    },
+    {
+      "id": "d442afa0-6c89-47bb-baf6-d085ac6dd3d7",
+      "type": "KafkaConsumerNode",
+      "active": true,
+      "properties": {
+        "servers": "kafka1.test.local:9095,kafka2.test.local:9096,kafka3.test.local:9097",
+        "topic": "test",
+        "offset": "latest"
+      },
+      "outputs": [
+        [
+          "2c6b10a5-6add-4180-8008-4b7db94e549e"
+        ]
+      ],
+      "color": "#aa430a",
+      "x": 200.0,
+      "y": 200.0,
+      "hasButton": false,
+      "hasInput": false
+    },
+    {
+      "id": "1a5ae64a-a2e4-4c5f-9057-c5a8d33c287f",
+      "type": "KafkaProducerNode",
+      "active": true,
+      "properties": {
+        "servers": "kafka1.test.local:9095,kafka2.test.local:9096,kafka3.test.local:9097",
+        "topic": "test"
+      },
+      "outputs": [],
+      "color": "#aa430a",
+      "x": 220.0,
+      "y": 400.0,
+      "hasButton": false,
+      "hasInput": true
+    },
+    {
+      "id": "b506dc84-3056-4f31-8bd0-d668f9dc71ea",
+      "type": "InjectNode",
+      "active": true,
+      "properties": {
+        "payload": "hello, world!"
+      },
+      "outputs": [
+        [
+          "1a5ae64a-a2e4-4c5f-9057-c5a8d33c287f"
+        ]
+      ],
+      "color": "#0ac6ff",
+      "x": 30.0,
+      "y": 360.0,
+      "hasButton": true,
+      "hasInput": false
+    }
+  ]
+}

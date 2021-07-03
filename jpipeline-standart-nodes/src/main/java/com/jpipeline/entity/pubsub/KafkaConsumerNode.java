@@ -37,7 +37,7 @@ public class KafkaConsumerNode extends Node {
         Flux<ReceiverRecord<Integer, String>> inboundFlux = kafkaReceiver.receive();
 
         inboundFlux.subscribe(r -> {
-            send(new JPMessage(r));
+            send(new JPMessage(r.value()));
             r.receiverOffset().acknowledge();
         });
     }
